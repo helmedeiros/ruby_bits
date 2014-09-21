@@ -3,21 +3,65 @@ ruby_bits
 
 Code School - Learn the core bits every Ruby programmer should know
 
-### LEVEL 1 - Expressions
-##### An overview of best practices for writing expressions in Ruby
+## LEVEL 1 - Expressions
+#### An overview of best practices for writing expressions in Ruby
+
+There are lots of sugar syntax smelting across ruby let's see some of them:
+
+###### - Unless:
+Sometimes you may wan't to settle logic over an negative assumption. On those cases instead of using the negative of a certain expression you can use `unless`.
+
+**Ex.:**
+bad code:
+```ruby
+  if ! books.empty?
+    puts "Our books:"
+    puts books
+  end
+```
+good code:
+```ruby
+  unless books.empty?
+    puts "Our books:"
+    puts books
+  end
+```
+
+*ps.:* If, for any reason, you come to need an else over this, is it better to switch back to `if` and `else` starting with affirmative conditions instead.
 
 
-### LEVEL 2 - Methods and Classes
-##### passing optional arguments, raising exceptions, using begin/rescue/end, attr_accessor vs. attr_reader
+###### - NIL is FALSE:
 
-### LEVEL 3
-##### Encapsulation, instance & private methods, inheritance, and refactoring
+In ruby `NIL` is treated as `FALSE` when it comes to conditions.
 
-### LEVEL 4
-##### Helpers that are built on top of the Ruby Language (arrays, dates, hashes, numbers, and strings
+**Ex.:**
+bad code:
+```ruby
+  if attachment.file_path != nil
+    attachment.post
+  end
+```
 
-### LEVEL 5
-##### Namespacing methods, Mixins vs. class inheritance, method hooks, ActiveSupport::Concern
+good code:
+```ruby
+  if attachment.file_path
+    attachment.post
+  end
+```
+*ps.:* Be careful because sometimes what you think will be evaluated in one way goes to another. `""` treated as `true`; `0` treated as `true`; `[]` treated as `true`;
 
-### LEVEL 6
-##### Iterating and yielding, passing arguments, returning variables, Enumerable, and refactoring
+
+## LEVEL 2 - Methods and Classes
+#### Passing optional arguments, raising exceptions, using begin/rescue/end, attr_accessor vs. attr_reader
+
+## LEVEL 3
+#### Encapsulation, instance & private methods, inheritance, and refactoring
+
+## LEVEL 4
+#### Helpers that are built on top of the Ruby Language (arrays, dates, hashes, numbers, and strings
+
+## LEVEL 5
+#### Namespacing methods, Mixins vs. class inheritance, method hooks, ActiveSupport::Concern
+
+## LEVEL 6
+#### Iterating and yielding, passing arguments, returning variables, Enumerable, and refactoring
