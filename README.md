@@ -50,6 +50,25 @@ good code:
 ```
 *ps.:* Be careful because sometimes what you think will be evaluated in one way goes to another. `""` treated as `true`; `0` treated as `true`; `[]` treated as `true`;
 
+###### - INLINE:
+
+Some times you'll need to test some conditions, and for make it readable so you can try inline `if`/`unless`.
+
+**Ex.:**
+bad code:
+```ruby
+  if password.length < 9
+
+  end
+  unless username
+    fail "No user name set";
+```
+good code:
+```ruby
+  fail "Password too short" if password.length < 9
+  fail "No user name set" unless username
+```
+
 
 ## LEVEL 2 - Methods and Classes
 #### Passing optional arguments, raising exceptions, using begin/rescue/end, attr_accessor vs. attr_reader
