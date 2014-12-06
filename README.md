@@ -99,6 +99,18 @@ good code:
   end
 ```
 
+###### - SHORT-CIRCUIT - "ASSIGNMENT":
+
+When you're assigning somethin to a variable is ruby, is important that you keep in mind the evaluation sequence. If you have a double AND, the second statement will be only be evaluated when first was true; when you have a false, it will be evaluate only when it has a false;
+
+**Ex.:**
+
+```ruby
+  result = nill || 1 #result is 1
+  result = 1 || nill #result is 1
+  result = 1 || 2  #result is 1
+```
+
 LEVEL 2 - Methods and Classes
 -----------------------------
 
