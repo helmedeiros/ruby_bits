@@ -122,6 +122,24 @@ good code:
   tweets = timeline.tweets || []
 ```
 
+*ps.:* You can use this conditional assignments to set defaults to variables.
+
+**Ex.:** bad code
+
+```ruby
+  options[:country] = 'us' if options[:country].nill?
+  options[:privacy] = true if options[:privacy].nill?
+  options[:geotag] = true if options[:geotag].nill?
+```
+
+good code:
+
+```ruby
+  options[:country] ||= 'us' #it verifies about bee nil and than assign it.
+  options[:privacy] ||= true
+  options[:geotag] ||= true
+```
+
 LEVEL 2 - Methods and Classes
 -----------------------------
 
