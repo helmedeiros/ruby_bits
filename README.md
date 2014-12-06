@@ -79,7 +79,7 @@ good code:
 
 ###### - SHORT-CIRCUIT - "AND":
 
-The logical *AND* is expressed in Ruby as `&&`, and it work only evaluating a second statement when first is false. Maybe sometimes you'll have two levels of `if` that can be keep together, using the *AND*.
+The logical *AND* is expressed in Ruby as `&&`, and it work only evaluating a second statement when first is true. Maybe sometimes you'll have two levels of `if` that can be keep together, using the *AND*.
 
 **Ex.:** bad code:
 
