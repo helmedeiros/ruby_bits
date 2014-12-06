@@ -77,6 +77,28 @@ good code:
   fail "No user name set" unless username
 ```
 
+###### - SHORT-CIRCUIT - "AND":
+
+The logical *AND* is expressed in Ruby as `&&`, and it work only evaluating a second statement when first is false. Maybe sometimes you'll have two levels of `if` that can be keep together, using the *AND*.
+
+**Ex.:** bad code:
+
+```ruby
+  if user
+    if user.loged_in?
+      #
+    end
+  end
+```
+
+good code:
+
+```ruby
+  if user && user.loged_in?
+    #
+  end
+```
+
 LEVEL 2 - Methods and Classes
 -----------------------------
 
