@@ -101,7 +101,7 @@ good code:
 
 ###### - SHORT-CIRCUIT - "ASSIGNMENT":
 
-When you're assigning somethin to a variable is ruby, is important that you keep in mind the evaluation sequence. If you have a double AND, the second statement will be only be evaluated when first was true; when you have a false, it will be evaluate only when it has a false;
+When you're assigning something to a variable is ruby, is important that you keep in mind the evaluation sequence. If you have a double AND, the second statement will be only be evaluated when first was true; when you have a false, it will be evaluate only when it has a false;
 
 ```ruby
 result = nill || 1 #result is 1
@@ -144,6 +144,36 @@ LEVEL 2 - Methods and Classes
 -----------------------------
 
 #### Passing optional arguments, raising exceptions, using begin/rescue/end, attr_accessor vs. attr_reader
+
+There are lots of sugar syntax smelting across ruby let's see some of them:
+
+###### - Optional Arguments:
+
+Sometimes we could have a method with multiple arguments, but only a few of them will be always sent. This kind of method is difficult to read, and also to use, when isn't clear what all those parameters are.
+
+Traditionally the calls for such method will be fulled of nil. In ruby there is 3 main ways to get around that:
+
+####### - Default Arguments:
+
+To set defaults to your method's parameters you should atribute the default value as you right down the method interface and parameters declaration, so every time you call this methods won't be necessary to set them.
+
+**Ex.:** bad code:
+
+```ruby
+def tweet(message, lat, long)
+  #...
+end
+
+tweet("Practicing Ruby!", nil, nil)
+```
+
+good code:
+
+```ruby
+def tweet(message, lat = nil, long = nil)
+  #...
+end
+```
 
 LEVEL 3
 -------
