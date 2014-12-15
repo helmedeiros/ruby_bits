@@ -175,6 +175,33 @@ def tweet(message, lat = nil, long = nil)
 end
 ```
 
+####### - Named Arguments:
+
+When you start to have more and more arguments, sometimes is difficult to go around them only using defaults. So many times in a set of 4 arguments only the last one is required, and for that you will have to set placeholders for them, even you'he them managed with defaults. One way to solved that is using hash argument, setting whats necessary with its references keys.
+
+**Ex.:** bad code:
+
+```ruby
+def tweet(message, lat = nil, long = nil, reply_id = nil)
+  #...
+end
+
+tweet("Practicing Ruby!", nil, nil, 227946)
+```
+
+good code:
+
+```ruby
+def tweet(message, options = {})
+  status = Status.new
+  status.lat = options[:lat]
+  status.long = options[:long]
+  status.body = message
+  status.reply_id = options[:reply_id]
+  status.post
+end
+```
+
 LEVEL 3
 -------
 
