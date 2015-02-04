@@ -246,6 +246,28 @@ rescue AuthorizationException
 end
 ```
 
+####### - "SPLAT" Arguments:
+
+There're sometimes that we need to send lots of same type arguments inside a method, in ruby you can use SPLAT arguments for that.
+
+**Ex.:** bad code:
+
+```ruby
+def mention(status, name1 = nil, name2 = nil)
+  #...
+end
+```
+
+good code:
+
+```ruby
+def mention(status, *name)
+  tweet("#{names.join(' ')} #{status}")
+end
+
+mention('Your courses rocked!', 'eallam', 'greggpollack')
+```
+
 LEVEL 3
 -------
 
