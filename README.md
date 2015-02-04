@@ -200,6 +200,50 @@ def tweet(message, options = {})
   status.reply_id = options[:reply_id]
   status.post
 end
+
+tweet("Practicing Ruby!",
+  :reply_id => 227946
+ )
+```
+
+####### - Raise Exception:
+
+Sometimes we need to keep it clear that our code is facing and handling an error, and we can do that creating different kinds of objects, ruby as some other languages has an appropriated implementation pattern for that, they're the `Exceptions`. using exceptions is cleared to callers what is expected to be causing errors, handling them as the same.
+
+**Ex.:** bad code:
+
+```ruby
+def get_tweets(list)
+  if list.authorized?(@user)
+    list.tweets
+  else
+    []
+  end
+end
+
+tweets = get_tweets(my_list)
+if tweets.empty?
+  alert "No tweets were found!" +
+  "Are you authorized to access this list?"
+end
+```
+
+good code:
+
+```ruby
+def get_tweets(list)
+  unless list.authorized?(@user)
+    raise AuthorizationException.new
+  end
+
+  list.tweets
+end
+
+begin
+  tweets = get_tweets(my_list)
+rescue AuthorizationException
+  warn "You are not authorized to access to access this list."
+end
 ```
 
 LEVEL 3
