@@ -1,4 +1,4 @@
-def new_game(name, year, system)
+def new_game(name, year = nil, system = nil)
   {
     name: name,
     year: year,
@@ -6,5 +6,5 @@ def new_game(name, year, system)
   }
 end
 
-game = new_game("Street Figher II", nil, nil)
+game = new_game("Street Figher II")
 puts game
