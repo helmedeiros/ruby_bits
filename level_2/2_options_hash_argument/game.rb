@@ -1,8 +1,11 @@
-def new_game(name, year=nil, system=nil)
+def new_game(name, options = {})
   {
     name: name,
-    year: year,
-    system: system
+    year: options[:year],
+    system: options[:system]
   }
 end
-game = new_game("Street Figher II", "SNES", 1992)
+game = new_game("Street Figher II",
+  :system => "SNES",
+  :year => 1992)
+puts game
