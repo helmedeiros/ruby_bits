@@ -147,6 +147,8 @@ LEVEL 2 - Methods and Classes
 
 There are lots of sugar syntax smelting across ruby let's see some of them:
 
+##### METHODS:
+
 ###### - Optional Arguments:
 
 Sometimes we could have a method with multiple arguments, but only a few of them will be always sent. This kind of method is difficult to read, and also to use, when isn't clear what all those parameters are.
@@ -266,6 +268,52 @@ def mention(status, *name)
 end
 
 mention('Your courses rocked!', 'eallam', 'greggpollack')
+```
+
+##### CLASSES:
+
+Why do we need classes? Sometimes we do need to represent unique objects, with unique state, and that behave somehow unique over this state. For those cases ruby, as any other object oriented language, has classes.
+
+Imagine that you need to print the following user names, and each name is formed by first and surname. Imagine now that, at some point you got a celebrity that is only known by its artistic name, how to print its name? How to behave differently based in the internal state?
+
+**Ex.:** bad code:
+
+```ruby
+user_names = [
+  ["Ashton", "Kutcher"],
+  ["Wil", "Wheaton"],
+  ["Madonna"]
+]
+
+user_names.each { |n| puts "#{n[1]}, #{n[0]}"}
+
+Kutcher, Ashton
+Wheaton, Wil
+, Madonna
+```
+
+good code:
+
+```ruby
+class Name
+  def initialize(first, last = nil)
+    @first = first
+    @last = last
+  end
+  def format
+    [@last, @first].compact.join(', ')
+  end
+end
+
+user_names = []
+user_names << Name.new('Ashton', 'Kutcher')
+user_names << Name.new('Wil', 'Wheaton')
+user_names << Name.new('Madonna')
+user_names.each { |n| puts n.format }
+
+Kutcher, Ashton
+Wheaton, Wil
+Madonna
 ```
 
 LEVEL 3
