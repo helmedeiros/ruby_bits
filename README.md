@@ -316,6 +316,40 @@ Wheaton, Wil
 Madonna
 ```
 
+####### - Oversharing? Attribute accessor and reader
+
+As we've saw an object could have state and behaviour. Most of state will be modified as long as the object exists, for those rubby provides a `attr_accessor` which meand to create internal gets and setters for each listed attribute.
+
+```ruby
+class Tweet
+  attr_accessor :status, :created_at
+  def initialize(status)
+    @status = status
+    @created_at = Time.new
+  end
+end
+
+tweet = Tweet.new("Eating breakfast.")
+tweet.created_at = Time.new(2084,1,1)
+```
+
+Sometimes you don't need that every state change over time, some objects should be immutable instead, for those cases ruby provides another accessor called `attr_reader`. This one only implements getters for those informed attributes.
+
+```ruby
+class Tweet
+  attr_accessor :status
+  attr_reader :created_at
+  def initialize(status)
+    @status = status
+    @created_at = Time.new
+  end
+end
+
+tweet = Tweet.new("Eating breakfast.")
+tweet.created_at = Time.new(2084,1,1) #undefine method
+
+```
+
 LEVEL 3
 -------
 
