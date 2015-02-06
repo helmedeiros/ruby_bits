@@ -13,5 +13,9 @@ fifa2014 = new_game("Fifa",
   :system => "PS3",
   :year => 2014)
 
-puts fifa2014
-puts street_fight
+
+games = []
+games << street_fight
+games << fifa2014
+
+games.each { |n| puts n}
