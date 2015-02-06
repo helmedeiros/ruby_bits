@@ -5,7 +5,13 @@ def new_game(name, options = {})
     system: options[:system]
   }
 end
-game = new_game("Street Figher II",
+street_fight = new_game("Street Figher II",
   :system => "SNES",
   :year => 1992)
-puts game
+
+fifa2014 = new_game("Fifa",
+  :system => "PS3",
+  :year => 2014)
+
+puts fifa2014
+puts street_fight
