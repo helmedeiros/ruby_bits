@@ -1,5 +1,4 @@
 class Game
-  attr_accessor :name, :system, :year
   def initialize(name, options={})
     @name = name
     @system = options[:system]
