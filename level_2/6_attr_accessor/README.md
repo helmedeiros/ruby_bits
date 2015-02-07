@@ -17,4 +17,14 @@ class Game
   def name
     @name
   end
+
+  def year
+    @year
+  end
+
+  def system
+    @system
+  end
+end
+
 ```
