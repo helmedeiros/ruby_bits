@@ -110,3 +110,45 @@ leo = User.net 'leo'
 joe.up_vote(leo)
 
 ```
+
+####### - Inheritance:
+
+Sometimes you will face two classes with same behavior/state, for that O.O. will bring the inheritance concept. This will facilitate code reuse also allow independent extensions of the original software via public classes.
+
+**Code.:** See the example below, Images and Videos can have the same state/behavior and their code shows that equality.
+
+```ruby
+class Image
+  attr_accessor :title, :size, :url
+  def to_s
+    "#{@title}, {@size}"
+  end
+end
+
+class Video
+  attr_accessor :title, :size, :url
+  def to_s
+    "#{@title}, {@size}"
+  end
+end
+```
+
+**Code.:** Applying the `inheritance` concept, we could abstract their behaviour into a super class called `Attachment`.
+
+```ruby
+class Image < Attachment
+
+end
+
+class Video < Attachment
+
+end
+
+class Attachment
+  attr_acessor :title, :size, :url
+  def to_s
+
+    "#{@tilte}, #{@size}"
+  end
+end
+```
