@@ -39,3 +39,51 @@ def send_tweet(message)
   message.owner
 end
 ```
+
+####### - Visibility:
+
+Encapsulation is about selective hiding of properties and methods in an object, ruby allow us to do so setting different visibilities among class components. By default all methods are `public`, and if want to change that you need to use one of the three reserved scope words, public, private and protected. All of them affect all methods existing below the word. See the example below, we don't need bump_karma to be public, it will be used only internally, so we need to keep it pro
+
+**Code.:** See the example below, by ruby default the `bump_karma` method is public, when it should't.
+
+```ruby
+class User
+  def up_vote(friend)
+    bump_karma
+    friend.bump_karma
+  end
+
+  def bump_karma
+    puts "karma up for #{name}"
+  end
+end
+
+joe = User.new 'joe'
+leo = User.net 'leo'
+
+joe.up_vote(leo)
+
+```
+
+**Code.:** See the example below, by ruby default the `bump_karma` method is public, when it should't. We only want to be public the `up_vote`, for that we add a private statement above the `bump_karma`. But when we do that the sytem will break once it needs it to be protected instead, because it needs to call the `bump_karma` of `friend`.
+
+```ruby
+class User
+  def up_vote(friend)
+    bump_karma
+    friend.bump_karma
+  end
+
+  private
+
+  def bump_karma
+    puts "karma up for #{name}"
+  end
+end
+
+joe = User.new 'joe'
+leo = User.net 'leo'
+
+joe.up_vote(leo)
+
+```
