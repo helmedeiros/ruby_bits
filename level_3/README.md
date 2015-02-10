@@ -152,3 +152,23 @@ class Attachment
   end
 end
 ```
+
+**Code.:** A method could only make sense for an specific type. For that inheritance alows subclasses to have their fields, for that you only need to declare them into a subclass.
+
+```ruby
+class Image < Attachment
+
+end
+
+class Video < Attachment
+  attr_accessor :duration
+end
+
+class Attachment
+  attr_acessor :title, :size, :url
+  def to_s
+
+    "#{@tilte}, #{@size}"
+  end
+end
+```
