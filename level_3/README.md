@@ -172,3 +172,56 @@ class Attachment
   end
 end
 ```
+
+####### - Super:
+
+In O.O. code when you have inheritance, the class from where others extends is called super. And when you instantiate its subtypes, you should be aware to call its constructor so the attributes defined there could be set.
+
+**Code.:** See the example below, the `Follower` is a kind of `User`, and only a Follower have a `following` attribute, while any `User` has a `name`. For that don't forget to call the super constructor. Otherwise the `name` attribute will be shown as blank.
+
+**BAD Code.:**
+
+```ruby
+class User
+  def initialize(name)
+    @name = name
+  end
+end
+
+class Follower < User
+  def initialize(name, following)
+    @following = following
+  end
+  def relationship
+    "#{@name} follows #{@following}"
+  end
+end
+
+follower = Follower.new("Oprah", "aplusk")
+follower.relationship
+
+## output: " follows aplusk"
+```
+
+**GOOD Code.:**
+
+```ruby
+class User
+  def initialize(name)
+    @name = name
+  end
+end
+
+class Follower < User
+  def initialize(name, following)
+    @following = following
+    super(name)
+  end
+  def relationship
+    "#{@name} is following #{@following}"
+  end
+end
+
+follower = Follower.new("Oprah", "aplusk")
+follower.relationship
+```
