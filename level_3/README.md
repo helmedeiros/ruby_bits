@@ -153,7 +153,7 @@ class Attachment
 end
 ```
 
-**Code.:** A method could only make sense for an specific type. For that inheritance alows subclasses to have their fields, for that you only need to declare them into a subclass.
+**Code.:** A method could only make sense for an specific type. For that inheritance allows subclasses to have their attributes, for that you only need to declare them into a subclass.
 
 ```ruby
 class Image < Attachment
