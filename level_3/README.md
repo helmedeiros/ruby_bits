@@ -225,3 +225,46 @@ end
 follower = Follower.new("Oprah", "aplusk")
 follower.relationship
 ```
+
+How does super is able to find the correct method in one of those parent `classes`?
+
+**Code.:** See the example below, we have three levels of inheritance `Grandparent`, `Parent` and `Child`. When you call `super` ruby will try to call the same method in the `super class`, if it also has a `super` it goes until find an end. And will return it to be used where it was called.
+
+```ruby
+class Grandparent
+  def my_method
+    "Grandparent: my_method called"
+  end
+end
+
+class Parent < Grandparent
+end
+
+class Child < Parent
+  def my_method
+    string = super
+    "#{string}\nChild: my_method called"
+  end
+end
+
+child = Child.new
+child.my_method
+
+# output: Grandparent: my_method called
+# =>            Child: my_method called
+```
+
+**Code.:** Sometimes you may want to pass all `arguments` to its super. On those cases you just need to keep it without no arguments during the call, in ruby when you don't pass no arguments calling a super it will pass all arguments.
+
+\`\``ruby class Grandparent def my_method(argument) "Grandparent: #{argument}" end end
+
+class Parent < Grandparent end
+
+class Child < Parent def my_method(argument) string = super "#{string}\nChild: #{argument}" end end
+
+child = Child.new child.my_method("abc")
+
+#output: => "Grandparent: abc
+
+=> Child: abc"
+==============
