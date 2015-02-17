@@ -251,20 +251,68 @@ child = Child.new
 child.my_method
 
 # output: Grandparent: my_method called
-# =>            Child: my_method called
+# =>      Child: my_method called
 ```
 
-**Code.:** Sometimes you may want to pass all `arguments` to its super. On those cases you just need to keep it without no arguments during the call, in ruby when you don't pass no arguments calling a super it will pass all arguments.
+**Code.:** Sometimes you may want to pass all arguments to its super. On those cases you just need to keep it without no arguments during the call, in ruby when you don't pass no arguments calling a super it will pass all arguments.
 
-\`\``ruby class Grandparent def my_method(argument) "Grandparent: #{argument}" end end
+```ruby
+class Grandparent
+  def my_method(argument)
+    "Grandparent: #{argument}"
+  end
+end
 
-class Parent < Grandparent end
+class Parent < Grandparent
+end
 
-class Child < Parent def my_method(argument) string = super "#{string}\nChild: #{argument}" end end
+class Child < Parent
+  def my_method(argument)
+    string = super
+    "#{string}\nChild: #{argument}"
+  end
+end
 
-child = Child.new child.my_method("abc")
+child = Child.new
+child.my_method("abc")
 
-#output: => "Grandparent: abc
+#output: "Grandparent: abc
+# =>      Child: abc"
+```
 
-=> Child: abc"
-==============
+####### - Overriding Methods:
+
+In O.O. there are sometimes that we wan't to replaces the implementation in the superclass by providing a new behaviour. To do so, in ruby we need to provide to subclasses methods that has the same name, same parameters or signature.
+
+**Code.:** See the example below, the `Attachment` class has a specific logic for preview, given its `@type` it should preview an specific way.
+
+**BAD Code.:** Use case to chose between types was always a poor choice, once it'll have to performe the same conditional block trying to discover how to deal with a given request.
+
+```ruby
+class Attachment
+  def preview
+    case @type
+    when :jpg, :png, :gif
+      thumbnail
+    when :mp3
+      player
+    end
+  end
+end
+```
+
+**GOOD Code.:** We could discover the main scenario for the given preview, setting it as default behaviour and made the subclasses implement its specific logical solution.
+
+```ruby
+class Attachment
+  def preview
+      thumbnail
+  end
+end
+
+class Audio < Attachment
+  def preview
+    player
+  end
+end
+```
