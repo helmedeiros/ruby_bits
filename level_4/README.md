@@ -36,3 +36,14 @@ Returns the tail of the array from position.
   array.from(3) # => ['d', 'e', 'f', 'g']
   array.from(-2) # => ['f', 'g']
 ```
+
+######to(position) ⇒ Object
+
+Returns the beginning of the array up to position.
+
+```ruby
+  array = ['a', 'b', 'c', 'd', 'e', 'f', 'g']
+  array.to(0) # => ['a']
+  array.to(3) # => ['a', 'b', 'c', 'd']
+  array.to(-3) # => ['a', 'b', 'c','d', 'e']
+```
