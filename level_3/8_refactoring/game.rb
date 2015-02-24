@@ -9,21 +9,21 @@ class Game
   end
 
   def to_s
-    description
+    self.name
   end
 
   def description
-    "#{self.name} was released in #{self.year}."
+    "#{self} was released in #{self.year}."
   end
 end
 
 class ConsoleGame < Game
   def to_s
-    description
+    "#{super} - #{self.system}"
   end
 
   def description
-    "#{self.name} - #{self.system} was released in #{self.year}."
+    "#{self} was released in #{self.year}."
   end
 end
 
