@@ -47,3 +47,14 @@ Returns the beginning of the array up to position.
   array.to(3) # => ['a', 'b', 'c', 'd']
   array.to(-3) # => ['a', 'b', 'c','d', 'e']
 ```
+
+######in_groups_of(number, fill_with = nil) ⇒ Object
+
+Splits or iterates over the array in groups of size number, padding any remaining slots with fill_with unless it is false.
+
+```ruby
+  array = ['a', 'b', 'c', 'd', 'e', 'f', 'g']
+  array.in_groups_of(0) # ERROR
+  array.in_groups_of(1) # => ["a"] ["b"] ["c"] ["d"] ["e"] ["f"] ["g"]
+  array.in_groups_of(2) # => ["a", "b"] ["c", "d"] ["e", "f"] ["g", nil]
+```
