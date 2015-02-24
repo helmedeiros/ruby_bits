@@ -21,3 +21,18 @@ After that, inside your ruby file you will need to load it. Is important to see 
 ```ruby
   require 'active_support/all'
 ```
+
+##### Core extensions: ARRAY
+
+Activesupport add tons of helpers for classes such `Array`. Remember that ruby allow us to open and extend any class as needed. Saying that, imagine that we have an array with 7 positions, and from where we need to create different subarrays combinations and split operations. Let's see how to do that using the `activesupport` helpers.
+
+######from(position) ⇒ Object
+
+Returns the tail of the array from position.
+
+```ruby
+  array = ['a', 'b', 'c', 'd', 'e', 'f', 'g']
+  array.from(0) # => ['a', 'b', 'c', 'd', 'e', 'f', 'g']
+  array.from(3) # => ['d', 'e', 'f', 'g']
+  array.from(-2) # => ['f', 'g']
+```
