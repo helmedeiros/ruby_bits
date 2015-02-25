@@ -58,3 +58,12 @@ Splits or iterates over the array in groups of size number, padding any remainin
   array.in_groups_of(1) # => ["a"] ["b"] ["c"] ["d"] ["e"] ["f"] ["g"]
   array.in_groups_of(2) # => ["a", "b"] ["c", "d"] ["e", "f"] ["g", nil]
 ```
+
+######split(value = nil) ⇒ Object
+
+Divides the array into one or more subarrays based on a delimiting value or the result of an optional block.
+
+```ruby
+  array = ['a', 'b', 'c', 'd', 'e', 'f', 'g']
+  array.split('c') # => [["a", "b"], ["d", "e", "f", "g"]]
+```
