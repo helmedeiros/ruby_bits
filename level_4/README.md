@@ -68,9 +68,9 @@ Divides the array into one or more subarrays based on a delimiting value or the 
   array.split('c') # => [["a", "b"], ["d", "e", "f", "g"]]
 ```
 
-##### Core extensions: Date
+##### Core extensions: Date and DateTime
 
-Activesupport add tons of helpers for classes such `Date`. Remember that ruby allow us to open and extend any class as needed. Saying that, imagine that we have a date, and we want to know what is the next, previous or even the first day of the current week. Let's see how to do that using the `activesupport` helpers.
+Activesupport add tons of helpers for classes such as `Date` and `DateTime`. Remember that ruby allow us to open and extend any class as needed. Saying that, imagine that we have a date, and we want to know what is the next, previous or even the first day of the current week. Let's see how to do that using the `activesupport` helpers.
 
 #######at_beginning_of_day ⇒ Object
 
@@ -79,4 +79,13 @@ Converts Date to a Time (or DateTime if necessary) with the time portion set to 
 ```ruby
   apocalypse = DateTime.new(2012, 12, 21, 14, 27, 45)
   puts apocalypse.at_beginning_of_day # => 2012-12-21T00:00:00+00:00
+```
+
+#######at_end_of_month ⇒ Object
+
+Converts Date to a Time (or DateTime if necessary) with the time portion set to the end of the las day of the current month (23:59:59)
+
+```ruby
+  apocalypse = DateTime.new(2012, 12, 21, 14, 27, 45)
+  puts apocalypse.at_end_of_month # => 2012-12-31T23:59:59+00:00
 ```
