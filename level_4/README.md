@@ -98,3 +98,17 @@ Converts Date to a Time (or DateTime if necessary) with the time portion set to 
   apocalypse = DateTime.new(2012, 12, 21, 14, 27, 45)
   puts apocalypse.at_beginning_of_year # => 2012-01-01T00:00:00+00:00
 ```
+
+#######advance(options) ⇒ Object
+
+Uses Date to provide precise Time calculations for years, months, and days. The options parameter takes a hash with any of these keys: `:years`, `:months`, `:weeks`, `:days`, `:hours`, `:minutes`, `:seconds`.
+
+```ruby
+apocalypse = DateTime.new(2012, 12, 21, 14, 27, 45)
+puts apocalypse.advance(years: 1) # => 2013-12-21T14:27:45+00:00
+puts apocalypse.advance(months: 2) # => 2013-02-21T14:27:45+00:00
+puts apocalypse.advance(weeks: 3) # => 2013-01-11T14:27:45+00:00
+puts apocalypse.advance(days: 4) # => 2012-12-25T14:27:45+00:00
+puts apocalypse.advance(years: 1, months: 2, weeks: 3, days: 4) # => 2014-03-18T14:27:45+00:00
+
+```
