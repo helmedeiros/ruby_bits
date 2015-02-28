@@ -83,9 +83,18 @@ Converts Date to a Time (or DateTime if necessary) with the time portion set to 
 
 #######at_end_of_month ⇒ Object
 
-Converts Date to a Time (or DateTime if necessary) with the time portion set to the end of the las day of the current month (23:59:59)
+Converts Date to a Time (or DateTime if necessary) with the time portion set to the end of the last day of the current month (23:59:59)
 
 ```ruby
   apocalypse = DateTime.new(2012, 12, 21, 14, 27, 45)
   puts apocalypse.at_end_of_month # => 2012-12-31T23:59:59+00:00
+```
+
+#######at_beginning_of_year ⇒ Object
+
+Converts Date to a Time (or DateTime if necessary) with the time portion set to the end of the first day of the current year (00:00)
+
+```ruby
+  apocalypse = DateTime.new(2012, 12, 21, 14, 27, 45)
+  puts apocalypse.at_beginning_of_year # => 2012-01-01T00:00:00+00:00
 ```
