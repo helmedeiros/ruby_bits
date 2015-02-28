@@ -138,3 +138,19 @@ apocalypse = DateTime.new(2012, 12, 21, 14, 27, 45)
 puts apocalypse.yesterday # => 2012-12-20T14:27:45+00:00
 
 ```
+
+##### Core extensions: Hash
+
+Activesupport add tons of helpers for classes such as `Hash`. Remember that ruby allow us to open and extend any class as needed. Saying that, imagine that we have a hash, and we want to compare it with another, or have our keys as strings. Let's see how to do that using the `activesupport` helpers.
+
+#######stringify_keys ⇒ Object
+
+Returns a new hash with all keys converted to strings.
+
+```ruby
+  require 'active_support/all'
+
+  hash = { name: 'Rob', age: '28' }
+  puts hash.stringify_keys
+
+```
