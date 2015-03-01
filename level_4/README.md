@@ -141,7 +141,23 @@ puts apocalypse.yesterday # => 2012-12-20T14:27:45+00:00
 
 ##### Core extensions: Hash
 
-Activesupport add tons of helpers for classes such as `Hash`. Remember that ruby allow us to open and extend any class as needed. Saying that, imagine that we have a hash, and we want to compare it with another, or have our keys as strings. Let's see how to do that using the `activesupport` helpers.
+Activesupport add tons of helpers for classes such as `Hash`. Remember that ruby allow us to open and extend any class as needed. Saying that, imagine that we receive a option hash, and we want to set some default values, or have its keys as strings. Let's see how to do that using the `activesupport` helpers.
+
+#######reverse_merge(other_hash) ⇒ Object
+
+Merges the caller into other_hash.
+
+```ruby
+  require 'active_support/all'
+
+  def user(options={})
+    defaults = {lang: "pt-br", country: "br"}
+    options.reverse_merge(defaults)
+  end
+
+  puts user({lang: "en", user: "helmedeiros"})
+
+```
 
 #######stringify_keys ⇒ Object
 
