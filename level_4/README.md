@@ -189,19 +189,28 @@ Returns a hash that includes everything but the given keys.
 
 ```
 
-#######except(keys) ⇒ Object
+#######.odd and .even
 
-Returns a hash that includes everything but the given keys.
+Turn esay and verbose to identify when a number is even or odd.
 
 ```ruby
   require 'active_support/all'
 
-  def user(options={})
-    options.assert_valid_keys(:user, :lang, :country)
-    defaults = {lang: "pt-br", country: "br"}
-    options.reverse_merge(defaults)
+  def background_class(index)
+    return 'white' if index.odd?
+    return 'grey' if index.even?
   end
 
-  puts user({lang: "en", user: "helmedeiros", try: "hack"})
+  tweets = ["abc", "easy", "123", "simple", "DOREMI"]
+
+  tweets.each_with_index do |tweet, index|
+    puts "<div class='#{background_class(index)}'>#{tweet}</div>"
+  end
+
+  # => <div class='grey'>abc</div>
+  # => <div class='white'>easy</div>
+  # => <div class='grey'>123</div>
+  # => <div class='white'>simple</div>
+  # => <div class='grey'>DOREMI</div>
 
 ```
