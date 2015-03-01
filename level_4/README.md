@@ -188,3 +188,20 @@ Returns a hash that includes everything but the given keys.
   puts "Users configuration: #{my_user.except(:user)}"
 
 ```
+
+#######except(keys) ⇒ Object
+
+Returns a hash that includes everything but the given keys.
+
+```ruby
+  require 'active_support/all'
+
+  def user(options={})
+    options.assert_valid_keys(:user, :lang, :country)
+    defaults = {lang: "pt-br", country: "br"}
+    options.reverse_merge(defaults)
+  end
+
+  puts user({lang: "en", user: "helmedeiros", try: "hack"})
+
+```
