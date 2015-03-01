@@ -218,3 +218,19 @@ Turn esay and verbose to identify when a number is even or odd.
 ##### Inflector
 
 The Inflector transforms words from singular to plural, class names to table names, modularized class names to ones without, and class names to foreign keys.
+
+#######ordinalize(number) ⇒ Object
+
+Turns a number into an ordinal string used to denote the position in an ordered sequence such as 1st, 2nd, 3rd, 4th.
+
+```ruby
+  require 'active_support/all'
+
+  puts 1.ordinalize     # => "1st"
+  puts 2.ordinalize     # => "2nd"
+  puts 1002.ordinalize  # => "1002nd"
+  puts 1003.ordinalize  # => "1003rd"
+  puts -11.ordinalize   # => "-11th"
+  puts -1021.ordinalize # => "-1021st"
+
+```
