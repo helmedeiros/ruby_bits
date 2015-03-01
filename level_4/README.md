@@ -170,3 +170,21 @@ Returns a new hash with all keys converted to strings.
   puts hash.stringify_keys
 
 ```
+
+#######except(keys) ⇒ Object
+
+Returns a hash that includes everything but the given keys.
+
+```ruby
+  require 'active_support/all'
+
+  def user(options={})
+    defaults = {lang: "pt-br", country: "br"}
+    options.reverse_merge(defaults)
+  end
+
+  my_user = user({lang: "en", user: "helmedeiros"})
+
+  puts "Users configuration: #{my_user.except(:user)}"
+
+```
