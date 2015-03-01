@@ -234,3 +234,18 @@ Turns a number into an ordinal string used to denote the position in an ordered 
   puts -1021.ordinalize # => "-1021st"
 
 ```
+
+#######pluralize(word, locale = :en) ⇒ Object
+
+Returns the plural form of the word in the string. You can send an optional locale parameter, the word will be pluralized using rules defined for that language. By default, this parameter is set to :en.
+
+```ruby
+  require 'active_support/all'
+
+  puts 'post'.pluralize             # => "posts"
+  puts 'octopus'.pluralize          # => "octopi"
+  puts 'sheep'.pluralize            # => "sheep"
+  puts 'words'.pluralize            # => "words"
+  puts 'CamelOctopus'.pluralize     # => "CamelOctopi"
+
+```
