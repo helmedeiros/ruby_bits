@@ -249,3 +249,15 @@ Returns the plural form of the word in the string. You can send an optional loca
   puts 'CamelOctopus'.pluralize     # => "CamelOctopi"
 
 ```
+
+#######titleize(word) ⇒ Object
+
+Capitalizes all the words and replaces some characters in the string to create a nicer looking title. titleize is meant for creating pretty output.
+
+```ruby
+  require 'active_support/all'
+
+  puts "ruby bits".titleize             # => Ruby Bits
+  puts "x-men: the last stand".titleize # => X Men: The Last Stand
+
+```
