@@ -261,3 +261,18 @@ Capitalizes all the words and replaces some characters in the string to create a
   puts "x-men: the last stand".titleize # => X Men: The Last Stand
 
 ```
+
+#######humanize(lower_case_and_underscored_word, options = {}) ⇒ Object
+
+Tweaks an attribute name for display to end users.
+
+```ruby
+  require 'active_support/all'
+
+  puts "ruby bits".humanize # => Ruby bits
+  puts "x-men: the last stand".humanize # => X-men: the last stand
+  puts "author_id".humanize # => Author
+  puts "_id".humanize # => Id
+  puts "employ_salary".humanize # => Employ salary
+
+```
