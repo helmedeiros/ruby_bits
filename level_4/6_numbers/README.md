@@ -20,5 +20,4 @@ Refactor the describe_count method below to use ActiveSupport in order to find o
   games = ["Super Mario Bros.", "Contra", "Metroid", "Mega Man 2"]
   puts describe_count(games)
 
-
 ```
