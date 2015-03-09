@@ -32,3 +32,29 @@ RUN.RB
   image = user.image
   preview(image)
 ```
+
+A wrapper file could represent a big problem when by default Ruby set all its identifies together in a global scope. First it pollutes the global namespace. Also generating potential conflicts with methods with same name.
+
+One way to solve that is wrapping them over a module, doing that we set all of them over the prefixed module name. See the following example
+
+IMAGE_UTILS.RB
+
+```ruby
+  module  ImageUtils
+    def preview(image)
+
+    end
+    def transfer(image, destination)
+
+    end  
+  end
+```
+
+RUN.RB
+
+```ruby
+  require 'image_utils'
+
+  image = user.image
+  ImageUtils.preview(image)
+```
