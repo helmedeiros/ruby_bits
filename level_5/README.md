@@ -58,3 +58,43 @@ RUN.RB
   image = user.image
   ImageUtils.preview(image)
 ```
+
+##### Mixin
+
+A common pattern in Ruby is to `include` modules inside classes, this will expose the methods as instances methods on the current class.
+
+IMAGE_UTILS.RB
+
+```ruby
+  module  ImageUtils
+    def preview
+
+    end
+    def transfer(destination)
+
+    end  
+  end
+```
+
+AVATAR.RB
+
+```ruby
+  require 'image_utils'
+
+  class Image
+    include ImageUtils
+  end
+
+```
+
+RUN.RB
+
+```ruby
+  require 'avatar'
+
+  image = user.image
+  image.preview
+
+```
+
+Note that when we do so, the included class gain access to the including atributes and methods. Saying that, we don't need to send them as parameters anymore.
