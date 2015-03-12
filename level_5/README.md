@@ -211,3 +211,24 @@ Sometimes we could have a class that only expose methods as class methods, for t
 
   Tweet.find_all_from('@helmedeiros')
 ```
+
+##### Mixin - Instance methods from an Object
+
+Sometimes we'll only be expecting a object to behave like some module, not all instaciated objects from a specific class. For that we can also use `mixin`, but instead of `extend` or `include` it from its class, we'll do so after instantiation, directly into the new object.
+
+```ruby
+  module ImageUtils
+    def preview
+    end
+  end
+
+  class Image
+  end
+
+  image = Image.new
+  image.extend(ImageUtils)
+  image.preview
+
+  image = Image.new
+  image.preview # => NoMethodError: undefined method 'preview for #<Image:0x123b123a12>'
+```
