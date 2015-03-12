@@ -98,3 +98,23 @@ RUN.RB
 ```
 
 Note that when we do so, the included class gain access to the including atributes and methods. Saying that, we don't need to send them as parameters anymore.
+
+##### Ancestors
+
+When we include a module in a class, what is happinig is that the module is being injected inside the ancestors class.
+
+AVATAR.RB
+
+```ruby
+  require 'image_utils'
+
+  class Image
+    include ImageUtils
+  end
+
+```
+
+```ruby
+  Image.ancestors  # => [Image, ImageUtils, Object, Kernel, BasicObject]
+  Image.included_modules # =>   [ImageUtils, Kernel]
+```
