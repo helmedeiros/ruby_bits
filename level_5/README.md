@@ -194,3 +194,20 @@ good code - mixin allowing code reuse from more than one source:
     end
   end
 ```
+
+##### Mixin - Class Methods
+
+Sometimes we could have a class that only expose methods as class methods, for those cases we'll need to do so not using `include` but `extend` instead.
+
+```ruby
+  module Searchable
+    def find_all_from(user)
+    end
+  end
+
+  class Tweet
+    extend Searchable
+  end
+
+  Tweet.find_all_from('@helmedeiros')
+```
