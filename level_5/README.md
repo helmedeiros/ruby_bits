@@ -118,3 +118,79 @@ AVATAR.RB
   Image.ancestors  # => [Image, ImageUtils, Object, Kernel, BasicObject]
   Image.included_modules # =>   [ImageUtils, Kernel]
 ```
+
+##### Mixin vs Class Inheritance
+
+Looking at how mixin happens, you should be asking yourself: when will I choose mixin rather than inheritance? Remember that in ruby a class can only have one superclass, and it should always suggest a specialization. See the example below. On it our first move to remove duplication could be inheritance, but we don't have specialization, so we should preter to apply mixin instead.
+
+**Ex.:** bad code - With duplicated code:
+
+```ruby
+  class Post
+    def share_on_facebook
+    end
+  end
+
+  class Image
+    def share_on_facebook
+    end
+  end
+
+  class Tweet
+    def share_on_facebook
+    end
+  end
+```
+
+**Ex.:** bad code - Removing duplicated code using inheritance:
+
+```ruby
+  class Shareable
+    def share_on_facebook
+    end
+  end
+
+  class Post < Shareable
+  end
+
+  class Image < Shareable
+  end
+
+  class Tweet < Shareable
+  end
+```
+
+good code - using mixin instead of inheritance:
+
+```ruby
+  module Shareable
+    def share_on_facebook
+    end
+  end
+
+  class Post
+    include Shareable
+  end
+
+  class Image
+    include Shareable
+  end
+
+  class Tweet
+    include Shareable
+  end
+```
+
+good code - mixin allowing code reuse from more than one source:
+
+```ruby
+  module Shareable
+    def share_on_facebook
+    end
+  end
+
+  module Favoritable
+    def add_to_delicius
+    end
+  end
+```
