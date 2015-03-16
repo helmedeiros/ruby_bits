@@ -232,3 +232,59 @@ Sometimes we'll only be expecting a object to behave like some module, not all i
   image = Image.new
   image.preview # => NoMethodError: undefined method 'preview for #<Image:0x123b123a12>'
 ```
+
+##### Hooks - Self.included
+
+Sometimes a module could have some methods that you may want to expose as a class methods, while others could be requested to be as an instance one. To do so you could think to have a module and a inner module, splitting the expected class methods from those who is wanted to keep as instance ones. The class methods will be `extend` while the instances will be `include`. This a bad way to do so. In ruby we have `hooks`, let's see how to use them.
+
+**Ex.:** bad code - Module methods being called by an instance and a class:
+
+```ruby
+  module ImageUtils
+    def preview
+    end
+    def transfer(destination)
+    end
+    module ClassMethods
+      def fetch_from_twitter(user)
+      end
+    end
+  end
+
+  class Image
+    include ImageUtils
+    extend ImageUtils::ClassMethods
+  end
+
+  image = user.image
+  image.preview
+
+  Image.fetch_from_twitter('helmedeiros')
+```
+
+good code - instead you can have a self.included method
+
+```ruby
+  module ImageUtils
+    def self.included(base)
+      base.extend(ClassMethods)
+    end
+    def preview
+    end
+    def transfer(destination)
+    end
+    module ClassMethods
+      def fetch_from_twitter(user)
+      end
+    end
+  end
+
+  class Image
+    include ImageUtils
+  end
+
+  image = user.image
+  image.preview
+
+  Image.fetch_from_twitter('helmedeiros')
+```
