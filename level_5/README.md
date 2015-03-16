@@ -288,3 +288,40 @@ good code - instead you can have a self.included method
 
   Image.fetch_from_twitter('helmedeiros')
 ```
+
+##### ActiveSupport - Concern
+
+As we saw earlier ruby has lots of util gems, among them we do have the `ActiveSupport`. The `ActiveSupport::Concern` give us a simple pattern to follow to deal with modules dependencies, also a better way to include and extend modules from any class.
+
+References: [Claudia Farias - Keep Coding](http://scriptogr.am/krawdyah/post/rails-e-concerns), [Ryan - My issues with Modules](https://gist.github.com/ryanb/4172391), [DHH - Put chubby models ib a diet with concerns](https://signalvnoise.com/posts/3372-put-chubby-models-on-a-diet-with-concerns), [Bryan Helmkamp - 7 patterns to refactor fat activerecord models](http://blog.codeclimate.com/blog/2012/10/17/7-ways-to-decompose-fat-activerecord-models/)
+
+**Ex.:** bad code - Module methods being called by an instance and a class:
+
+```ruby
+  module M
+    def self.included(base)
+      base.extend ClassMethods
+      scope :disabled, where(:disabled => true)
+    end
+
+    module ClassMethods
+    end
+  end
+
+  require 'active_support/concern'
+```
+
+good code - cleanner code using concerns
+
+```ruby
+  module M
+    extend ActiveSupport::Concern
+
+    included do
+      scope :disabled, where(:disabled => true)
+    end
+
+    module ClassMethods
+    end
+  end
+```
