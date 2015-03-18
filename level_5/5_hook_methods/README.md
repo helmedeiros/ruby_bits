@@ -1,19 +1,28 @@
 LEVEL 5 - Modules
 =================
 
-Object Extend
--------------
+Hook Methods
+------------
 
-Extend the single game object with the Playable module, so we can call the play method on it.
+Define a new self.included method hook for the LibraryUtils module which will extend the ClassMethods on the passed in class. Also, since we'll now be extending ClassMethods when LibraryUtils is included, remove duplicate code in the AtariLibrary class.
 
 ```ruby
-  module Playable
-    def play
+  module LibraryUtils
+
+    def add_game(game)
+    end
+
+    def remove_game(game)
+    end
+
+    module ClassMethods
+      def search_by_game_name(name)
+      end
     end
   end
-```
 
-```ruby
-  game = Game.new("Contra")
-  game.play
+  class AtariLibrary
+    include LibraryUtils
+    extend LibraryUtils::ClassMethods
+  end
 ```
