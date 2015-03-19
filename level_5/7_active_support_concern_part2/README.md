@@ -11,10 +11,6 @@ Call the included method from inside the LibraryUtils module and pass in a block
 
     extend ActiveSupport::Concern
 
-    def self.included(base)
-      base.extend(ClassMethods)
-    end
-
     def add_game(game)
     end
 
