@@ -1,7 +1,7 @@
+require 'active_support/all'
+
 module LibraryUtils
-  def self.included(base)
-    base.extend(ClassMethods)
-  end
+  extend ActiveSupport::Concern
 
   def add_game(game)
     puts "adding #{game.name}"
