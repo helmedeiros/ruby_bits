@@ -3,6 +3,10 @@ require 'active_support/all'
 module LibraryUtils
   extend ActiveSupport::Concern
 
+  included do
+    load_game_list
+  end
+
   def add_game(game)
     puts "adding #{game.name}"
   end
