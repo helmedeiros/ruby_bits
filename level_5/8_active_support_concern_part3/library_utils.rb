@@ -1,5 +1,11 @@
+require 'active_support/all'
+require_relative 'library_loader'
+
 module LibraryUtils
-  def self.included(base)
-    base.load_game_list
+  extend ActiveSupport::Concern
+  include LibraryLoader
+
+  included do
+    load_game_list
   end
 end

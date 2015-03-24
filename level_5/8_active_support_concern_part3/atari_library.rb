@@ -1,4 +1,5 @@
+require_relative 'library_utils'
+
 class AtariLibrary
-  include LibraryLoader
   include LibraryUtils
 end
