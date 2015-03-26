@@ -1,0 +1,10 @@
+GEM
+  remote: https://rubygems.org/
+  specs:
+    rails (4.2.1)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  rails (= 4.2.1)
