@@ -1,0 +1,18 @@
+default: &default
+  adapter: postgresql
+  encoding: unicode
+  pool: 5
+  username: postgres
+  password:
+
+development:
+  <<: *default
+  database: ruby_bits_development
+
+test:
+  <<: *default
+  database: ruby_bits_test
+
+production:
+  <<: *default
+  url: <%= ENV['DATABASE_URL'] %>
