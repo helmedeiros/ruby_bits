@@ -1,0 +1,52 @@
+// matrix: black background, neon green glow, monospace everywhere.
+// Effects are 2015-safe: keyframes, transitions, box-shadow, text-shadow.
+
+$bg:        #000000;
+$fg:        #00ff41;
+$fg-dim:    #008f11;
+$fg-bright: #b9f6ca;
+$warn:      #fffb00;
+$danger:    #ff003c;
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: $bg;
+  color: $fg;
+  font-family: "Courier New", "Lucida Console", monospace;
+  font-size: 14px;
+  line-height: 1.4;
+  min-height: 100%;
+}
+
+body {
+  background-image: linear-gradient(transparent 95%, rgba(0,255,65,0.08) 5%);
+  background-size: 100% 3px;
+}
+
+::selection { background: $fg; color: $bg; }
+
+a {
+  color: $fg-bright;
+  text-decoration: none;
+  border-bottom: 1px dashed $fg-dim;
+}
+a:hover {
+  color: $bg;
+  background: $fg;
+  text-shadow: 0 0 6px $fg-bright;
+}
+
+h1, h2, h3, h4 {
+  color: $fg-bright;
+  text-shadow: 0 0 6px $fg;
+  letter-spacing: 0.05em;
+}
+
+hr {
+  border: 0;
+  border-top: 1px dashed $fg-dim;
+  margin: 1em 0;
+}
