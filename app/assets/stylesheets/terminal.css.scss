@@ -47,3 +47,30 @@
 @keyframes blink {
   to { visibility: hidden; }
 }
+
+.navbar {
+  display: block;
+  padding: 4px 0 12px;
+  border-bottom: 1px dashed #008f11;
+  margin-bottom: 18px;
+}
+
+.navbar .brand {
+  color: #b9f6ca;
+  text-shadow: 0 0 8px #00ff41;
+  font-weight: bold;
+  margin-right: 24px;
+  letter-spacing: 0.15em;
+}
+
+.navbar .menu a {
+  margin-right: 14px;
+  border-bottom: none;
+}
+
+.navbar .status {
+  float: right;
+  color: #008f11;
+  font-size: 11px;
+  margin-top: 4px;
+}
