@@ -50,3 +50,11 @@ hr {
   border-top: 1px dashed $fg-dim;
   margin: 1em 0;
 }
+
+#rain {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: -1;
+  opacity: 0.55;
+}
