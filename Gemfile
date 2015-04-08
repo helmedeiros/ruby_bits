@@ -14,10 +14,20 @@ gem 'jquery-rails'
 gem 'turbolinks'
 gem 'jbuilder', '~> 2.0'
 
+gem 'redcarpet', '~> 3.2'
+gem 'rouge', '~> 1.8'
+
 group :development, :test do
   gem 'byebug'
   gem 'spring'
   gem 'pry-rails'
+  gem 'rspec-rails', '~> 3.2'
+  gem 'factory_girl_rails', '~> 4.5'
+end
+
+group :test do
+  gem 'capybara', '~> 2.4'
+  gem 'database_cleaner', '~> 1.4'
 end
 
 group :development do
