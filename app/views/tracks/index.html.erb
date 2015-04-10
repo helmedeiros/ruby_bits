@@ -1,0 +1,13 @@
+<% content_for :title, "tracks" %>
+<section class="listing">
+  <p class="prompt">ls /usr/share/rubybits/tracks</p>
+  <ul class="tree">
+    <% @tracks.each do |t| %>
+      <li>
+        <%= link_to t.name, track_path(t) %>
+        <span class="meta">(<%= t.modules.count %> modules)</span>
+        <p class="muted"><%= t.description %></p>
+      </li>
+    <% end %>
+  </ul>
+</section>

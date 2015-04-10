@@ -1,0 +1,10 @@
+<% content_for :title, @lesson.slug %>
+<article class="lesson">
+  <nav class="crumbs">
+    <%= link_to @track.name, track_path(@track) %> /
+    <%= link_to @module.name, track_module_path(@track, @module) %> /
+    <span><%= @lesson.title %></span>
+  </nav>
+  <h1><%= @lesson.title %></h1>
+  <div class="body"><%= simple_format(@lesson.body) %></div>
+</article>

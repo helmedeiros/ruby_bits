@@ -1,0 +1,14 @@
+<% content_for :title, "#{@track.slug}/#{@module.slug}" %>
+<section class="listing">
+  <p class="prompt">cd <%= @track.slug %>/<%= @module.slug %> && ls</p>
+  <h1><%= @module.name %></h1>
+  <pre class="overview"><%= @module.overview %></pre>
+  <ul class="tree">
+    <% @lessons.each_with_index do |l, i| %>
+      <li>
+        <span class="idx">[<%= format('%02d', i+1) %>]</span>
+        <%= link_to l.title, track_module_lesson_path(@track, @module, l) %>
+      </li>
+    <% end %>
+  </ul>
+</section>
