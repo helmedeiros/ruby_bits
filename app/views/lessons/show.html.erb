@@ -6,5 +6,5 @@
     <span><%= @lesson.title %></span>
   </nav>
   <h1><%= @lesson.title %></h1>
-  <div class="body"><%= simple_format(@lesson.body) %></div>
+  <div class="body markdown"><%= markdown(@lesson.body) %></div>
 </article>
