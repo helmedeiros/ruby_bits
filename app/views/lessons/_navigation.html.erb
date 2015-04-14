@@ -1,0 +1,12 @@
+<nav class="lesson-nav">
+  <% if lesson.previous %>
+    <%= link_to "« prev: #{lesson.previous.title}", track_module_lesson_path(@track, @module, lesson.previous), class: 'prev' %>
+  <% else %>
+    <span class="prev disabled">« prev</span>
+  <% end %>
+  <% if lesson.next %>
+    <%= link_to "next: #{lesson.next.title} »", track_module_lesson_path(@track, @module, lesson.next), class: 'next' %>
+  <% else %>
+    <span class="next disabled">end of module »</span>
+  <% end %>
+</nav>

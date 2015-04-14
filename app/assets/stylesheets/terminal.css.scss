@@ -99,3 +99,14 @@
 .crumbs { font-size: 12px; color: #008f11; margin-bottom: 8px; }
 .crumbs a { border-bottom: none; }
 .lesson .body { margin-top: 10px; }
+
+.lesson-nav {
+  margin-top: 24px;
+  padding-top: 12px;
+  border-top: 1px dashed #008f11;
+  display: block;
+}
+.lesson-nav .prev { float: left; }
+.lesson-nav .next { float: right; }
+.lesson-nav .disabled { color: #008f11; opacity: 0.5; }
+.lesson-nav:after { content: ""; display: block; clear: both; }

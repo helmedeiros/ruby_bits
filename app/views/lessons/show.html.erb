@@ -8,3 +8,4 @@
   <h1><%= @lesson.title %></h1>
   <div class="body markdown"><%= markdown(@lesson.body) %></div>
 </article>
+<%= render 'navigation', lesson: @lesson %>
