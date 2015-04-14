@@ -1,0 +1,18 @@
+// Matrix-flavored rouge highlight palette.
+.highlight {
+  background: #050505;
+  border: 1px dashed #008f11;
+  padding: 10px 12px;
+  margin: 12px 0;
+  overflow-x: auto;
+}
+
+.highlight pre { margin: 0; }
+.highlight .k, .highlight .kd, .highlight .kn { color: #ffe066; }
+.highlight .s, .highlight .s1, .highlight .s2 { color: #b9f6ca; }
+.highlight .c, .highlight .c1 { color: #008f11; font-style: italic; }
+.highlight .n, .highlight .nb { color: #00ff41; }
+.highlight .o { color: #ffe066; }
+.highlight .mi, .highlight .mf { color: #ff9d00; }
+.highlight .nf { color: #b9f6ca; }
+.highlight .err { color: #ff003c; background: rgba(255,0,60,0.1); }
