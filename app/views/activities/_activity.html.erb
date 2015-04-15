@@ -1,0 +1,13 @@
+<section class="activity activity-<%= activity.kind %>" data-activity-id="<%= activity.id %>">
+  <header class="activity-head">
+    <span class="badge">[ACTIVITY]</span>
+    <h3><%= activity.title %></h3>
+  </header>
+  <div class="prompt-block"><%= markdown(activity.prompt) %></div>
+
+  <% if activity.code? %>
+    <%= render 'activities/code', activity: activity %>
+  <% else %>
+    <%= render 'activities/choice', activity: activity %>
+  <% end %>
+</section>

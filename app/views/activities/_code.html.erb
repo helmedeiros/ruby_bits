@@ -1,0 +1,8 @@
+<%= form_tag track_module_lesson_activity_submissions_path(@track, @module, @lesson, activity), id: "activity-form-#{activity.id}", class: 'activity-form' do %>
+  <textarea name="source" class="code-editor" data-mode="ruby" rows="12"><%= activity.starter_code %></textarea>
+  <div class="actions">
+    <button type="submit" class="btn run">» run</button>
+    <button type="button" class="btn reset" data-starter="<%= h activity.starter_code %>">reset</button>
+  </div>
+  <div class="result" data-role="result"></div>
+<% end %>

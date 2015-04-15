@@ -1,0 +1,14 @@
+<%= form_tag track_module_lesson_activity_submissions_path(@track, @module, @lesson, activity), class: 'activity-form choice' do %>
+  <ul class="choices">
+    <% (activity.choices || {}).each do |key, label| %>
+      <li>
+        <label>
+          <%= radio_button_tag 'choice', key %>
+          <span class="key">[<%= key %>]</span> <%= label %>
+        </label>
+      </li>
+    <% end %>
+  </ul>
+  <button type="submit" class="btn">» submit</button>
+  <div class="result" data-role="result"></div>
+<% end %>
