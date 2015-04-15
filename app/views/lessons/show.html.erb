@@ -7,5 +7,14 @@
   </nav>
   <h1><%= @lesson.title %></h1>
   <div class="body markdown"><%= markdown(@lesson.body) %></div>
+
+  <% if @lesson.activities.any? %>
+    <hr>
+    <h2>activities</h2>
+    <% @lesson.activities.each do |activity| %>
+      <%= render 'activities/activity', activity: activity %>
+    <% end %>
+  <% end %>
+
+  <%= render 'navigation', lesson: @lesson %>
 </article>
-<%= render 'navigation', lesson: @lesson %>
