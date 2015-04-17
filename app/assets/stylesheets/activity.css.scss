@@ -1,0 +1,25 @@
+.activity {
+  border: 1px dashed #008f11;
+  padding: 12px 14px;
+  margin: 18px 0;
+  background: rgba(0,255,65,0.03);
+}
+.activity .activity-head { display: block; margin-bottom: 8px; }
+.activity .badge {
+  background: #00ff41; color: #000; padding: 1px 6px; font-size: 11px; margin-right: 8px;
+}
+.activity h3 { display: inline; color: #b9f6ca; }
+.activity .actions { margin-top: 8px; }
+.activity .btn {
+  background: transparent; color: #00ff41;
+  border: 1px solid #008f11; padding: 4px 12px;
+  font-family: inherit; cursor: pointer;
+}
+.activity .btn:hover { background: #00ff41; color: #000; }
+.activity .result-passed { color: #b9f6ca; }
+.activity .result-failed { color: #fffb00; }
+.activity .result-error  { color: #ff003c; }
+.activity .err { color: #ff003c; }
+.activity .hint { color: #008f11; font-style: italic; }
+.activity .choices { list-style: none; padding: 0; }
+.activity .choices .key { color: #008f11; }

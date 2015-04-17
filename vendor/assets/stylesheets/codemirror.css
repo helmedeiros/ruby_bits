@@ -1,0 +1,10 @@
+/* CodeMirror v5.1.0 base styles — placeholder. */
+.CodeMirror {
+  border: 1px dashed #008f11;
+  background: #050505;
+  color: #00ff41;
+  font-family: "Courier New", monospace;
+  font-size: 13px;
+  height: auto;
+  padding: 6px;
+}

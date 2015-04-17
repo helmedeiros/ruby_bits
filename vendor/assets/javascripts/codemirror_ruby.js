@@ -1,0 +1,1 @@
+// CodeMirror ruby mode — placeholder.
