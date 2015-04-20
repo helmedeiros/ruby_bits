@@ -17,6 +17,8 @@ gem 'jbuilder', '~> 2.0'
 gem 'redcarpet', '~> 3.2'
 gem 'rouge', '~> 1.8'
 
+gem 'devise', '~> 3.5'
+
 group :development, :test do
   gem 'byebug'
   gem 'spring'
