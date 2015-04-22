@@ -30,10 +30,4 @@ class SubmissionsController < ApplicationController
       hint:       result.hint
     }
   end
-
-  private
-
-  def current_user
-    nil # wired in once Devise lands
-  end
 end

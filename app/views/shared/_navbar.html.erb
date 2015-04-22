@@ -1,9 +1,14 @@
 <header class="navbar">
   <span class="brand"><%= link_to "RubyBits", root_path %></span>
   <nav class="menu">
-    <%= link_to "[modules]", "#" %>
-    <%= link_to "[about]", "#" %>
-    <%= link_to "[sign in]", "#" %>
+    <%= link_to "[tracks]", tracks_path %>
+    <% if user_signed_in? %>
+      <%= link_to "[~/#{current_user.nickname}]", profile_path(current_user) %>
+      <%= link_to "[logout]", destroy_user_session_path, method: :delete %>
+    <% else %>
+      <%= link_to "[login]", new_user_session_path %>
+      <%= link_to "[register]", new_user_registration_path %>
+    <% end %>
   </nav>
   <span class="status">load avg 0.66 :: uptime 99d</span>
 </header>

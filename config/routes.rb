@@ -1,4 +1,6 @@
 Rails.application.routes.draw do
+  devise_for :users
+
   root 'home#index'
 
   resources :tracks, only: [:index, :show] do
@@ -10,4 +12,6 @@ Rails.application.routes.draw do
       end
     end
   end
+
+  get '/u/:id', to: 'profiles#show', as: :profile
 end
