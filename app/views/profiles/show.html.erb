@@ -1,0 +1,22 @@
+<% content_for :title, "~#{@user.nickname}" %>
+<article class="profile">
+  <p class="prompt">finger <%= @user.nickname %></p>
+  <pre>
+Login    : <%= @user.nickname %>
+Email    : <%= @user.email %>
+Joined   : <%= @user.created_at.strftime('%Y-%m-%d') %>
+Solved   : <%= @passed_count %>
+Last seen: <%= time_ago_in_words(@user.last_sign_in_at || @user.created_at) %> ago
+  </pre>
+
+  <h2>recent submissions</h2>
+  <ul class="tree">
+    <% @submissions.each do |s| %>
+      <li>
+        <span class="meta">[<%= s.status %>]</span>
+        <%= link_to s.activity.title, track_module_lesson_path(s.activity.lesson.learning_module.track, s.activity.lesson.learning_module, s.activity.lesson) %>
+        <span class="meta"><%= s.created_at.strftime('%Y-%m-%d %H:%M') %></span>
+      </li>
+    <% end %>
+  </ul>
+</article>
