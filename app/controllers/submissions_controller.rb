@@ -22,12 +22,15 @@ class SubmissionsController < ApplicationController
       runtime_ms: result.runtime_ms
     )
 
+    LessonCompletion.evaluate(current_user, @lesson) if submission.passed?
+
     render json: {
-      status:     submission.status,
-      stdout:     submission.stdout,
-      stderr:     submission.stderr,
-      runtime_ms: submission.runtime_ms,
-      hint:       result.hint
+      status:       submission.status,
+      stdout:       submission.stdout,
+      stderr:       submission.stderr,
+      runtime_ms:   submission.runtime_ms,
+      hint:         result.hint,
+      lesson_done:  current_user && current_user.completed?(@lesson)
     }
   end
 end
