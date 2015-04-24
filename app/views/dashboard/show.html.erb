@@ -1,0 +1,23 @@
+<% content_for :title, "dashboard" %>
+<p class="prompt">cat ~/.rubybits/stats</p>
+<pre>
+Completed lessons : <%= @completed_count %>
+Passed activities : <%= @passed_count %>
+</pre>
+
+<h2>last sessions</h2>
+<ul class="tree">
+  <% @recent.each do |c| %>
+    <li>
+      <span class="meta">[<%= c.completed_at.strftime('%m-%d') %>]</span>
+      <%= link_to c.lesson.title, track_module_lesson_path(c.lesson.learning_module.track, c.lesson.learning_module, c.lesson) %>
+    </li>
+  <% end %>
+</ul>
+
+<h2>continue</h2>
+<ul class="tree">
+  <% @tracks.each do |t| %>
+    <li><%= link_to t.name, track_path(t) %></li>
+  <% end %>
+</ul>
