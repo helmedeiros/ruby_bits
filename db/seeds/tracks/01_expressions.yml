@@ -1,0 +1,61 @@
+slug: expressions
+name: Expressions
+description: Sweet ruby syntax for common conditional patterns.
+position: 1
+modules:
+  - slug: conditionals
+    name: Conditional Expressions
+    overview: |
+      In ruby, `if`/`unless` are expressions — they return values.
+      You can use them inline, chain them, and skip `nil` checks
+      with the right idioms.
+    lessons:
+      - slug: inline-if
+        title: Inline if
+        body: |
+          ## Inline if
+
+          Instead of:
+
+          ```ruby
+          if user.admin?
+            grant_access(user)
+          end
+          ```
+
+          You can write it inline:
+
+          ```ruby
+          grant_access(user) if user.admin?
+          ```
+
+          ### When to use it
+          - One-line side effects gated by a predicate
+          - Guard clauses at the top of a method
+
+          ### When to avoid it
+          - Multi-line bodies
+          - Compound conditions you'd rather extract into a method
+
+        activities:
+          - title: Make it inline
+            kind: code
+            prompt: |
+              Rewrite `notify` so it sends the message **only** when the
+              user has a phone. Use the inline `if` form.
+            starter_code: |
+              def notify(user, message)
+                if user.phone
+                  Sms.send(user.phone, message)
+                end
+              end
+            solution: |
+              def notify(user, message)
+                Sms.send(user.phone, message) if user.phone
+              end
+            spec_code: |
+              class Sms; def self.send(*); :sent; end; end
+              class U;   def phone; '+5511'; end; end
+              raise 'failed' unless notify(U.new, 'hi') == :sent
+              class N;   def phone; nil; end; end
+              raise 'should not send' if notify(N.new, 'hi')
