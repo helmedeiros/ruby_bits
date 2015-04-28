@@ -1,0 +1,77 @@
+slug: short-circuit
+name: Short-circuit Tricks
+description: Use `&&`, `||`, and friends to compress safe-navigation and defaults.
+position: 2
+modules:
+  - slug: defaults-and-presence
+    name: Defaults & presence
+    overview: |
+      `||` returns the first truthy operand; `&&` returns the last truthy
+      operand or the first falsy one. Used well, they collapse `if/else`
+      chains into a single expression.
+    lessons:
+      - slug: default-with-or
+        title: Default with ||
+        body: |
+          ## Default with `||`
+
+          ```ruby
+          name = params[:name] || 'anonymous'
+          ```
+
+          `name` is `params[:name]` when present, otherwise `'anonymous'`.
+          The reader sees: "primary, fallback."
+
+          Watch out for `false` — `false || 'x'` is `'x'`. If `false` is
+          a meaningful value, use `params.fetch(:flag, true)` instead.
+        activities:
+          - title: Inline default
+            kind: code
+            prompt: Rewrite `display_name` using `||`.
+            starter_code: |
+              def display_name(user)
+                if user.name
+                  user.name
+                else
+                  'anonymous'
+                end
+              end
+            solution: |
+              def display_name(user)
+                user.name || 'anonymous'
+              end
+            spec_code: |
+              U = Struct.new(:name)
+              raise unless display_name(U.new('alice')) == 'alice'
+              raise unless display_name(U.new(nil))     == 'anonymous'
+
+      - slug: safe-chain-and
+        title: Safe chain with &&
+        body: |
+          ## Safe chain with `&&`
+
+          Pre-ruby 2.3 we don't have `&.`, so `&&` is how we guard chains:
+
+          ```ruby
+          city = user && user.address && user.address.city
+          ```
+
+          Each step bails out as soon as something is `nil`.
+        activities:
+          - title: Guard a chain
+            kind: code
+            prompt: Return `user.profile.bio` only if both `user` and `profile` are present.
+            starter_code: |
+              def bio_of(user)
+                # TODO
+              end
+            solution: |
+              def bio_of(user)
+                user && user.profile && user.profile.bio
+              end
+            spec_code: |
+              P = Struct.new(:bio)
+              U = Struct.new(:profile)
+              raise unless bio_of(U.new(P.new('hi'))) == 'hi'
+              raise if bio_of(U.new(nil))
+              raise if bio_of(nil)
