@@ -1,0 +1,77 @@
+slug: methods
+name: Methods
+description: Argument forms beyond positional — defaults, splats, options.
+position: 3
+modules:
+  - slug: arguments
+    name: Method arguments
+    overview: |
+      Ruby gives you several knobs for method signatures:
+      defaults, splats, options hashes, and (since 2.0) keyword args.
+    lessons:
+      - slug: default-arguments
+        title: Default arguments
+        body: |
+          ## Default arguments
+
+          ```ruby
+          def greet(name, greeting = 'hi')
+            "#{greeting}, #{name}"
+          end
+          ```
+
+          Defaults must come **after** required arguments. They may
+          reference earlier args:
+
+          ```ruby
+          def fade(value, by = value / 2)
+            value - by
+          end
+          ```
+        activities:
+          - title: Add a default
+            kind: code
+            prompt: Add a default of `' '` to `joiner` in `join_with`.
+            starter_code: |
+              def join_with(items, joiner)
+                items.join(joiner)
+              end
+            solution: |
+              def join_with(items, joiner = ' ')
+                items.join(joiner)
+              end
+            spec_code: |
+              raise unless join_with(%w[a b c]) == 'a b c'
+              raise unless join_with(%w[a b c], '-') == 'a-b-c'
+
+      - slug: splat-arguments
+        title: Splat arguments
+        body: |
+          ## Splats
+
+          Prefix an arg with `*` to collect remaining positional args
+          into an Array:
+
+          ```ruby
+          def log(level, *messages)
+            messages.each { |m| puts "[#{level}] #{m}" }
+          end
+          ```
+
+          Use `**` for keyword-args (ruby 2.0+).
+        activities:
+          - title: Collect with splat
+            kind: code
+            prompt: Make `total` accept any number of numbers.
+            starter_code: |
+              def total
+                # TODO
+              end
+            solution: |
+              def total(*nums)
+                nums.inject(0, :+)
+              end
+            spec_code: |
+              raise unless total == 0
+              raise unless total(1) == 1
+              raise unless total(1,2,3,4) == 10
