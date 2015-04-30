@@ -1,0 +1,74 @@
+slug: classes
+name: Classes
+description: Define classes that hide state and expose behaviour.
+position: 4
+modules:
+  - slug: state-and-accessors
+    name: State & accessors
+    overview: |
+      Instance variables hold state. Accessors expose that state in
+      controlled, named ways — `attr_reader` for read, `attr_writer`
+      for write, `attr_accessor` for both.
+    lessons:
+      - slug: attr-accessor
+        title: attr_accessor
+        body: |
+          ## attr_accessor
+
+          ```ruby
+          class User
+            attr_accessor :name
+          end
+          ```
+
+          Is shorthand for:
+
+          ```ruby
+          class User
+            def name;       @name;       end
+            def name=(val); @name = val; end
+          end
+          ```
+        activities:
+          - title: Use attr_accessor
+            kind: code
+            prompt: Add accessors for `name` and `email` to `Person`.
+            starter_code: |
+              class Person
+                # TODO
+              end
+            solution: |
+              class Person
+                attr_accessor :name, :email
+              end
+            spec_code: |
+              p = Person.new
+              p.name = 'alice'; p.email = 'a@x'
+              raise unless p.name == 'alice'
+              raise unless p.email == 'a@x'
+
+      - slug: attr-reader
+        title: attr_reader — read-only state
+        body: |
+          ## attr_reader
+
+          Use `attr_reader` when callers should read, but only the
+          class itself should mutate. Pair it with `private` writers
+          or with `initialize` that sets the ivars once.
+
+          ```ruby
+          class Coordinate
+            attr_reader :x, :y
+            def initialize(x, y); @x, @y = x, y; end
+          end
+          ```
+        activities:
+          - title: Lock it down
+            kind: choice
+            prompt: Which accessor allows external code to **read** but not **write** `email`?
+            choices:
+              a: attr_accessor :email
+              b: attr_reader :email
+              c: attr_writer :email
+              d: define_method(:email) { @email }
+            correct_choice: b
