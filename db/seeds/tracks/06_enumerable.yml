@@ -1,0 +1,92 @@
+slug: enumerable
+name: Enumerable
+description: The collection methods every rubyist should know cold.
+position: 6
+modules:
+  - slug: pipelines
+    name: Iteration pipelines
+    overview: |
+      `map`, `select`, `reject`, `reduce` — chain them and the
+      transformation reads like prose.
+    lessons:
+      - slug: map
+        title: map (transform)
+        body: |
+          ## map
+
+          ```ruby
+          users.map(&:email)
+          # => ["a@x", "b@y"]
+          ```
+
+          `map` returns a new collection of the same size, each
+          element transformed by the block.
+        activities:
+          - title: Transform with map
+            kind: code
+            prompt: Return the squares of the input array.
+            starter_code: |
+              def squares(nums)
+                # TODO
+              end
+            solution: |
+              def squares(nums)
+                nums.map { |n| n * n }
+              end
+            spec_code: |
+              raise unless squares([1,2,3]) == [1,4,9]
+              raise unless squares([]) == []
+
+      - slug: select
+        title: select (filter)
+        body: |
+          ## select
+
+          Returns elements for which the block is truthy:
+
+          ```ruby
+          users.select(&:admin?)
+          ```
+        activities:
+          - title: Filter with select
+            kind: code
+            prompt: Return only the positive numbers.
+            starter_code: |
+              def positives(nums)
+                # TODO
+              end
+            solution: |
+              def positives(nums)
+                nums.select { |n| n > 0 }
+              end
+            spec_code: |
+              raise unless positives([-1,0,1,2]) == [1,2]
+
+      - slug: reduce
+        title: reduce (fold)
+        body: |
+          ## reduce / inject
+
+          Fold a collection into a single value by repeatedly
+          applying a binary block:
+
+          ```ruby
+          [1,2,3].reduce(0) { |sum, n| sum + n } # => 6
+          # equivalent shorthand:
+          [1,2,3].reduce(0, :+)
+          ```
+        activities:
+          - title: Sum with reduce
+            kind: code
+            prompt: Return the total of the array, defaulting to 0 for empty.
+            starter_code: |
+              def total(nums)
+                # TODO
+              end
+            solution: |
+              def total(nums)
+                nums.reduce(0, :+)
+              end
+            spec_code: |
+              raise unless total([]) == 0
+              raise unless total([1,2,3,4]) == 10
