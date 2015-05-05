@@ -1,0 +1,87 @@
+slug: mixins
+name: Mixins & Concerns
+description: Share behaviour with modules — and know when not to.
+position: 7
+modules:
+  - slug: include-vs-extend
+    name: include vs extend
+    overview: |
+      `include` brings instance methods into a class.
+      `extend` brings methods in as singleton (class) methods.
+    lessons:
+      - slug: include
+        title: include — instance methods
+        body: |
+          ## include
+
+          ```ruby
+          module Greetable
+            def greet; "hi, #{name}"; end
+          end
+
+          class User
+            include Greetable
+            attr_accessor :name
+          end
+
+          User.new.tap { |u| u.name = 'alice' }.greet
+          # => "hi, alice"
+          ```
+        activities:
+          - title: Mixin via include
+            kind: code
+            prompt: Make `Robot` greet using the `Greetable` module already defined.
+            starter_code: |
+              module Greetable
+                def greet; "hi, #{name}"; end
+              end
+
+              class Robot
+                # TODO
+                attr_accessor :name
+              end
+            solution: |
+              module Greetable
+                def greet; "hi, #{name}"; end
+              end
+
+              class Robot
+                include Greetable
+                attr_accessor :name
+              end
+            spec_code: |
+              r = Robot.new; r.name = 'R2D2'
+              raise unless r.greet == 'hi, R2D2'
+
+      - slug: extend
+        title: extend — single-instance / class methods
+        body: |
+          ## extend
+
+          Inside a class body, `extend` adds the module's methods as
+          **class-level** methods:
+
+          ```ruby
+          module Counters
+            def count; @count ||= 0; end
+            def bump; @count = count + 1; end
+          end
+
+          class Hit
+            extend Counters
+          end
+
+          Hit.bump; Hit.count # => 1
+          ```
+        activities:
+          - title: When extend?
+            kind: choice
+            prompt: |
+              You want every subclass of `Logger` to expose a class-level
+              `silence!` method. Which call adds it?
+            choices:
+              a: include Silenceable inside the class body
+              b: extend Silenceable inside the class body
+              c: prepend Silenceable inside the class body
+              d: define_method :silence! inside the instance
+            correct_choice: b
