@@ -18,6 +18,7 @@ gem 'redcarpet', '~> 3.2'
 gem 'rouge', '~> 1.8'
 
 gem 'devise', '~> 3.5'
+gem 'pundit', '~> 1.0'
 
 group :development, :test do
   gem 'byebug'
