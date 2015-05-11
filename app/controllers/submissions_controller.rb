@@ -6,6 +6,7 @@ class SubmissionsController < ApplicationController
     @module   = @track.modules.find_by!(slug: params[:module_id])
     @lesson   = @module.lessons.find_by!(slug: params[:lesson_id])
     @activity = @lesson.activities.find(params[:activity_id])
+    authorize @activity, :submit?
 
     result = ActivityChecker.call(@activity,
                                   source: params[:source],
@@ -25,12 +26,12 @@ class SubmissionsController < ApplicationController
     LessonCompletion.evaluate(current_user, @lesson) if submission.passed?
 
     render json: {
-      status:       submission.status,
-      stdout:       submission.stdout,
-      stderr:       submission.stderr,
-      runtime_ms:   submission.runtime_ms,
-      hint:         result.hint,
-      lesson_done:  current_user && current_user.completed?(@lesson)
+      status:      submission.status,
+      stdout:      submission.stdout,
+      stderr:      submission.stderr,
+      runtime_ms:  submission.runtime_ms,
+      hint:        result.hint,
+      lesson_done: current_user && current_user.completed?(@lesson)
     }
   end
 end
