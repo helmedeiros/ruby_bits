@@ -1,0 +1,4 @@
+:concurrency: 5
+:queues:
+  - [grading, 4]
+  - [default, 1]

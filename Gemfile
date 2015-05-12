@@ -6,6 +6,8 @@ gem 'rails', '4.2.1'
 
 gem 'pg'
 gem 'puma'
+gem 'redis', '~> 3.2'
+gem 'sidekiq', '~> 3.4'
 
 gem 'sass-rails', '~> 5.0'
 gem 'uglifier', '>= 1.3.0'
@@ -19,6 +21,7 @@ gem 'rouge', '~> 1.8'
 
 gem 'devise', '~> 3.5'
 gem 'pundit', '~> 1.0'
+gem 'kaminari', '~> 0.16'
 
 group :development, :test do
   gem 'byebug'
