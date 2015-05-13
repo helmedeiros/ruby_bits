@@ -9,6 +9,10 @@ class User < ActiveRecord::Base
   validates :nickname, presence: true, uniqueness: true,
                        format: { with: /\A[a-z0-9_]{3,20}\z/i }
 
+  def admin?
+    !!admin
+  end
+
   def completed?(lesson)
     completions.exists?(lesson_id: lesson.id)
   end

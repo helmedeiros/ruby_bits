@@ -15,5 +15,9 @@ Rails.application.routes.draw do
     end
   end
 
+  namespace :admin do
+    resources :tracks
+  end
+
   get '/u/:id', to: 'profiles#show', as: :profile
 end
