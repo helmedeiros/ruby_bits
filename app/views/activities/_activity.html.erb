@@ -2,6 +2,7 @@
   <header class="activity-head">
     <span class="badge">[ACTIVITY]</span>
     <h3><%= activity.title %></h3>
+    <span class="difficulty">★ <%= activity.difficulty_label %></span>
   </header>
   <div class="prompt-block"><%= markdown(activity.prompt) %></div>
 
@@ -10,4 +11,6 @@
   <% else %>
     <%= render 'activities/choice', activity: activity %>
   <% end %>
+
+  <%= render 'activities/hints', activity: activity %>
 </section>

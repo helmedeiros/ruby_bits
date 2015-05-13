@@ -23,3 +23,19 @@
 .activity .hint { color: #008f11; font-style: italic; }
 .activity .choices { list-style: none; padding: 0; }
 .activity .choices .key { color: #008f11; }
+
+.activity .difficulty {
+  float: right;
+  color: #ffe066;
+  font-size: 11px;
+}
+.activity .hints {
+  margin-top: 10px;
+  border-top: 1px dashed #008f11;
+  padding-top: 6px;
+}
+.activity .hints summary {
+  cursor: pointer;
+  color: #008f11;
+}
+.activity .hints li { color: #00ff41; }

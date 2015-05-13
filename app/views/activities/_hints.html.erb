@@ -1,0 +1,10 @@
+<% if activity.hints.any? %>
+  <details class="hints">
+    <summary>need a hint?</summary>
+    <ol>
+      <% activity.hints.each_with_index do |h, i| %>
+        <li data-step="<%= i+1 %>"><%= simple_format(h) %></li>
+      <% end %>
+    </ol>
+  </details>
+<% end %>
