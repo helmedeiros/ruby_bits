@@ -110,3 +110,19 @@
 .lesson-nav .next { float: right; }
 .lesson-nav .disabled { color: #008f11; opacity: 0.5; }
 .lesson-nav:after { content: ""; display: block; clear: both; }
+
+.grid {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 12px;
+}
+.grid th, .grid td {
+  border-bottom: 1px dashed #008f11;
+  padding: 4px 6px;
+  text-align: left;
+}
+.grid th { color: #b9f6ca; }
+.flash { padding: 6px; margin: 8px 0; border: 1px dashed; }
+.flash-notice { border-color: #00ff41; }
+.flash-alert  { border-color: #ff003c; color: #ff003c; }
+.errors { color: #ff003c; }

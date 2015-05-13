@@ -1,0 +1,4 @@
+<h1><%= @track.name %></h1>
+<p class="meta">slug: <%= @track.slug %> • position: <%= @track.position %></p>
+<p><%= @track.description %></p>
+<%= link_to "[edit]", edit_admin_track_path(@track) %>

@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>RubyBits :: admin :: <%= content_for?(:title) ? yield(:title) : "panel" %></title>
+  <%= stylesheet_link_tag    'application', media: 'all', 'data-turbolinks-track' => true %>
+  <%= javascript_include_tag 'application', 'data-turbolinks-track' => true %>
+  <%= csrf_meta_tags %>
+</head>
+<body>
+  <div id="terminal" class="admin">
+    <header class="navbar">
+      <span class="brand"><%= link_to "RubyBits :: admin", admin_tracks_path %></span>
+      <nav class="menu">
+        <%= link_to "[tracks]", admin_tracks_path %>
+        <%= link_to "[exit]", root_path %>
+      </nav>
+    </header>
+    <% flash.each do |k, v| %><p class="flash flash-<%= k %>"><%= v %></p><% end %>
+    <main><%= yield %></main>
+  </div>
+</body>
+</html>
