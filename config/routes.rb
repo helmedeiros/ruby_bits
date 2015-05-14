@@ -17,7 +17,9 @@ Rails.application.routes.draw do
 
   namespace :admin do
     resources :tracks do
-      resources :modules, controller: 'learning_modules'
+      resources :modules, controller: 'learning_modules' do
+      resources :lessons
+    end
     end
   end
 
