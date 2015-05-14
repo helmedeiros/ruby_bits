@@ -16,7 +16,9 @@ Rails.application.routes.draw do
   end
 
   namespace :admin do
-    resources :tracks
+    resources :tracks do
+      resources :modules, controller: 'learning_modules'
+    end
   end
 
   get '/u/:id', to: 'profiles#show', as: :profile
