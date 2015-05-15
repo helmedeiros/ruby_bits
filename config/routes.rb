@@ -18,8 +18,10 @@ Rails.application.routes.draw do
   namespace :admin do
     resources :tracks do
       resources :modules, controller: 'learning_modules' do
-      resources :lessons
-    end
+        resources :lessons do
+          resources :activities
+        end
+      end
     end
   end
 
