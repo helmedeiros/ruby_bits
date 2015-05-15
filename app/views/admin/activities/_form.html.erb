@@ -1,0 +1,23 @@
+<%= form_for [:admin, @lesson.learning_module.track, @lesson.learning_module, @lesson, @activity], url: form_url do |f| %>
+  <p><%= f.label :title %><br><%= f.text_field :title %></p>
+  <p>
+    <%= f.label :kind %><br>
+    <%= f.select :kind, Activity::KINDS.map { |k| [k, k] } %>
+  </p>
+  <p><%= f.label :difficulty %><br><%= f.number_field :difficulty, min: 1, max: 5 %></p>
+  <p><%= f.label :prompt, 'prompt (markdown)' %><br><%= f.text_area :prompt, rows: 6 %></p>
+  <p><%= f.label :starter_code %><br><%= f.text_area :starter_code, rows: 8, class: 'code-editor', data: { mode: 'ruby' } %></p>
+  <p><%= f.label :solution %><br><%= f.text_area :solution, rows: 8, class: 'code-editor', data: { mode: 'ruby' } %></p>
+  <p><%= f.label :spec_code, 'spec_code (ruby, must raise on fail)' %><br><%= f.text_area :spec_code, rows: 8, class: 'code-editor', data: { mode: 'ruby' } %></p>
+  <p>
+    <%= label_tag :activity_choices_yaml, 'choices (YAML map)' %><br>
+    <%= text_area_tag 'activity[choices_yaml]', @activity.choices.to_yaml, rows: 6 %>
+  </p>
+  <p><%= f.label :correct_choice %><br><%= f.text_field :correct_choice %></p>
+  <p>
+    <%= label_tag :activity_hints_yaml, 'hints (YAML list)' %><br>
+    <%= text_area_tag 'activity[hints_yaml]', @activity.hints.to_yaml, rows: 4 %>
+  </p>
+  <p><%= f.label :position %><br><%= f.number_field :position %></p>
+  <p><%= f.submit "» save" %></p>
+<% end %>

@@ -1,0 +1,2 @@
+<h1>edit <%= @activity.title %></h1>
+<%= render 'form', form_url: admin_track_module_lesson_activity_path(@lesson.learning_module.track, @lesson.learning_module, @lesson, @activity) %>
