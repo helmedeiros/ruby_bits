@@ -23,7 +23,10 @@ class SubmissionsController < ApplicationController
       runtime_ms: result.runtime_ms
     )
 
-    LessonCompletion.evaluate(current_user, @lesson) if submission.passed?
+    if submission.passed?
+      LessonCompletion.evaluate(current_user, @lesson)
+      StreakUpdater.touch(current_user)
+    end
 
     render json: {
       status:      submission.status,
@@ -31,7 +34,8 @@ class SubmissionsController < ApplicationController
       stderr:      submission.stderr,
       runtime_ms:  submission.runtime_ms,
       hint:        result.hint,
-      lesson_done: current_user && current_user.completed?(@lesson)
+      lesson_done: current_user && current_user.completed?(@lesson),
+      streak:      current_user && current_user.current_streak
     }
   end
 end
