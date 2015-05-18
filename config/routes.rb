@@ -26,4 +26,5 @@ Rails.application.routes.draw do
   end
 
   get '/u/:id', to: 'profiles#show', as: :profile
+  get '/leaderboard', to: 'leaderboard#index', as: :leaderboard
 end

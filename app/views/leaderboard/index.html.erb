@@ -1,0 +1,13 @@
+<% content_for :title, "leaderboard" %>
+<p class="prompt">cat /var/log/rubybits/hall_of_fame</p>
+<table class="grid">
+  <tr><th>#</th><th>handle</th><th>lessons</th></tr>
+  <% @top.each_with_index do |u, i| %>
+    <tr>
+      <td><%= ((@top.current_page - 1) * 20) + i + 1 %></td>
+      <td><%= link_to u.nickname, profile_path(u) %></td>
+      <td><%= u.solved_count %></td>
+    </tr>
+  <% end %>
+</table>
+<%= paginate @top %>
