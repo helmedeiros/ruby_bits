@@ -1,0 +1,16 @@
+- slug: first-blood
+  name: First Blood
+  description: Complete your first lesson.
+  icon_glyph: "*"
+- slug: streak-3
+  name: 3-day streak
+  description: Solve at least one activity three days in a row.
+  icon_glyph: "%"
+- slug: streak-7
+  name: 7-day streak
+  description: One week, every day. Respect.
+  icon_glyph: "#"
+- slug: centurion
+  name: Centurion
+  description: Pass 100 activities total.
+  icon_glyph: "@"
