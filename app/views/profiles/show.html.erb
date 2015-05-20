@@ -2,12 +2,24 @@
 <article class="profile">
   <p class="prompt">finger <%= @user.nickname %></p>
   <pre>
-Login    : <%= @user.nickname %>
-Email    : <%= @user.email %>
-Joined   : <%= @user.created_at.strftime('%Y-%m-%d') %>
-Solved   : <%= @passed_count %>
-Last seen: <%= time_ago_in_words(@user.last_sign_in_at || @user.created_at) %> ago
+Login        : <%= @user.nickname %>
+Email        : <%= @user.email %>
+Joined       : <%= @user.created_at.strftime('%Y-%m-%d') %>
+Solved       : <%= @passed_count %>
+Current strk : <%= @user.current_streak %> days
+Longest strk : <%= @user.longest_streak %> days
   </pre>
+
+  <% if @user.awards.any? %>
+    <h2>badges</h2>
+    <ul class="badges">
+      <% @user.awards.includes(:badge).each do |a| %>
+        <li title="<%= a.badge.description %>">
+          <span class="glyph">[<%= a.badge.icon_glyph %>]</span> <%= a.badge.name %>
+        </li>
+      <% end %>
+    </ul>
+  <% end %>
 
   <h2>recent submissions</h2>
   <ul class="tree">

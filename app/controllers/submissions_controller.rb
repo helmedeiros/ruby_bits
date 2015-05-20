@@ -26,6 +26,7 @@ class SubmissionsController < ApplicationController
     if submission.passed?
       LessonCompletion.evaluate(current_user, @lesson)
       StreakUpdater.touch(current_user)
+      BadgeGrantor.evaluate(current_user)
     end
 
     render json: {

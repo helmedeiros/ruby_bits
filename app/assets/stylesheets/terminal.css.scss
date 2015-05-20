@@ -126,3 +126,7 @@
 .flash-notice { border-color: #00ff41; }
 .flash-alert  { border-color: #ff003c; color: #ff003c; }
 .errors { color: #ff003c; }
+
+.badges { list-style: none; padding-left: 0; }
+.badges li { display: inline-block; margin-right: 14px; }
+.badges .glyph { color: #ffe066; }
