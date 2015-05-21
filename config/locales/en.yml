@@ -1,0 +1,25 @@
+en:
+  app:
+    name: RubyBits
+    tagline: A terminal where you learn ruby by typing it.
+  nav:
+    tracks: tracks
+    dashboard: dashboard
+    leaderboard: leaderboard
+    profile: profile
+    login: login
+    logout: logout
+    register: register
+  activity:
+    badge: ACTIVITY
+    run:   "» run"
+    reset: "reset"
+    hint:  "need a hint?"
+    status:
+      passed: PASSED
+      failed: FAILED
+      error:  ERROR
+  flash:
+    sign_in_required: sign in to continue
+  search:
+    placeholder: "block / yield / map…"
