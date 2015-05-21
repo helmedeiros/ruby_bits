@@ -1,0 +1,24 @@
+<% content_for :title, "search" %>
+<%= form_tag search_path, method: :get, class: 'search-form' do %>
+  <span class="prompt">grep -r</span>
+  <%= text_field_tag :q, @query, placeholder: 'block / yield / map…', class: 'searchbox', autofocus: true %>
+  <%= submit_tag '» search', class: 'btn' %>
+<% end %>
+
+<% if @query.present? %>
+  <h2>matches in tracks</h2>
+  <ul class="tree">
+    <% @tracks.each do |t| %>
+      <li><%= link_to t.name, track_path(t) %></li>
+    <% end %>
+  </ul>
+  <h2>matches in lessons</h2>
+  <ul class="tree">
+    <% @lessons.each do |l| %>
+      <li>
+        <%= link_to l.title, track_module_lesson_path(l.learning_module.track, l.learning_module, l) %>
+        <span class="meta"><%= l.learning_module.track.slug %>/<%= l.learning_module.slug %></span>
+      </li>
+    <% end %>
+  </ul>
+<% end %>

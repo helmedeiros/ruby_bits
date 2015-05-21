@@ -3,6 +3,7 @@ Rails.application.routes.draw do
 
   root 'home#index'
 
+  get '/search', to: 'search#index', as: :search
   get '/dashboard', to: 'dashboard#show', as: :dashboard
 
   resources :tracks, only: [:index, :show] do
