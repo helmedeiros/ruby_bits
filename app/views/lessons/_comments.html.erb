@@ -1,0 +1,15 @@
+<section id="comments" class="comments">
+  <hr>
+  <h2>discussion</h2>
+  <ul class="thread">
+    <%= render lesson.comments %>
+  </ul>
+  <% if user_signed_in? %>
+    <%= form_for [@track, @module, lesson, Comment.new] do |f| %>
+      <p><%= f.text_area :body, rows: 3, placeholder: 'add to the thread…' %></p>
+      <p><%= f.submit "» post" %></p>
+    <% end %>
+  <% else %>
+    <p class="muted">sign in to comment.</p>
+  <% end %>
+</section>

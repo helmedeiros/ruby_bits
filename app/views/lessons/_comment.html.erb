@@ -1,0 +1,5 @@
+<li class="comment">
+  <span class="prompt">@<%= comment.user.nickname %>:</span>
+  <span class="body"><%= simple_format(comment.body) %></span>
+  <span class="meta"><%= comment.created_at.strftime('%Y-%m-%d %H:%M') %></span>
+</li>

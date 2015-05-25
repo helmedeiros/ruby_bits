@@ -130,3 +130,7 @@
 .badges { list-style: none; padding-left: 0; }
 .badges li { display: inline-block; margin-right: 14px; }
 .badges .glyph { color: #ffe066; }
+
+.thread { list-style: none; padding-left: 0; }
+.thread .comment { padding: 6px 0; border-bottom: 1px dashed #008f11; }
+.thread .comment .body { display: inline-block; }
