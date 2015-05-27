@@ -1,0 +1,15 @@
+// CodeMirror theme: matrix
+.cm-s-matrix.CodeMirror,
+.cm-s-matrix .CodeMirror-gutters {
+  background: #050505 !important;
+  color: #00ff41 !important;
+  border-color: #008f11 !important;
+}
+.cm-s-matrix .CodeMirror-linenumber { color: #008f11; }
+.cm-s-matrix .cm-keyword    { color: #ffe066; }
+.cm-s-matrix .cm-string     { color: #b9f6ca; }
+.cm-s-matrix .cm-comment    { color: #008f11; font-style: italic; }
+.cm-s-matrix .cm-number     { color: #ff9d00; }
+.cm-s-matrix .cm-def        { color: #b9f6ca; }
+.cm-s-matrix .CodeMirror-cursor { border-left: 1px solid #00ff41 !important; }
+.cm-s-matrix .CodeMirror-selected { background: rgba(0,255,65,0.25); }
