@@ -2,6 +2,8 @@ Rails.application.routes.draw do
   devise_for :users, controllers: { registrations: 'users/registrations' }
 
   root 'home#index'
+  get '/about',   to: 'static#about'
+  get '/credits', to: 'static#credits'
 
   get '/search', to: 'search#index', as: :search
   get '/dashboard', to: 'dashboard#show', as: :dashboard
