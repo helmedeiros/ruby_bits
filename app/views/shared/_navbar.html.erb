@@ -1,14 +1,20 @@
 <header class="navbar">
-  <span class="brand"><%= link_to "RubyBits", root_path %></span>
+  <span class="brand"><%= link_to t('app.name'), root_path %></span>
   <nav class="menu">
-    <%= link_to "[tracks]", tracks_path %>
+    <%= link_to "[#{t('nav.tracks')}]", tracks_path %>
+    <%= link_to "[#{t('nav.leaderboard')}]", leaderboard_path %>
+    <%= link_to "[about]", about_path %>
     <% if user_signed_in? %>
       <%= link_to "[~/#{current_user.nickname}]", profile_path(current_user) %>
-      <%= link_to "[logout]", destroy_user_session_path, method: :delete %>
+      <%= link_to "[#{t('nav.dashboard')}]", dashboard_path %>
+      <% if current_user.admin? %>
+        <%= link_to "[admin]", admin_tracks_path %>
+      <% end %>
+      <%= link_to "[#{t('nav.logout')}]", destroy_user_session_path, method: :delete %>
     <% else %>
-      <%= link_to "[login]", new_user_session_path %>
-      <%= link_to "[register]", new_user_registration_path %>
+      <%= link_to "[#{t('nav.login')}]", new_user_session_path %>
+      <%= link_to "[#{t('nav.register')}]", new_user_registration_path %>
     <% end %>
   </nav>
-  <span class="status">load avg 0.66 :: uptime 99d</span>
+  <span class="status" title="server uptime">load 0.66 :: up 99d</span>
 </header>
