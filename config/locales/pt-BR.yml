@@ -1,0 +1,25 @@
+pt-BR:
+  app:
+    name: RubyBits
+    tagline: Um terminal onde você aprende ruby digitando.
+  nav:
+    tracks: trilhas
+    dashboard: painel
+    leaderboard: ranking
+    profile: perfil
+    login: entrar
+    logout: sair
+    register: cadastrar
+  activity:
+    badge: ATIVIDADE
+    run:   "» rodar"
+    reset: "limpar"
+    hint:  "precisa de uma dica?"
+    status:
+      passed: PASSOU
+      failed: FALHOU
+      error:  ERRO
+  flash:
+    sign_in_required: entre para continuar
+  search:
+    placeholder: "block / yield / map…"
