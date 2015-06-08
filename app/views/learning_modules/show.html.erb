@@ -1,13 +1,17 @@
 <% content_for :title, "#{@track.slug}/#{@module.slug}" %>
 <section class="listing">
-  <p class="prompt">cd <%= @track.slug %>/<%= @module.slug %> && ls</p>
+  <p class="prompt">cd <%= @track.slug %>/<%= @module.slug %> && ls -la</p>
   <h1><%= @module.name %></h1>
   <pre class="overview"><%= @module.overview %></pre>
   <ul class="tree">
-    <% @lessons.each_with_index do |l, i| %>
+    <% @presented.each_with_index do |lp, i| %>
       <li>
         <span class="idx">[<%= format('%02d', i+1) %>]</span>
-        <%= link_to l.title, track_module_lesson_path(@track, @module, l) %>
+        <span class="status"><%= lp.status_glyph %></span>
+        <%= link_to lp.title, track_module_lesson_path(@track, @module, lp.slug) %>
+        <% if user_signed_in? && lp.progress > 0 %>
+          <span class="meta">— <%= lp.progress %>%</span>
+        <% end %>
       </li>
     <% end %>
   </ul>
