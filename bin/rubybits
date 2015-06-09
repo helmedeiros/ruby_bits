@@ -1,0 +1,19 @@
+#!/usr/bin/env ruby
+# tiny CLI for irb-style ad-hoc activity runs.
+require_relative '../config/environment'
+
+case ARGV.shift
+when 'version', '-v', '--version'
+  puts "RubyBits #{RubyBits::VERSION} (#{RubyBits::CODENAME})"
+when 'seed'
+  Rake::Task['rubybits:seed'].invoke
+when 'run'
+  require 'sandbox/ruby_runner'
+  src = ARGF.read
+  res = Sandbox::RubyRunner.new(src, '').run
+  warn res.stderr unless res.stderr.empty?
+  puts res.stdout
+  exit(res.status == 'passed' ? 0 : 1)
+else
+  puts "usage: rubybits {version|seed|run < file.rb}"
+end
