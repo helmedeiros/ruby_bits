@@ -1,7 +1,7 @@
 <% content_for :title, "boot" %>
 <section class="boot-log">
   <p class="prompt">whoami</p>
-  <pre>>> guest@rubybits</pre>
+  <pre>>> <%= user_signed_in? ? current_user.nickname : 'guest' %>@rubybits</pre>
   <p class="prompt">cat /etc/motd</p>
   <pre class="motd">
    ______        __         ___  _ __
@@ -9,8 +9,16 @@
  / /_/ // // / / __ \/ // / _  / / __(_-<
 /_,___/ \_, / /_/_/\_\\_, /____/_/\__/___/
        /___/         /___/
-                                  v0.0.1
+                                  v0.1.0
   </pre>
   <p class="prompt">./start_learning.sh</p>
-  <p>welcome to RubyBits — a terminal where you learn ruby by typing it.<span class="cursor"></span></p>
+  <p><%= t('app.tagline') %><span class="cursor"></span></p>
+
+  <hr>
+  <h2>pick a track</h2>
+  <ul class="tree">
+    <% Track.order(:position).limit(6).each do |t| %>
+      <li><%= link_to t.name, track_path(t) %> <span class="meta">— <%= t.description %></span></li>
+    <% end %>
+  </ul>
 </section>
