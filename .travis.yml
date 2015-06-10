@@ -7,8 +7,9 @@ services:
   - redis-server
 before_script:
   - psql -c 'create database ruby_bits_test;' -U postgres
-script:
   - bundle exec rake db:schema:load RAILS_ENV=test
+script:
+  - bundle exec rubocop
   - bundle exec rspec
 notifications:
   email: false
