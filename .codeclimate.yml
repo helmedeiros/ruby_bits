@@ -1,0 +1,18 @@
+engines:
+  rubocop:
+    enabled: true
+  duplication:
+    enabled: true
+    config:
+      languages:
+        - ruby
+ratings:
+  paths:
+    - "app/**"
+    - "lib/**"
+exclude_paths:
+  - db/migrate/**
+  - db/seeds/**
+  - vendor/**
+  - spec/**
+  - bin/**
