@@ -34,6 +34,8 @@ end
 group :test do
   gem 'capybara', '~> 2.4'
   gem 'database_cleaner', '~> 1.4'
+  gem 'simplecov', '~> 0.10', require: false
+  gem 'coveralls', '~> 0.8', require: false
 end
 
 group :development do
