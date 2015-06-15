@@ -1,0 +1,22 @@
+---
+---
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>{{ page.title | default: site.title }} :: {{ site.title }}</title>
+  <meta name="description" content="{{ page.description | default: site.description }}">
+  <link rel="stylesheet" href="{{ '/assets/css/style.css' | prepend: site.baseurl }}">
+</head>
+<body>
+  <canvas id="rain"></canvas>
+  <div id="terminal">
+    {% include header.html %}
+    <main>
+      {{ content }}
+    </main>
+    {% include footer.html %}
+  </div>
+  <script src="{{ '/assets/js/matrix_rain.js' | prepend: site.baseurl }}"></script>
+</body>
+</html>

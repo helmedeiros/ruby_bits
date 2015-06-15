@@ -1,0 +1,30 @@
+---
+layout: default
+title: boot
+---
+<section class="boot-log">
+  <p class="prompt">whoami</p>
+  <pre>>> guest@rubybits</pre>
+  <p class="prompt">cat /etc/motd</p>
+<pre class="motd">
+   ______        __         ___  _ __
+  / __  /__ __  / /_  __ __/ _ )(_) /____
+ / /_/ // // / / __ \/ // / _  / / __(_-<
+/_,___/ \_, / /_/_/\_\\_, /____/_/\__/___/
+       /___/         /___/
+                                  v0.1.0
+</pre>
+  <p class="prompt">./start_learning.sh</p>
+  <p>{{ site.tagline }}<span class="cursor"></span></p>
+
+  <hr>
+  <h2>pick a track</h2>
+  <ul class="tree">
+    {% for t in site.data.tracks %}
+      <li>
+        <a href="{{ site.baseurl }}/tracks/{{ t.slug }}/">{{ t.name }}</a>
+        <span class="meta">— {{ t.description }}</span>
+      </li>
+    {% endfor %}
+  </ul>
+</section>

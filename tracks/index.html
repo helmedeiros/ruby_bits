@@ -1,0 +1,16 @@
+---
+layout: default
+title: tracks
+permalink: /tracks/
+---
+<section class="listing">
+  <p class="prompt">ls /usr/share/rubybits/tracks</p>
+  <ul class="tree">
+    {% for t in site.data.tracks %}
+      <li>
+        <a href="{{ site.baseurl }}/tracks/{{ t.slug }}/">{{ t.name }}</a>
+        <span class="meta">({{ t.lessons | size }} lessons)</span>
+      </li>
+    {% endfor %}
+  </ul>
+</section>

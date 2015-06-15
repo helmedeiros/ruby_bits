@@ -1,0 +1,53 @@
+- slug: expressions
+  name: Expressions
+  description: Sweet ruby syntax for common conditional patterns.
+  lessons:
+    - inline-if
+    - unless
+    - conditional-assignment
+
+- slug: short-circuit
+  name: Short-circuit Tricks
+  description: Use && and || to compress safe-navigation and defaults.
+  lessons:
+    - default-with-or
+    - safe-chain-and
+
+- slug: methods
+  name: Methods
+  description: Argument forms beyond positional — defaults, splats, options.
+  lessons:
+    - default-arguments
+    - splat-arguments
+    - raise-exception
+
+- slug: classes
+  name: Classes
+  description: Define classes that hide state and expose behaviour.
+  lessons:
+    - attr-accessor
+    - attr-reader
+
+- slug: blocks
+  name: Blocks, Procs & Lambdas
+  description: The three flavours of callable in ruby and when to use each.
+  lessons:
+    - yield
+    - proc-vs-lambda
+
+- slug: enumerable
+  name: Enumerable
+  description: The collection methods every rubyist should know cold.
+  lessons:
+    - map
+    - select
+    - reduce
+
+- slug: mixins
+  name: Mixins & Concerns
+  description: Share behaviour with modules — and know when not to.
+  lessons:
+    - include
+    - extend
+    - self-included
+    - active-support-concern

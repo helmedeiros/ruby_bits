@@ -1,0 +1,90 @@
+---
+---
+$bg:        #000000;
+$fg:        #00ff41;
+$fg-dim:    #008f11;
+$fg-bright: #b9f6ca;
+$warn:      #fffb00;
+$danger:    #ff003c;
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0; padding: 0;
+  background: $bg; color: $fg;
+  font-family: "Courier New", "Lucida Console", monospace;
+  font-size: 14px; line-height: 1.4;
+  min-height: 100%;
+}
+
+body { background-image: linear-gradient(transparent 95%, rgba(0,255,65,0.08) 5%); background-size: 100% 3px; }
+
+::selection { background: $fg; color: $bg; }
+
+a {
+  color: $fg-bright;
+  text-decoration: none;
+  border-bottom: 1px dashed $fg-dim;
+}
+a:hover { color: $bg; background: $fg; text-shadow: 0 0 6px $fg-bright; }
+
+h1, h2, h3, h4 {
+  color: $fg-bright;
+  text-shadow: 0 0 6px $fg;
+  letter-spacing: 0.05em;
+}
+
+hr { border: 0; border-top: 1px dashed $fg-dim; margin: 1em 0; }
+
+#terminal {
+  max-width: 980px;
+  margin: 30px auto;
+  padding: 20px 28px 32px;
+  border: 1px solid $fg;
+  border-radius: 4px;
+  box-shadow: 0 0 12px rgba(0,255,65,0.45) inset, 0 0 20px rgba(0,255,65,0.30);
+  position: relative;
+  animation: flicker 4s infinite;
+}
+
+#terminal:before {
+  content: "RubyBits — /usr/local/bin/irb";
+  position: absolute; top: -10px; left: 18px;
+  background: #000; padding: 0 6px;
+  color: $fg; font-size: 11px; letter-spacing: 0.2em;
+}
+
+@keyframes flicker {
+  0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% { opacity: 1; }
+  20%, 24%, 55% { opacity: 0.88; }
+}
+
+.prompt:before { content: "» "; color: $fg-dim; }
+
+.cursor {
+  display: inline-block; width: 8px; height: 14px;
+  background: $fg; vertical-align: text-bottom;
+  animation: blink 1s steps(2) infinite;
+}
+@keyframes blink { to { visibility: hidden; } }
+
+#rain {
+  position: fixed; top: 0; left: 0;
+  z-index: -1; opacity: 0.55;
+}
+
+.navbar { padding: 4px 0 12px; border-bottom: 1px dashed $fg-dim; margin-bottom: 18px; }
+.navbar .brand { color: $fg-bright; text-shadow: 0 0 8px $fg; font-weight: bold; margin-right: 24px; letter-spacing: 0.15em; }
+.navbar .menu a { margin-right: 14px; border-bottom: none; }
+.navbar .status { float: right; color: $fg-dim; font-size: 11px; margin-top: 4px; }
+
+.tree { list-style: none; padding-left: 18px; }
+.tree li { position: relative; padding: 4px 0; }
+.tree li:before { content: "├─"; color: $fg-dim; margin-right: 6px; }
+.tree li:last-child:before { content: "└─"; }
+.tree .idx { color: $fg-dim; margin-right: 6px; }
+.tree .meta { color: $fg-dim; }
+.muted { color: $fg-dim; }
+
+.footer { margin-top: 36px; }
+.footer pre { color: $fg-dim; font-size: 11px; }

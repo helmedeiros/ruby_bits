@@ -1,0 +1,26 @@
+title: RubyBits
+tagline: A terminal where you learn ruby by typing it.
+description: >
+  Short, runnable ruby lessons grouped into modules, with the matrix
+  for a backdrop. Static site built with Jekyll for GitHub Pages.
+url: https://helmedeiros.github.io
+baseurl: /ruby_bits
+
+markdown: kramdown
+highlighter: rouge
+
+permalink: /:collection/:path/
+
+gems:
+  - jekyll-redirect-from
+
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - README
+  - Rakefile
+
+collections:
+  tracks:
+    output: true
+    permalink: /tracks/:path/
