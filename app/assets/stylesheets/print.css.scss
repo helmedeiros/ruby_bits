@@ -1,5 +1,5 @@
 @media print {
-  #rain, .navbar, .lesson-nav, .activity .actions, .comments form { display: none !important; }
+  .navbar, .lesson-nav, .activity .actions, .comments form { display: none !important; }
   body { background: #fff !important; color: #000 !important; }
   #terminal { border: none !important; box-shadow: none !important; animation: none !important; }
   a { color: #000 !important; text-decoration: underline !important; border-bottom: none !important; }
