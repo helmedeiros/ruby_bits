@@ -1,25 +1,21 @@
-// In-browser Ruby execution via Opal.
-//   Run flow:
-//     1. Compile user's source → JS via Opal
-//     2. Compile spec_code → JS via Opal
-//     3. eval(userJS); eval(specJS) inside a try/catch
-//     4. PASS if no exception, FAIL with stderr otherwise
-//   Choice flow:
-//     1. Read selected radio value
-//     2. Compare against data-correct
+// In-browser Ruby execution via Opal (cdn.opalrb.com).
 (function () {
   'use strict';
-
-  function compile(src) {
-    if (!window.Opal || !Opal.compile) {
-      throw new Error('Opal compiler not loaded yet — wait a sec and try again');
-    }
-    return Opal.compile(src);
-  }
 
   function ready(fn) {
     if (document.readyState !== 'loading') return fn();
     document.addEventListener('DOMContentLoaded', fn);
+  }
+
+  function waitForOpal(timeoutMs) {
+    var deadline = Date.now() + (timeoutMs || 8000);
+    return new Promise(function (resolve, reject) {
+      (function poll() {
+        if (window.Opal && typeof Opal.compile === 'function') return resolve();
+        if (Date.now() > deadline) return reject(new Error('Opal failed to load after ' + (timeoutMs / 1000) + 's'));
+        setTimeout(poll, 100);
+      }());
+    });
   }
 
   function initEditors() {
@@ -30,14 +26,13 @@
       if (ta.dataset.cmInit) continue;
       ta.dataset.cmInit = '1';
       ta.dataset.starter = ta.value;
-      var cm = CodeMirror.fromTextArea(ta, {
+      ta.cm = CodeMirror.fromTextArea(ta, {
         mode: 'ruby',
         lineNumbers: true,
         theme: 'matrix',
         indentUnit: 2,
         tabSize: 2
       });
-      ta.cm = cm;
     }
   }
 
@@ -47,24 +42,29 @@
     var out  = form.querySelector('[data-role=result]');
     var src  = ta.cm ? ta.cm.getValue() : ta.value;
 
-    out.innerHTML = '<span class="muted">» compiling…<span class="cursor"></span></span>';
+    out.innerHTML = '<span class="muted">» loading opal + compiling…<span class="cursor"></span></span>';
     var t0 = performance.now();
-    try {
-      var userJS = compile(src);
-      var specJS = compile(spec);
-      // Evaluate in a fresh function scope so user defs are visible to the spec.
-      (new Function('Opal', 'nil', userJS + ';\n' + specJS))(Opal, Opal.nil);
-      var ms = Math.round(performance.now() - t0);
-      out.innerHTML = '<div class="result-passed"><p>» PASSED <span class="meta">(' + ms + 'ms)</span></p></div>';
-    } catch (e) {
-      var ms2 = Math.round(performance.now() - t0);
-      var msg = (e && e.message) ? e.message : String(e);
-      out.innerHTML = '<div class="result-failed">' +
-        '<p>» FAILED <span class="meta">(' + ms2 + 'ms)</span></p>' +
-        '<pre class="err">' + escapeHtml(msg) + '</pre>' +
-        '<p class="hint">read the spec and the error — they tell you what to change.</p>' +
-        '</div>';
-    }
+
+    waitForOpal(8000).then(function () {
+      try {
+        var userJS = Opal.compile(src, { file: 'submission.rb' });
+        var specJS = Opal.compile(spec, { file: 'spec.rb' });
+        (new Function('Opal', 'nil', userJS + ';\n' + specJS))(Opal, Opal.nil);
+        var ms = Math.round(performance.now() - t0);
+        out.innerHTML = '<div class="result-passed"><p>» PASSED <span class="meta">(' + ms + 'ms)</span></p></div>';
+      } catch (e) {
+        var ms2 = Math.round(performance.now() - t0);
+        var msg = (e && e.message) ? e.message : String(e);
+        out.innerHTML =
+          '<div class="result-failed">' +
+          '  <p>» FAILED <span class="meta">(' + ms2 + 'ms)</span></p>' +
+          '  <pre class="err">' + escapeHtml(msg) + '</pre>' +
+          '  <p class="hint">read the spec and the error — they tell you what to change.</p>' +
+          '</div>';
+      }
+    }).catch(function (err) {
+      out.innerHTML = '<div class="result-failed"><p>» OPAL OFFLINE</p><pre class="err">' + escapeHtml(err.message) + '</pre></div>';
+    });
   }
 
   function submitChoice(form) {
