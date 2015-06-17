@@ -1,0 +1,50 @@
+---
+layout: "lesson"
+title: "enumerable/map"
+permalink: "/tracks/enumerable/map/"
+track: "enumerable"
+lesson_slug: "map"
+---
+{% assign track = site.data.tracks | where: "slug", "enumerable" | first %}
+<article class="lesson">
+  <nav class="crumbs"><a href="{{ site.baseurl }}/">RubyBits</a> / <a href="{{ site.baseurl }}/tracks/{{ track.slug }}/">{{ track.name }}</a> / <span>map (transform)</span></nav>
+  <h1>map (transform)</h1>
+  <div class="body markdown">
+{% capture lesson_body %}
+## map
+
+```ruby
+users.map(&:email)
+# => ["a@x", "b@y"]
+```
+
+`map` returns a new collection of the same size, each
+element transformed by the block.
+{% endcapture %}
+{{ lesson_body | markdownify }}
+  </div>
+  <hr>
+  <h2>activities</h2>
+  <section class="activity activity-code" id="a-enumerable-map-1">
+    <header class="activity-head"><span class="badge">[ACTIVITY]</span> <h3>Transform with map</h3></header>
+    <div class="prompt-block">
+{% capture p_enumerable_map_1 %}
+Return the squares of the input array.
+{% endcapture %}
+{{ p_enumerable_map_1 | markdownify }}
+    </div>
+    <form class="activity-form" data-kind="code" data-spec="raise unless squares([1,2,3]) == [1,4,9]
+raise unless squares([]) == []
+">
+      <textarea class="code-editor" rows="10">def squares(nums)
+  # TODO
+end
+</textarea>
+      <div class="actions">
+        <button type="submit" class="btn run">» run</button>
+        <button type="button" class="btn reset">reset</button>
+      </div>
+      <div class="result" data-role="result"></div>
+    </form>
+  </section>
+</article>

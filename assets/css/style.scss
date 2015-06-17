@@ -83,3 +83,62 @@ hr { border: 0; border-top: 1px dashed $fg-dim; margin: 1em 0; }
 
 .footer { margin-top: 36px; }
 .footer pre { color: $fg-dim; font-size: 11px; }
+
+// lesson + activity styling
+.crumbs { font-size: 12px; color: $fg-dim; margin-bottom: 8px; }
+.crumbs a { border-bottom: none; }
+.lesson .body { margin-top: 10px; }
+.lesson .body pre, .lesson .body code { color: $fg-bright; }
+.lesson .body pre { background: #050505; border: 1px dashed $fg-dim; padding: 10px 12px; overflow-x: auto; }
+.lesson .body code { padding: 0 3px; }
+.lesson .body table { border-collapse: collapse; margin: 12px 0; }
+.lesson .body th, .lesson .body td { border-bottom: 1px dashed $fg-dim; padding: 4px 8px; }
+.lesson .body th { color: $fg-bright; text-align: left; }
+.lesson .body h2 { margin-top: 18px; }
+
+.activity {
+  border: 1px dashed $fg-dim;
+  padding: 12px 14px;
+  margin: 18px 0;
+  background: rgba(0,255,65,0.03);
+}
+.activity .activity-head { margin-bottom: 8px; }
+.activity .badge {
+  background: $fg; color: #000;
+  padding: 1px 6px; font-size: 11px;
+  margin-right: 8px;
+}
+.activity h3 { display: inline; color: $fg-bright; }
+.activity .prompt-block { margin-bottom: 10px; }
+.activity .prompt-block code { color: $fg-bright; padding: 0 3px; }
+.activity .prompt-block pre  { background: #050505; border: 1px dashed $fg-dim; padding: 8px; }
+.activity .actions { margin-top: 8px; }
+.activity .btn {
+  background: transparent; color: $fg;
+  border: 1px solid $fg-dim; padding: 4px 12px;
+  font-family: inherit; cursor: pointer;
+  margin-right: 6px;
+}
+.activity .btn:hover { background: $fg; color: #000; }
+.activity .result { margin-top: 12px; }
+.activity .result-passed { color: $fg-bright; }
+.activity .result-failed { color: $warn; }
+.activity .result .err   { color: $danger; background: rgba(255,0,60,0.06); padding: 6px; }
+.activity .hint          { color: $fg-dim; font-style: italic; }
+.activity .choices { list-style: none; padding: 0; }
+.activity .choices li { padding: 3px 0; }
+.activity .choices .key { color: $fg-dim; }
+.activity .hints { margin-top: 10px; border-top: 1px dashed $fg-dim; padding-top: 6px; }
+.activity .hints summary { cursor: pointer; color: $fg-dim; }
+
+// CodeMirror matrix theme
+.CodeMirror { border: 1px dashed $fg-dim; background: #050505; color: $fg; font-family: inherit; height: auto; padding: 6px; }
+.cm-s-matrix.CodeMirror, .cm-s-matrix .CodeMirror-gutters { background: #050505 !important; color: $fg !important; border-color: $fg-dim !important; }
+.cm-s-matrix .CodeMirror-linenumber { color: $fg-dim; }
+.cm-s-matrix .cm-keyword { color: $warn; }
+.cm-s-matrix .cm-string  { color: $fg-bright; }
+.cm-s-matrix .cm-comment { color: $fg-dim; font-style: italic; }
+.cm-s-matrix .cm-number  { color: #ff9d00; }
+.cm-s-matrix .cm-def     { color: $fg-bright; }
+.cm-s-matrix .CodeMirror-cursor { border-left: 1px solid $fg !important; }
+.cm-s-matrix .CodeMirror-selected { background: rgba(0,255,65,0.25); }

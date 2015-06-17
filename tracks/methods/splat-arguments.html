@@ -1,0 +1,54 @@
+---
+layout: "lesson"
+title: "methods/splat-arguments"
+permalink: "/tracks/methods/splat-arguments/"
+track: "methods"
+lesson_slug: "splat-arguments"
+---
+{% assign track = site.data.tracks | where: "slug", "methods" | first %}
+<article class="lesson">
+  <nav class="crumbs"><a href="{{ site.baseurl }}/">RubyBits</a> / <a href="{{ site.baseurl }}/tracks/{{ track.slug }}/">{{ track.name }}</a> / <span>Splat arguments</span></nav>
+  <h1>Splat arguments</h1>
+  <div class="body markdown">
+{% capture lesson_body %}
+## Splats
+
+Prefix an arg with `*` to collect remaining positional args
+into an Array:
+
+```ruby
+def log(level, *messages)
+  messages.each { |m| puts "[#{level}] #{m}" }
+end
+```
+
+Use `**` for keyword-args (ruby 2.0+).
+{% endcapture %}
+{{ lesson_body | markdownify }}
+  </div>
+  <hr>
+  <h2>activities</h2>
+  <section class="activity activity-code" id="a-methods-splat-arguments-1">
+    <header class="activity-head"><span class="badge">[ACTIVITY]</span> <h3>Collect with splat</h3></header>
+    <div class="prompt-block">
+{% capture p_methods_splat_arguments_1 %}
+Make `total` accept any number of numbers.
+{% endcapture %}
+{{ p_methods_splat_arguments_1 | markdownify }}
+    </div>
+    <form class="activity-form" data-kind="code" data-spec="raise unless total == 0
+raise unless total(1) == 1
+raise unless total(1,2,3,4) == 10
+">
+      <textarea class="code-editor" rows="10">def total
+  # TODO
+end
+</textarea>
+      <div class="actions">
+        <button type="submit" class="btn run">» run</button>
+        <button type="button" class="btn reset">reset</button>
+      </div>
+      <div class="result" data-role="result"></div>
+    </form>
+  </section>
+</article>

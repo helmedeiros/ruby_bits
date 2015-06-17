@@ -12,12 +12,8 @@ permalink: /tracks/mixins/
     {% for lesson in track.lessons %}
       <li>
         <span class="idx">[{{ forloop.index | prepend: "0" | slice: -2, 2 }}]</span>
-        {{ lesson }}
+        <a href="{{ site.baseurl }}/tracks/{{ track.slug }}/{{ lesson.slug }}/">{{ lesson.title }}</a>
       </li>
     {% endfor %}
   </ul>
-  <p class="muted">
-    full lessons + runnable activities live in the Rails app at
-    <a href="https://github.com/helmedeiros/ruby_bits">rubybits://</a>
-  </p>
 </section>

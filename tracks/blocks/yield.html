@@ -1,0 +1,54 @@
+---
+layout: "lesson"
+title: "blocks/yield"
+permalink: "/tracks/blocks/yield/"
+track: "blocks"
+lesson_slug: "yield"
+---
+{% assign track = site.data.tracks | where: "slug", "blocks" | first %}
+<article class="lesson">
+  <nav class="crumbs"><a href="{{ site.baseurl }}/">RubyBits</a> / <a href="{{ site.baseurl }}/tracks/{{ track.slug }}/">{{ track.name }}</a> / <span>yield</span></nav>
+  <h1>yield</h1>
+  <div class="body markdown">
+{% capture lesson_body %}
+## yield
+
+```ruby
+def each_pair(hash)
+  hash.each { |k, v| yield k, v }
+end
+
+each_pair(name: 'alice') { |k, v| puts "#{k}=#{v}" }
+```
+
+`yield` raises `LocalJumpError` if no block was given. Guard
+with `block_given?` when the block is optional.
+{% endcapture %}
+{{ lesson_body | markdownify }}
+  </div>
+  <hr>
+  <h2>activities</h2>
+  <section class="activity activity-code" id="a-blocks-yield-1">
+    <header class="activity-head"><span class="badge">[ACTIVITY]</span> <h3>Use yield</h3></header>
+    <div class="prompt-block">
+{% capture p_blocks_yield_1 %}
+Make `times_with_msg(n)` yield each index 0..n-1.
+{% endcapture %}
+{{ p_blocks_yield_1 | markdownify }}
+    </div>
+    <form class="activity-form" data-kind="code" data-spec="collected = []
+times_with_msg(3) { |i| collected &lt;&lt; i }
+raise unless collected == [0, 1, 2]
+">
+      <textarea class="code-editor" rows="10">def times_with_msg(n)
+  # TODO
+end
+</textarea>
+      <div class="actions">
+        <button type="submit" class="btn run">» run</button>
+        <button type="button" class="btn reset">reset</button>
+      </div>
+      <div class="result" data-role="result"></div>
+    </form>
+  </section>
+</article>

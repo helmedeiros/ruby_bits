@@ -1,0 +1,59 @@
+---
+layout: "lesson"
+title: "classes/attr-accessor"
+permalink: "/tracks/classes/attr-accessor/"
+track: "classes"
+lesson_slug: "attr-accessor"
+---
+{% assign track = site.data.tracks | where: "slug", "classes" | first %}
+<article class="lesson">
+  <nav class="crumbs"><a href="{{ site.baseurl }}/">RubyBits</a> / <a href="{{ site.baseurl }}/tracks/{{ track.slug }}/">{{ track.name }}</a> / <span>attr_accessor</span></nav>
+  <h1>attr_accessor</h1>
+  <div class="body markdown">
+{% capture lesson_body %}
+## attr_accessor
+
+```ruby
+class User
+  attr_accessor :name
+end
+```
+
+Is shorthand for:
+
+```ruby
+class User
+  def name;       @name;       end
+  def name=(val); @name = val; end
+end
+```
+{% endcapture %}
+{{ lesson_body | markdownify }}
+  </div>
+  <hr>
+  <h2>activities</h2>
+  <section class="activity activity-code" id="a-classes-attr-accessor-1">
+    <header class="activity-head"><span class="badge">[ACTIVITY]</span> <h3>Use attr_accessor</h3></header>
+    <div class="prompt-block">
+{% capture p_classes_attr_accessor_1 %}
+Add accessors for `name` and `email` to `Person`.
+{% endcapture %}
+{{ p_classes_attr_accessor_1 | markdownify }}
+    </div>
+    <form class="activity-form" data-kind="code" data-spec="p = Person.new
+p.name = 'alice'; p.email = 'a@x'
+raise unless p.name == 'alice'
+raise unless p.email == 'a@x'
+">
+      <textarea class="code-editor" rows="10">class Person
+  # TODO
+end
+</textarea>
+      <div class="actions">
+        <button type="submit" class="btn run">» run</button>
+        <button type="button" class="btn reset">reset</button>
+      </div>
+      <div class="result" data-role="result"></div>
+    </form>
+  </section>
+</article>

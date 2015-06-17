@@ -1,0 +1,50 @@
+---
+layout: "lesson"
+title: "classes/attr-reader"
+permalink: "/tracks/classes/attr-reader/"
+track: "classes"
+lesson_slug: "attr-reader"
+---
+{% assign track = site.data.tracks | where: "slug", "classes" | first %}
+<article class="lesson">
+  <nav class="crumbs"><a href="{{ site.baseurl }}/">RubyBits</a> / <a href="{{ site.baseurl }}/tracks/{{ track.slug }}/">{{ track.name }}</a> / <span>attr_reader — read-only state</span></nav>
+  <h1>attr_reader — read-only state</h1>
+  <div class="body markdown">
+{% capture lesson_body %}
+## attr_reader
+
+Use `attr_reader` when callers should read, but only the
+class itself should mutate. Pair it with `private` writers
+or with `initialize` that sets the ivars once.
+
+```ruby
+class Coordinate
+  attr_reader :x, :y
+  def initialize(x, y); @x, @y = x, y; end
+end
+```
+{% endcapture %}
+{{ lesson_body | markdownify }}
+  </div>
+  <hr>
+  <h2>activities</h2>
+  <section class="activity activity-choice" id="a-classes-attr-reader-1">
+    <header class="activity-head"><span class="badge">[ACTIVITY]</span> <h3>Lock it down</h3></header>
+    <div class="prompt-block">
+{% capture p_classes_attr_reader_1 %}
+Which accessor allows external code to **read** but not **write** `email`?
+{% endcapture %}
+{{ p_classes_attr_reader_1 | markdownify }}
+    </div>
+    <form class="activity-form" data-kind="choice" data-correct="b">
+      <ul class="choices">
+        <li><label><input type="radio" name="choice-classes-attr-reader-1" value="a"> <span class="key">[a]</span> attr_accessor :email</label></li>
+        <li><label><input type="radio" name="choice-classes-attr-reader-1" value="b"> <span class="key">[b]</span> attr_reader :email</label></li>
+        <li><label><input type="radio" name="choice-classes-attr-reader-1" value="c"> <span class="key">[c]</span> attr_writer :email</label></li>
+        <li><label><input type="radio" name="choice-classes-attr-reader-1" value="d"> <span class="key">[d]</span> define_method(:email) { @email }</label></li>
+      </ul>
+      <button type="submit" class="btn">» submit</button>
+      <div class="result" data-role="result"></div>
+    </form>
+  </section>
+</article>

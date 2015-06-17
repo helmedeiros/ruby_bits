@@ -1,0 +1,56 @@
+---
+layout: "lesson"
+title: "mixins/extend"
+permalink: "/tracks/mixins/extend/"
+track: "mixins"
+lesson_slug: "extend"
+---
+{% assign track = site.data.tracks | where: "slug", "mixins" | first %}
+<article class="lesson">
+  <nav class="crumbs"><a href="{{ site.baseurl }}/">RubyBits</a> / <a href="{{ site.baseurl }}/tracks/{{ track.slug }}/">{{ track.name }}</a> / <span>extend — single-instance / class methods</span></nav>
+  <h1>extend — single-instance / class methods</h1>
+  <div class="body markdown">
+{% capture lesson_body %}
+## extend
+
+Inside a class body, `extend` adds the module's methods as
+**class-level** methods:
+
+```ruby
+module Counters
+  def count; @count ||= 0; end
+  def bump; @count = count + 1; end
+end
+
+class Hit
+  extend Counters
+end
+
+Hit.bump; Hit.count # => 1
+```
+{% endcapture %}
+{{ lesson_body | markdownify }}
+  </div>
+  <hr>
+  <h2>activities</h2>
+  <section class="activity activity-choice" id="a-mixins-extend-1">
+    <header class="activity-head"><span class="badge">[ACTIVITY]</span> <h3>When extend?</h3></header>
+    <div class="prompt-block">
+{% capture p_mixins_extend_1 %}
+You want every subclass of `Logger` to expose a class-level
+`silence!` method. Which call adds it?
+{% endcapture %}
+{{ p_mixins_extend_1 | markdownify }}
+    </div>
+    <form class="activity-form" data-kind="choice" data-correct="b">
+      <ul class="choices">
+        <li><label><input type="radio" name="choice-mixins-extend-1" value="a"> <span class="key">[a]</span> include Silenceable inside the class body</label></li>
+        <li><label><input type="radio" name="choice-mixins-extend-1" value="b"> <span class="key">[b]</span> extend Silenceable inside the class body</label></li>
+        <li><label><input type="radio" name="choice-mixins-extend-1" value="c"> <span class="key">[c]</span> prepend Silenceable inside the class body</label></li>
+        <li><label><input type="radio" name="choice-mixins-extend-1" value="d"> <span class="key">[d]</span> define_method :silence! inside the instance</label></li>
+      </ul>
+      <button type="submit" class="btn">» submit</button>
+      <div class="result" data-role="result"></div>
+    </form>
+  </section>
+</article>
