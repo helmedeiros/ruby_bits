@@ -15,6 +15,7 @@ gems:
   - jekyll-redirect-from
 
 exclude:
+  - _test
   - Gemfile
   - Gemfile.lock
   - README
