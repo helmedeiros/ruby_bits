@@ -1,0 +1,54 @@
+---
+layout: "lesson"
+title: "basics/hashes"
+permalink: "/tracks/basics/hashes/"
+track: "basics"
+lesson_slug: "hashes"
+---
+{% assign track = site.data.tracks | where: "slug", "basics" | first %}
+<article class="lesson">
+  <nav class="crumbs"><a href="{{ site.baseurl }}/">RubyBits</a> / <a href="{{ site.baseurl }}/tracks/{{ track.slug }}/">{{ track.name }}</a> / <span>Hashes</span></nav>
+  <h1>Hashes</h1>
+  <div class="body markdown">
+{% capture lesson_body %}
+## Hashes
+
+Hashes map keys to values. Any object can be a key, but symbols
+are most common:
+
+```ruby
+user = { name: "alice", age: 30 }
+user[:name]            # => "alice"
+user[:role] = :admin
+```
+
+A handy trick: `Hash.new(0)` returns `0` for any missing key,
+which makes counting trivial.
+{% endcapture %}
+{{ lesson_body | markdownify }}
+  </div>
+  <hr>
+  <h2>activities</h2>
+  <section class="activity activity-code" id="a-basics-hashes-1">
+    <header class="activity-head"><span class="badge">[ACTIVITY]</span> <h3>Tag counter</h3></header>
+    <div class="prompt-block">
+{% capture p_basics_hashes_1 %}
+Given an array of tags, return a hash mapping each tag to its count.
+{% endcapture %}
+{{ p_basics_hashes_1 | markdownify }}
+    </div>
+    <form class="activity-form" data-kind="code" data-spec="raise unless tally([&quot;a&quot;, &quot;b&quot;, &quot;a&quot;]) == { &quot;a&quot; =&gt; 2, &quot;b&quot; =&gt; 1 }
+raise unless tally([])              == {}
+">
+      <textarea class="code-editor" rows="10">def tally(tags)
+  # TODO
+end
+</textarea>
+      <div class="actions">
+        <button type="submit" class="btn run">» run</button>
+        <button type="button" class="btn reset">reset</button>
+      </div>
+      <div class="result" data-role="result"></div>
+    </form>
+  </section>
+</article>

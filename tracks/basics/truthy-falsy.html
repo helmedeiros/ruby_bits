@@ -1,0 +1,52 @@
+---
+layout: "lesson"
+title: "basics/truthy-falsy"
+permalink: "/tracks/basics/truthy-falsy/"
+track: "basics"
+lesson_slug: "truthy-falsy"
+---
+{% assign track = site.data.tracks | where: "slug", "basics" | first %}
+<article class="lesson">
+  <nav class="crumbs"><a href="{{ site.baseurl }}/">RubyBits</a> / <a href="{{ site.baseurl }}/tracks/{{ track.slug }}/">{{ track.name }}</a> / <span>Truthy and falsy</span></nav>
+  <h1>Truthy and falsy</h1>
+  <div class="body markdown">
+{% capture lesson_body %}
+## Truthy and falsy
+
+Ruby treats **only `false` and `nil`** as falsy. Everything else
+— including `0`, `""`, and `[]` — is truthy.
+
+```ruby
+puts "yes" if 0      # prints
+puts "yes" if ""     # prints
+puts "yes" if []     # prints
+puts "yes" if nil    # nothing
+puts "yes" if false  # nothing
+```
+
+This trips up people coming from C or Python — be deliberate.
+{% endcapture %}
+{{ lesson_body | markdownify }}
+  </div>
+  <hr>
+  <h2>activities</h2>
+  <section class="activity activity-choice" id="a-basics-truthy-falsy-1">
+    <header class="activity-head"><span class="badge">[ACTIVITY]</span> <h3>Spot the falsy</h3></header>
+    <div class="prompt-block">
+{% capture p_basics_truthy_falsy_1 %}
+Which value is FALSY in Ruby?
+{% endcapture %}
+{{ p_basics_truthy_falsy_1 | markdownify }}
+    </div>
+    <form class="activity-form" data-kind="choice" data-correct="c">
+      <ul class="choices">
+        <li><label><input type="radio" name="choice-basics-truthy-falsy-1" value="a"> <span class="key">[a]</span> 0</label></li>
+        <li><label><input type="radio" name="choice-basics-truthy-falsy-1" value="b"> <span class="key">[b]</span> ""</label></li>
+        <li><label><input type="radio" name="choice-basics-truthy-falsy-1" value="c"> <span class="key">[c]</span> nil</label></li>
+        <li><label><input type="radio" name="choice-basics-truthy-falsy-1" value="d"> <span class="key">[d]</span> []</label></li>
+      </ul>
+      <button type="submit" class="btn">» submit</button>
+      <div class="result" data-role="result"></div>
+    </form>
+  </section>
+</article>

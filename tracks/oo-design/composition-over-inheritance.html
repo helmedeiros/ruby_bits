@@ -1,0 +1,71 @@
+---
+layout: "lesson"
+title: "oo-design/composition-over-inheritance"
+permalink: "/tracks/oo-design/composition-over-inheritance/"
+track: "oo-design"
+lesson_slug: "composition-over-inheritance"
+---
+{% assign track = site.data.tracks | where: "slug", "oo-design" | first %}
+<article class="lesson">
+  <nav class="crumbs"><a href="{{ site.baseurl }}/">RubyBits</a> / <a href="{{ site.baseurl }}/tracks/{{ track.slug }}/">{{ track.name }}</a> / <span>Composition over inheritance</span></nav>
+  <h1>Composition over inheritance</h1>
+  <div class="body markdown">
+{% capture lesson_body %}
+## Composition over inheritance
+
+When you reach for a superclass, ask: is the new class
+genuinely an *is-a* specialization, or just sharing some
+behavior?
+
+For sharing behavior across unrelated objects, compose:
+
+```ruby
+class Order
+  def initialize(items:, pricer:)
+    @items, @pricer = items, pricer
+  end
+
+  def total
+    @pricer.total(@items)
+  end
+end
+
+class FixedPricer
+  def total(items); items.sum { |i| i[:price] } end
+end
+
+class TaxedPricer
+  def initialize(rate); @rate = rate; end
+  def total(items); items.sum { |i| i[:price] } * (1 + @rate); end
+end
+```
+
+`Order` doesn't know how prices are computed — it just asks its
+pricer. Swap pricers freely; `Order` is untouched.
+{% endcapture %}
+{{ lesson_body | markdownify }}
+  </div>
+  <hr>
+  <h2>activities</h2>
+  <section class="activity activity-choice" id="a-oo-design-composition-over-inheritance-1">
+    <header class="activity-head"><span class="badge">[ACTIVITY]</span> <h3>HAS-A vs IS-A</h3></header>
+    <div class="prompt-block">
+{% capture p_oo_design_composition_over_inheritance_1 %}
+A `Car`, a `Truck`, and a `Bus` all have an engine and a
+gearbox, but those parts differ. How should you model the
+engine?
+{% endcapture %}
+{{ p_oo_design_composition_over_inheritance_1 | markdownify }}
+    </div>
+    <form class="activity-form" data-kind="choice" data-correct="b">
+      <ul class="choices">
+        <li><label><input type="radio" name="choice-oo-design-composition-over-inheritance-1" value="a"> <span class="key">[a]</span> Superclass — Car IS-AN engine.</label></li>
+        <li><label><input type="radio" name="choice-oo-design-composition-over-inheritance-1" value="b"> <span class="key">[b]</span> Composed object — Car HAS-AN engine. Inject the engine into Car.</label></li>
+        <li><label><input type="radio" name="choice-oo-design-composition-over-inheritance-1" value="c"> <span class="key">[c]</span> Module mixed into every vehicle.</label></li>
+        <li><label><input type="radio" name="choice-oo-design-composition-over-inheritance-1" value="d"> <span class="key">[d]</span> Singleton method on each instance.</label></li>
+      </ul>
+      <button type="submit" class="btn">» submit</button>
+      <div class="result" data-role="result"></div>
+    </form>
+  </section>
+</article>

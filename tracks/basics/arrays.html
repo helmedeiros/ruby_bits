@@ -1,0 +1,56 @@
+---
+layout: "lesson"
+title: "basics/arrays"
+permalink: "/tracks/basics/arrays/"
+track: "basics"
+lesson_slug: "arrays"
+---
+{% assign track = site.data.tracks | where: "slug", "basics" | first %}
+<article class="lesson">
+  <nav class="crumbs"><a href="{{ site.baseurl }}/">RubyBits</a> / <a href="{{ site.baseurl }}/tracks/{{ track.slug }}/">{{ track.name }}</a> / <span>Arrays</span></nav>
+  <h1>Arrays</h1>
+  <div class="body markdown">
+{% capture lesson_body %}
+## Arrays
+
+Create with a literal, index with `[]`, append with `<<`:
+
+```ruby
+fruits = ["apple", "banana", "cherry"]
+fruits[0]      # => "apple"
+fruits.last    # => "cherry"
+fruits.size    # => 3
+fruits << "date"
+```
+
+Iterate with `each`, transform with `map`, sum with `sum` (Ruby
+2.4+) or `reduce(0, :+)` everywhere else.
+{% endcapture %}
+{{ lesson_body | markdownify }}
+  </div>
+  <hr>
+  <h2>activities</h2>
+  <section class="activity activity-code" id="a-basics-arrays-1">
+    <header class="activity-head"><span class="badge">[ACTIVITY]</span> <h3>Sum it up</h3></header>
+    <div class="prompt-block">
+{% capture p_basics_arrays_1 %}
+Return the sum of an integer array. Empty array → `0`.
+{% endcapture %}
+{{ p_basics_arrays_1 | markdownify }}
+    </div>
+    <form class="activity-form" data-kind="code" data-spec="raise unless sum([])           == 0
+raise unless sum([1, 2, 3, 4]) == 10
+raise unless sum([-1, 1])      == 0
+">
+      <textarea class="code-editor" rows="10">def sum(nums)
+  # TODO
+end
+</textarea>
+      <div class="actions">
+        <button type="submit" class="btn run">» run</button>
+        <button type="button" class="btn reset">reset</button>
+      </div>
+      <div class="result" data-role="result"></div>
+    </form>
+  </section>
+</article>

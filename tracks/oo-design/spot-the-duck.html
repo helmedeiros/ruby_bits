@@ -1,0 +1,62 @@
+---
+layout: "lesson"
+title: "oo-design/spot-the-duck"
+permalink: "/tracks/oo-design/spot-the-duck/"
+track: "oo-design"
+lesson_slug: "spot-the-duck"
+---
+{% assign track = site.data.tracks | where: "slug", "oo-design" | first %}
+<article class="lesson">
+  <nav class="crumbs"><a href="{{ site.baseurl }}/">RubyBits</a> / <a href="{{ site.baseurl }}/tracks/{{ track.slug }}/">{{ track.name }}</a> / <span>Find the duck</span></nav>
+  <h1>Find the duck</h1>
+  <div class="body markdown">
+{% capture lesson_body %}
+## Duck typing
+
+A `case` that switches on class is almost always a duck type
+waiting to surface:
+
+```ruby
+def render(report)
+  case report
+  when DailyReport   then DailyRenderer.new.render(report)
+  when WeeklyReport  then WeeklyRenderer.new.render(report)
+  when MonthlyReport then MonthlyRenderer.new.render(report)
+  end
+end
+```
+
+Replace by giving each report its own `render` method:
+
+```ruby
+def render(report)
+  report.render
+end
+```
+
+Now adding a new report type doesn't require editing `render`.
+{% endcapture %}
+{{ lesson_body | markdownify }}
+  </div>
+  <hr>
+  <h2>activities</h2>
+  <section class="activity activity-choice" id="a-oo-design-spot-the-duck-1">
+    <header class="activity-head"><span class="badge">[ACTIVITY]</span> <h3>case-when-class smell</h3></header>
+    <div class="prompt-block">
+{% capture p_oo_design_spot_the_duck_1 %}
+You see `case x when SomeClass`. It usually signals…
+{% endcapture %}
+{{ p_oo_design_spot_the_duck_1 | markdownify }}
+    </div>
+    <form class="activity-form" data-kind="choice" data-correct="b">
+      <ul class="choices">
+        <li><label><input type="radio" name="choice-oo-design-spot-the-duck-1" value="a"> <span class="key">[a]</span> A missing private method.</label></li>
+        <li><label><input type="radio" name="choice-oo-design-spot-the-duck-1" value="b"> <span class="key">[b]</span> A duck type — every branch can become a method on the object.</label></li>
+        <li><label><input type="radio" name="choice-oo-design-spot-the-duck-1" value="c"> <span class="key">[c]</span> A circular require.</label></li>
+        <li><label><input type="radio" name="choice-oo-design-spot-the-duck-1" value="d"> <span class="key">[d]</span> Ruby being slow.</label></li>
+      </ul>
+      <button type="submit" class="btn">» submit</button>
+      <div class="result" data-role="result"></div>
+    </form>
+  </section>
+</article>

@@ -1,0 +1,77 @@
+---
+layout: "lesson"
+title: "oo-design/extract-collaborator"
+permalink: "/tracks/oo-design/extract-collaborator/"
+track: "oo-design"
+lesson_slug: "extract-collaborator"
+---
+{% assign track = site.data.tracks | where: "slug", "oo-design" | first %}
+<article class="lesson">
+  <nav class="crumbs"><a href="{{ site.baseurl }}/">RubyBits</a> / <a href="{{ site.baseurl }}/tracks/{{ track.slug }}/">{{ track.name }}</a> / <span>Extract a collaborator</span></nav>
+  <h1>Extract a collaborator</h1>
+  <div class="body markdown">
+{% capture lesson_body %}
+## Pulling responsibilities apart
+
+The fix is to split each job into its own class. `Invoice`
+keeps the money. Rendering and delivery become collaborators.
+
+```ruby
+class InvoiceRenderer
+  def initialize(invoice); @invoice = invoice; end
+  def to_pdf; ... end
+end
+
+class InvoiceMailer
+  def initialize(invoice, transport: SMTP); ... end
+  def deliver_to(customer); ... end
+end
+```
+
+Now `Invoice` only changes when invoicing rules change.
+`InvoiceRenderer` only changes when the PDF style changes.
+{% endcapture %}
+{{ lesson_body | markdownify }}
+  </div>
+  <hr>
+  <h2>activities</h2>
+  <section class="activity activity-code" id="a-oo-design-extract-collaborator-1">
+    <header class="activity-head"><span class="badge">[ACTIVITY]</span> <h3>Split Notifier</h3></header>
+    <div class="prompt-block">
+{% capture p_oo_design_extract_collaborator_1 %}
+`Notifier` formats a message AND sends it. Split it so
+`Notifier#deliver` formats the body via a separate
+`Formatter` class.
+Hint: keep `Notifier`'s public API as `deliver(name)`.
+{% endcapture %}
+{{ p_oo_design_extract_collaborator_1 | markdownify }}
+    </div>
+    <form class="activity-form" data-kind="code" data-spec="sink = []
+n = Notifier.new(sink)
+raise unless n.deliver(&quot;alice&quot;) == &quot;hi, ALICE!&quot;
+raise unless sink == [&quot;hi, ALICE!&quot;]
+# If the user kept Formatter as its own class, prove it can be swapped:
+raise unless defined?(Formatter)
+">
+      <textarea class="code-editor" rows="10">class Notifier
+  def initialize(sink)
+    @sink = sink
+  end
+
+  def deliver(name)
+    body = "hi, #{name.upcase}!"
+    @sink &lt;&lt; body
+    body
+  end
+end
+
+# write the Formatter class here
+</textarea>
+      <div class="actions">
+        <button type="submit" class="btn run">» run</button>
+        <button type="button" class="btn reset">reset</button>
+      </div>
+      <div class="result" data-role="result"></div>
+    </form>
+  </section>
+</article>

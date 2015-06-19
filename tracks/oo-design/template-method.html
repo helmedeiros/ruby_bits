@@ -1,0 +1,82 @@
+---
+layout: "lesson"
+title: "oo-design/template-method"
+permalink: "/tracks/oo-design/template-method/"
+track: "oo-design"
+lesson_slug: "template-method"
+---
+{% assign track = site.data.tracks | where: "slug", "oo-design" | first %}
+<article class="lesson">
+  <nav class="crumbs"><a href="{{ site.baseurl }}/">RubyBits</a> / <a href="{{ site.baseurl }}/tracks/{{ track.slug }}/">{{ track.name }}</a> / <span>Template method</span></nav>
+  <h1>Template method</h1>
+  <div class="body markdown">
+{% capture lesson_body %}
+## Template method
+
+The parent defines the *shape* of an algorithm and leaves
+specific steps to subclasses, often with `raise
+NotImplementedError` as a contract for "you must implement
+this":
+
+```ruby
+class Report
+  def render
+    "#{header}\n#{body}\n#{footer}"
+  end
+
+  def header; "REPORT — #{Time.now.year}"; end
+  def footer; "— end —"; end
+
+  def body
+    raise NotImplementedError, "#{self.class} must implement #body"
+  end
+end
+```
+
+Subclasses only fill in the gaps:
+
+```ruby
+class SalesReport < Report
+  def body; "sales were up 12%"; end
+end
+```
+{% endcapture %}
+{{ lesson_body | markdownify }}
+  </div>
+  <hr>
+  <h2>activities</h2>
+  <section class="activity activity-code" id="a-oo-design-template-method-1">
+    <header class="activity-head"><span class="badge">[ACTIVITY]</span> <h3>Implement a subclass</h3></header>
+    <div class="prompt-block">
+{% capture p_oo_design_template_method_1 %}
+Given the `Report` parent below, write a `SalesReport`
+subclass that returns `"sales were up 12%"` from `#body`.
+`Report#render` should already produce the full string.
+{% endcapture %}
+{{ p_oo_design_template_method_1 | markdownify }}
+    </div>
+    <form class="activity-form" data-kind="code" data-spec="r = SalesReport.new
+raise unless r.body == &quot;sales were up 12%&quot;
+raise unless r.render == &quot;REPORT\nsales were up 12%\n-- end --&quot;
+">
+      <textarea class="code-editor" rows="10">class Report
+  def render
+    "#{header}\n#{body}\n#{footer}"
+  end
+  def header; "REPORT"; end
+  def footer; "-- end --"; end
+  def body
+    raise NotImplementedError
+  end
+end
+
+# write SalesReport here
+</textarea>
+      <div class="actions">
+        <button type="submit" class="btn run">» run</button>
+        <button type="button" class="btn reset">reset</button>
+      </div>
+      <div class="result" data-role="result"></div>
+    </form>
+  </section>
+</article>

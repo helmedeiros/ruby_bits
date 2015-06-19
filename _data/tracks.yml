@@ -1,67 +1,38 @@
 ---
-- slug: expressions
-  name: Expressions
-  description: Sweet ruby syntax for common conditional patterns.
+- slug: basics
+  name: Ruby Basics
+  description: From values to methods — the building blocks every Ruby program needs.
   lessons:
-  - slug: inline-if
-    title: Inline if
-  - slug: unless
-    title: unless — the negated if
-  - slug: conditional-assignment
-    title: Conditional assignment
-- slug: short-circuit
-  name: Short-circuit Tricks
-  description: Use `&&`, `||`, and friends to compress safe-navigation and defaults.
+  - slug: strings-and-symbols
+    title: Strings and symbols
+  - slug: truthy-falsy
+    title: Truthy and falsy
+  - slug: arrays
+    title: Arrays
+  - slug: hashes
+    title: Hashes
+  - slug: if-and-unless
+    title: if and unless
+  - slug: defining-methods
+    title: Defining methods
+- slug: oo-design
+  name: OO Design
+  description: Design rules that survive the next change — principles from Sandi Metz's
+    POODR, taught with original examples.
   lessons:
-  - slug: default-with-or
-    title: Default with ||
-  - slug: safe-chain-and
-    title: Safe chain with &&
-- slug: methods
-  name: Methods
-  description: Argument forms beyond positional — defaults, splats, options.
-  lessons:
-  - slug: default-arguments
-    title: Default arguments
-  - slug: splat-arguments
-    title: Splat arguments
-  - slug: raise-exception
-    title: Raising exceptions
-- slug: classes
-  name: Classes
-  description: Define classes that hide state and expose behaviour.
-  lessons:
-  - slug: attr-accessor
-    title: attr_accessor
-  - slug: attr-reader
-    title: attr_reader — read-only state
-- slug: blocks
-  name: Blocks, Procs & Lambdas
-  description: The three flavours of callable in ruby and when to use each.
-  lessons:
-  - slug: yield
-    title: yield
-  - slug: proc-vs-lambda
-    title: Proc vs lambda
-- slug: enumerable
-  name: Enumerable
-  description: The collection methods every rubyist should know cold.
-  lessons:
-  - slug: map
-    title: map (transform)
-  - slug: select
-    title: select (filter)
-  - slug: reduce
-    title: reduce (fold)
-- slug: mixins
-  name: Mixins & Concerns
-  description: Share behaviour with modules — and know when not to.
-  lessons:
-  - slug: include
-    title: include — instance methods
-  - slug: extend
-    title: extend — single-instance / class methods
-  - slug: self-included
-    title: self.included hook
-  - slug: active-support-concern
-    title: ActiveSupport::Concern
+  - slug: srp-violation
+    title: Spotting an SRP violation
+  - slug: extract-collaborator
+    title: Extract a collaborator
+  - slug: dependency-injection
+    title: Inject collaborators
+  - slug: hash-arguments
+    title: Hash arguments remove order coupling
+  - slug: tell-dont-ask
+    title: Tell, don't ask
+  - slug: spot-the-duck
+    title: Find the duck
+  - slug: template-method
+    title: Template method
+  - slug: composition-over-inheritance
+    title: Composition over inheritance

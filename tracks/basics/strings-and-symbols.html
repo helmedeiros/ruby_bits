@@ -1,0 +1,79 @@
+---
+layout: "lesson"
+title: "basics/strings-and-symbols"
+permalink: "/tracks/basics/strings-and-symbols/"
+track: "basics"
+lesson_slug: "strings-and-symbols"
+---
+{% assign track = site.data.tracks | where: "slug", "basics" | first %}
+<article class="lesson">
+  <nav class="crumbs"><a href="{{ site.baseurl }}/">RubyBits</a> / <a href="{{ site.baseurl }}/tracks/{{ track.slug }}/">{{ track.name }}</a> / <span>Strings and symbols</span></nav>
+  <h1>Strings and symbols</h1>
+  <div class="body markdown">
+{% capture lesson_body %}
+## Strings and symbols
+
+A **string** is a sequence of characters. Strings are mutable and
+can be built dynamically with interpolation:
+
+```ruby
+name = "alice"
+"hello, #{name}"   # => "hello, alice"
+```
+
+A **symbol** is an interned identifier — immutable, unique, and
+cheap to compare:
+
+```ruby
+:name              # always the same object
+```
+
+Use symbols for fixed identifiers (hash keys, states, types).
+Use strings for human-facing text or anything that varies.
+{% endcapture %}
+{{ lesson_body | markdownify }}
+  </div>
+  <hr>
+  <h2>activities</h2>
+  <section class="activity activity-code" id="a-basics-strings-and-symbols-1">
+    <header class="activity-head"><span class="badge">[ACTIVITY]</span> <h3>Interpolate a greeting</h3></header>
+    <div class="prompt-block">
+{% capture p_basics_strings_and_symbols_1 %}
+Write `greet(name)` so it returns `"hi, NAME!"` with the name uppercased.
+{% endcapture %}
+{{ p_basics_strings_and_symbols_1 | markdownify }}
+    </div>
+    <form class="activity-form" data-kind="code" data-spec="raise unless greet(&quot;alice&quot;) == &quot;hi, ALICE!&quot;
+raise unless greet(&quot;bob&quot;)   == &quot;hi, BOB!&quot;
+">
+      <textarea class="code-editor" rows="10">def greet(name)
+  # TODO
+end
+</textarea>
+      <div class="actions">
+        <button type="submit" class="btn run">» run</button>
+        <button type="button" class="btn reset">reset</button>
+      </div>
+      <div class="result" data-role="result"></div>
+    </form>
+  </section>
+  <section class="activity activity-choice" id="a-basics-strings-and-symbols-2">
+    <header class="activity-head"><span class="badge">[ACTIVITY]</span> <h3>Symbol or string?</h3></header>
+    <div class="prompt-block">
+{% capture p_basics_strings_and_symbols_2 %}
+Which is the most idiomatic key for a status field that only ever takes a fixed set of values?
+{% endcapture %}
+{{ p_basics_strings_and_symbols_2 | markdownify }}
+    </div>
+    <form class="activity-form" data-kind="choice" data-correct="b">
+      <ul class="choices">
+        <li><label><input type="radio" name="choice-basics-strings-and-symbols-2" value="a"> <span class="key">[a]</span> "pending"</label></li>
+        <li><label><input type="radio" name="choice-basics-strings-and-symbols-2" value="b"> <span class="key">[b]</span> :pending</label></li>
+        <li><label><input type="radio" name="choice-basics-strings-and-symbols-2" value="c"> <span class="key">[c]</span> "PENDING"</label></li>
+        <li><label><input type="radio" name="choice-basics-strings-and-symbols-2" value="d"> <span class="key">[d]</span> 0</label></li>
+      </ul>
+      <button type="submit" class="btn">» submit</button>
+      <div class="result" data-role="result"></div>
+    </form>
+  </section>
+</article>

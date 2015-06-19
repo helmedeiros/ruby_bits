@@ -1,0 +1,61 @@
+---
+layout: "lesson"
+title: "basics/if-and-unless"
+permalink: "/tracks/basics/if-and-unless/"
+track: "basics"
+lesson_slug: "if-and-unless"
+---
+{% assign track = site.data.tracks | where: "slug", "basics" | first %}
+<article class="lesson">
+  <nav class="crumbs"><a href="{{ site.baseurl }}/">RubyBits</a> / <a href="{{ site.baseurl }}/tracks/{{ track.slug }}/">{{ track.name }}</a> / <span>if and unless</span></nav>
+  <h1>if and unless</h1>
+  <div class="body markdown">
+{% capture lesson_body %}
+## if and unless
+
+`if` runs the body when the condition is truthy; `unless` runs
+it when the condition is falsy. Both are expressions — they
+return the value of the last evaluated branch.
+
+```ruby
+status = if user.admin?
+           "ALL POWER"
+         else
+           "regular"
+         end
+```
+
+The inline form is great for guard clauses:
+
+```ruby
+return :ignored unless params[:id]
+```
+{% endcapture %}
+{{ lesson_body | markdownify }}
+  </div>
+  <hr>
+  <h2>activities</h2>
+  <section class="activity activity-code" id="a-basics-if-and-unless-1">
+    <header class="activity-head"><span class="badge">[ACTIVITY]</span> <h3>Categorize a score</h3></header>
+    <div class="prompt-block">
+{% capture p_basics_if_and_unless_1 %}
+Return `"pass"` for scores ≥ 60, `"fail"` otherwise.
+{% endcapture %}
+{{ p_basics_if_and_unless_1 | markdownify }}
+    </div>
+    <form class="activity-form" data-kind="code" data-spec="raise unless grade(80) == &quot;pass&quot;
+raise unless grade(60) == &quot;pass&quot;
+raise unless grade(59) == &quot;fail&quot;
+">
+      <textarea class="code-editor" rows="10">def grade(score)
+  # TODO
+end
+</textarea>
+      <div class="actions">
+        <button type="submit" class="btn run">» run</button>
+        <button type="button" class="btn reset">reset</button>
+      </div>
+      <div class="result" data-role="result"></div>
+    </form>
+  </section>
+</article>

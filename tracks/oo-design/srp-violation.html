@@ -1,0 +1,67 @@
+---
+layout: "lesson"
+title: "oo-design/srp-violation"
+permalink: "/tracks/oo-design/srp-violation/"
+track: "oo-design"
+lesson_slug: "srp-violation"
+---
+{% assign track = site.data.tracks | where: "slug", "oo-design" | first %}
+<article class="lesson">
+  <nav class="crumbs"><a href="{{ site.baseurl }}/">RubyBits</a> / <a href="{{ site.baseurl }}/tracks/{{ track.slug }}/">{{ track.name }}</a> / <span>Spotting an SRP violation</span></nav>
+  <h1>Spotting an SRP violation</h1>
+  <div class="body markdown">
+{% capture lesson_body %}
+## Single Responsibility Principle
+
+A well-designed class makes change cheap. The first test is:
+*can you describe its job in one sentence?*
+
+```ruby
+class Invoice
+  def initialize(customer, lines)
+    @customer = customer
+    @lines    = lines
+  end
+
+  def total
+    @lines.sum { |l| l[:qty] * l[:price] }
+  end
+
+  def to_pdf
+    # render headers, draw the table, embed company logo, ship to file
+  end
+
+  def email_to_customer
+    # build HTML body, attach PDF, hit the SMTP server
+  end
+end
+```
+
+`Invoice` calculates money, renders PDFs, and sends mail. Three
+reasons to change. Change the SMTP layer and you risk breaking
+totals.
+{% endcapture %}
+{{ lesson_body | markdownify }}
+  </div>
+  <hr>
+  <h2>activities</h2>
+  <section class="activity activity-choice" id="a-oo-design-srp-violation-1">
+    <header class="activity-head"><span class="badge">[ACTIVITY]</span> <h3>One-sentence test</h3></header>
+    <div class="prompt-block">
+{% capture p_oo_design_srp_violation_1 %}
+Why does the `Invoice` class above fail the one-sentence test?
+{% endcapture %}
+{{ p_oo_design_srp_violation_1 | markdownify }}
+    </div>
+    <form class="activity-form" data-kind="choice" data-correct="b">
+      <ul class="choices">
+        <li><label><input type="radio" name="choice-oo-design-srp-violation-1" value="a"> <span class="key">[a]</span> It uses `sum` instead of a manual loop.</label></li>
+        <li><label><input type="radio" name="choice-oo-design-srp-violation-1" value="b"> <span class="key">[b]</span> It calculates totals, renders PDFs, and sends mail — three responsibilities.</label></li>
+        <li><label><input type="radio" name="choice-oo-design-srp-violation-1" value="c"> <span class="key">[c]</span> It uses `@` instance variables instead of accessors.</label></li>
+        <li><label><input type="radio" name="choice-oo-design-srp-violation-1" value="d"> <span class="key">[d]</span> It doesn't define an initializer.</label></li>
+      </ul>
+      <button type="submit" class="btn">» submit</button>
+      <div class="result" data-role="result"></div>
+    </form>
+  </section>
+</article>

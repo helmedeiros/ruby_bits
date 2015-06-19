@@ -1,0 +1,70 @@
+---
+layout: "lesson"
+title: "oo-design/dependency-injection"
+permalink: "/tracks/oo-design/dependency-injection/"
+track: "oo-design"
+lesson_slug: "dependency-injection"
+---
+{% assign track = site.data.tracks | where: "slug", "oo-design" | first %}
+<article class="lesson">
+  <nav class="crumbs"><a href="{{ site.baseurl }}/">RubyBits</a> / <a href="{{ site.baseurl }}/tracks/{{ track.slug }}/">{{ track.name }}</a> / <span>Inject collaborators</span></nav>
+  <h1>Inject collaborators</h1>
+  <div class="body markdown">
+{% capture lesson_body %}
+## Dependency injection
+
+When a class hard-codes `Sms.new`, it knows the class name.
+Rename `Sms` and the dependent class breaks too.
+
+```ruby
+# Hard-coded — tight coupling
+class OrderConfirmation
+  def deliver(order)
+    Sms.new.send(order.phone, "order #{order.id} confirmed")
+  end
+end
+```
+
+Pass the dependency in:
+
+```ruby
+class OrderConfirmation
+  def initialize(channel: Sms.new)
+    @channel = channel
+  end
+
+  def deliver(order)
+    @channel.send(order.phone, "order #{order.id} confirmed")
+  end
+end
+```
+
+Now `OrderConfirmation` only knows it has *something that
+responds to `send`*. Swap in an `Email`, a `Push`, or a
+test double — no change to `OrderConfirmation`.
+{% endcapture %}
+{{ lesson_body | markdownify }}
+  </div>
+  <hr>
+  <h2>activities</h2>
+  <section class="activity activity-choice" id="a-oo-design-dependency-injection-1">
+    <header class="activity-head"><span class="badge">[ACTIVITY]</span> <h3>Why injection?</h3></header>
+    <div class="prompt-block">
+{% capture p_oo_design_dependency_injection_1 %}
+What's the main benefit of injecting `@channel` instead of
+constructing it inside `OrderConfirmation`?
+{% endcapture %}
+{{ p_oo_design_dependency_injection_1 | markdownify }}
+    </div>
+    <form class="activity-form" data-kind="choice" data-correct="b">
+      <ul class="choices">
+        <li><label><input type="radio" name="choice-oo-design-dependency-injection-1" value="a"> <span class="key">[a]</span> The code runs faster.</label></li>
+        <li><label><input type="radio" name="choice-oo-design-dependency-injection-1" value="b"> <span class="key">[b]</span> OrderConfirmation no longer depends on a specific class name — any object that responds to `send` works.</label></li>
+        <li><label><input type="radio" name="choice-oo-design-dependency-injection-1" value="c"> <span class="key">[c]</span> It removes the need for `def initialize`.</label></li>
+        <li><label><input type="radio" name="choice-oo-design-dependency-injection-1" value="d"> <span class="key">[d]</span> Ruby requires it for keyword arguments.</label></li>
+      </ul>
+      <button type="submit" class="btn">» submit</button>
+      <div class="result" data-role="result"></div>
+    </form>
+  </section>
+</article>

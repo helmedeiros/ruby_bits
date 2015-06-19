@@ -1,0 +1,69 @@
+---
+layout: "lesson"
+title: "oo-design/hash-arguments"
+permalink: "/tracks/oo-design/hash-arguments/"
+track: "oo-design"
+lesson_slug: "hash-arguments"
+---
+{% assign track = site.data.tracks | where: "slug", "oo-design" | first %}
+<article class="lesson">
+  <nav class="crumbs"><a href="{{ site.baseurl }}/">RubyBits</a> / <a href="{{ site.baseurl }}/tracks/{{ track.slug }}/">{{ track.name }}</a> / <span>Hash arguments remove order coupling</span></nav>
+  <h1>Hash arguments remove order coupling</h1>
+  <div class="body markdown">
+{% capture lesson_body %}
+## From positional to keyword arguments
+
+Positional arguments tie callers to the order:
+
+```ruby
+def initialize(name, age, role)
+```
+
+Every caller now hard-codes `(name, age, role)`. Swap two
+arguments and you break them all.
+
+```ruby
+def initialize(name:, age:, role:)
+  @name, @age, @role = name, age, role
+end
+```
+
+Callers list args by name, in any order. You can add fields
+without breaking existing call sites.
+{% endcapture %}
+{{ lesson_body | markdownify }}
+  </div>
+  <hr>
+  <h2>activities</h2>
+  <section class="activity activity-code" id="a-oo-design-hash-arguments-1">
+    <header class="activity-head"><span class="badge">[ACTIVITY]</span> <h3>Convert to keyword args</h3></header>
+    <div class="prompt-block">
+{% capture p_oo_design_hash_arguments_1 %}
+Rewrite `Member#initialize` to use *required* keyword args
+for `name`, `age`, and `role`. The accessors stay the same.
+{% endcapture %}
+{{ p_oo_design_hash_arguments_1 | markdownify }}
+    </div>
+    <form class="activity-form" data-kind="code" data-spec="m = Member.new(name: &quot;alice&quot;, age: 30, role: :admin)
+raise unless m.name == &quot;alice&quot;
+raise unless m.age  == 30
+raise unless m.role == :admin
+# order-independence: the same call with reordered kwargs must work
+n = Member.new(role: :admin, name: &quot;alice&quot;, age: 30)
+raise unless n.name == &quot;alice&quot;
+">
+      <textarea class="code-editor" rows="10">class Member
+  attr_reader :name, :age, :role
+  def initialize(name, age, role)
+    @name, @age, @role = name, age, role
+  end
+end
+</textarea>
+      <div class="actions">
+        <button type="submit" class="btn run">» run</button>
+        <button type="button" class="btn reset">reset</button>
+      </div>
+      <div class="result" data-role="result"></div>
+    </form>
+  </section>
+</article>
