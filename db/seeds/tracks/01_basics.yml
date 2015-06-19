@@ -1,0 +1,262 @@
+slug: basics
+name: Ruby Basics
+description: From values to methods — the building blocks every Ruby program needs.
+position: 1
+modules:
+  - slug: values
+    name: Values
+    overview: |
+      Almost everything in Ruby is an object — including numbers, strings,
+      symbols, true, false, and nil. Knowing how each behaves saves you
+      from surprises later.
+    lessons:
+      - slug: strings-and-symbols
+        title: Strings and symbols
+        body: |
+          ## Strings and symbols
+
+          A **string** is a sequence of characters. Strings are mutable and
+          can be built dynamically with interpolation:
+
+          ```ruby
+          name = "alice"
+          "hello, #{name}"   # => "hello, alice"
+          ```
+
+          A **symbol** is an interned identifier — immutable, unique, and
+          cheap to compare:
+
+          ```ruby
+          :name              # always the same object
+          ```
+
+          Use symbols for fixed identifiers (hash keys, states, types).
+          Use strings for human-facing text or anything that varies.
+        activities:
+          - title: Interpolate a greeting
+            kind: code
+            difficulty: 1
+            prompt: Write `greet(name)` so it returns `"hi, NAME!"` with the name uppercased.
+            starter_code: |
+              def greet(name)
+                # TODO
+              end
+            solution: |
+              def greet(name)
+                "hi, #{name.upcase}!"
+              end
+            spec_code: |
+              raise unless greet("alice") == "hi, ALICE!"
+              raise unless greet("bob")   == "hi, BOB!"
+
+          - title: Symbol or string?
+            kind: choice
+            difficulty: 1
+            prompt: Which is the most idiomatic key for a status field that only ever takes a fixed set of values?
+            choices:
+              a: '"pending"'
+              b: ':pending'
+              c: '"PENDING"'
+              d: '0'
+            correct_choice: b
+
+      - slug: truthy-falsy
+        title: Truthy and falsy
+        body: |
+          ## Truthy and falsy
+
+          Ruby treats **only `false` and `nil`** as falsy. Everything else
+          — including `0`, `""`, and `[]` — is truthy.
+
+          ```ruby
+          puts "yes" if 0      # prints
+          puts "yes" if ""     # prints
+          puts "yes" if []     # prints
+          puts "yes" if nil    # nothing
+          puts "yes" if false  # nothing
+          ```
+
+          This trips up people coming from C or Python — be deliberate.
+        activities:
+          - title: Spot the falsy
+            kind: choice
+            difficulty: 1
+            prompt: Which value is FALSY in Ruby?
+            choices:
+              a: '0'
+              b: '""'
+              c: 'nil'
+              d: '[]'
+            correct_choice: c
+
+  - slug: collections
+    name: Collections
+    overview: |
+      Arrays and hashes are the workhorses of Ruby. Arrays store ordered
+      elements indexed by integer; hashes store key/value pairs.
+    lessons:
+      - slug: arrays
+        title: Arrays
+        body: |
+          ## Arrays
+
+          Create with a literal, index with `[]`, append with `<<`:
+
+          ```ruby
+          fruits = ["apple", "banana", "cherry"]
+          fruits[0]      # => "apple"
+          fruits.last    # => "cherry"
+          fruits.size    # => 3
+          fruits << "date"
+          ```
+
+          Iterate with `each`, transform with `map`, sum with `sum` (Ruby
+          2.4+) or `reduce(0, :+)` everywhere else.
+        activities:
+          - title: Sum it up
+            kind: code
+            difficulty: 1
+            prompt: Return the sum of an integer array. Empty array → `0`.
+            starter_code: |
+              def sum(nums)
+                # TODO
+              end
+            solution: |
+              def sum(nums)
+                nums.reduce(0, :+)
+              end
+            spec_code: |
+              raise unless sum([])           == 0
+              raise unless sum([1, 2, 3, 4]) == 10
+              raise unless sum([-1, 1])      == 0
+
+      - slug: hashes
+        title: Hashes
+        body: |
+          ## Hashes
+
+          Hashes map keys to values. Any object can be a key, but symbols
+          are most common:
+
+          ```ruby
+          user = { name: "alice", age: 30 }
+          user[:name]            # => "alice"
+          user[:role] = :admin
+          ```
+
+          A handy trick: `Hash.new(0)` returns `0` for any missing key,
+          which makes counting trivial.
+        activities:
+          - title: Tag counter
+            kind: code
+            difficulty: 2
+            prompt: Given an array of tags, return a hash mapping each tag to its count.
+            starter_code: |
+              def tally(tags)
+                # TODO
+              end
+            solution: |
+              def tally(tags)
+                tags.each_with_object(Hash.new(0)) { |t, acc| acc[t] += 1 }
+              end
+            spec_code: |
+              raise unless tally(["a", "b", "a"]) == { "a" => 2, "b" => 1 }
+              raise unless tally([])              == {}
+
+  - slug: control-flow
+    name: Control flow
+    overview: |
+      Decisions and loops. Ruby's conditional expressions return values,
+      so most of these can be used inside assignments and method bodies
+      without temporary variables.
+    lessons:
+      - slug: if-and-unless
+        title: if and unless
+        body: |
+          ## if and unless
+
+          `if` runs the body when the condition is truthy; `unless` runs
+          it when the condition is falsy. Both are expressions — they
+          return the value of the last evaluated branch.
+
+          ```ruby
+          status = if user.admin?
+                     "ALL POWER"
+                   else
+                     "regular"
+                   end
+          ```
+
+          The inline form is great for guard clauses:
+
+          ```ruby
+          return :ignored unless params[:id]
+          ```
+        activities:
+          - title: Categorize a score
+            kind: code
+            difficulty: 2
+            prompt: |
+              Return `"pass"` for scores ≥ 60, `"fail"` otherwise.
+            starter_code: |
+              def grade(score)
+                # TODO
+              end
+            solution: |
+              def grade(score)
+                score >= 60 ? "pass" : "fail"
+              end
+            spec_code: |
+              raise unless grade(80) == "pass"
+              raise unless grade(60) == "pass"
+              raise unless grade(59) == "fail"
+
+  - slug: methods
+    name: Methods
+    overview: |
+      Methods are how Ruby groups behavior. The last expression in the
+      body is the return value — no need for an explicit `return` except
+      in early-exit paths.
+    lessons:
+      - slug: defining-methods
+        title: Defining methods
+        body: |
+          ## Defining methods
+
+          ```ruby
+          def square(n)
+            n * n
+          end
+
+          square(4)   # => 16
+          ```
+
+          Arguments can have defaults, can be splatted (`*rest`), and can
+          be keyword-style (`name:`). Keyword args remove ordering
+          coupling between callers and definition.
+
+          ```ruby
+          def shift(point, by: 1)
+            point + by
+          end
+
+          shift(10, by: 3)   # => 13
+          shift(10)          # => 11
+          ```
+        activities:
+          - title: Implement abs_diff
+            kind: code
+            difficulty: 1
+            prompt: Define `abs_diff(a, b)` returning the absolute difference of two numbers.
+            starter_code: |
+              def abs_diff(a, b)
+                # TODO
+              end
+            solution: |
+              def abs_diff(a, b)
+                (a - b).abs
+              end
+            spec_code: |
+              raise unless abs_diff(5, 3)  == 2
+              raise unless abs_diff(3, 5)  == 2
+              raise unless abs_diff(-1, 1) == 2
