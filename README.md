@@ -1,10 +1,4 @@
-```
-   ______        __         ___  _ __
-  / __  /__ __  / /_  __ __/ _ )(_) /____
- / /_/ // // / / __ \/ // / _  / / __(_-<
-/_,___/ \_, / /_/_/\_\\_, /____/_/\__/___/
-       /___/         /___/
-```
+# RubyBits
 
 > a terminal where you learn ruby by typing it
 
@@ -13,13 +7,26 @@
 [![Coverage Status](https://coveralls.io/repos/helmedeiros/ruby_bits/badge.svg?branch=master)](https://coveralls.io/r/helmedeiros/ruby_bits)
 [![Pages](https://img.shields.io/badge/github-pages-00ff41.svg)](https://helmedeiros.github.io/ruby_bits/)
 
-**RubyBits** is a small Rails 4.2 platform that teaches ruby through
-short, runnable lessons. Each module steps you through one idiom —
-inline `if`, `||=`, `attr_*`, blocks, `Enumerable`, `Concern`, and so
-on — and ends with **activities** that execute your code in a sandboxed
-subprocess and report pass / fail.
+**RubyBits** is a small Rails 4.2 platform that teaches Ruby through
+short, runnable lessons. Each lesson explains one idea and ends with
+**activities** — code or multiple-choice — that execute the learner's
+code in a sandboxed subprocess and report pass / fail.
 
 A static showcase of the same content runs on GitHub Pages: <https://helmedeiros.github.io/ruby_bits/>.
+
+## curriculum
+
+The platform ships with two macro-tracks that learners walk in order:
+
+1. **Ruby Basics** — values, collections, control flow, methods.
+2. **OO Design** — the design principles from Sandi Metz's *Practical
+   Object-Oriented Design in Ruby* (POODR): single responsibility,
+   managing dependencies, interfaces, duck typing, inheritance, and
+   composition. Lessons use original examples that illustrate each
+   principle without reproducing material from the book.
+
+Adding more tracks is a matter of dropping a YAML file under
+`db/seeds/tracks/`; see [contributing](#contributing).
 
 ## stack
 
@@ -36,30 +43,22 @@ A static showcase of the same content runs on GitHub Pages: <https://helmedeiros
 | testing      | RSpec 3.2 + Capybara + FactoryGirl       |
 | static site  | Jekyll 2.x (gh-pages branch)             |
 
-Period-faithful: every dependency above shipped before mid-2015 and
-the design uses only CSS3 effects (`@keyframes`, `transition`,
-`box-shadow`, flexbox) and a tiny `canvas` 2D draw — no CSS Grid,
-no custom properties, no Web Components.
+Every dependency above shipped before mid-2015.
 
-## structure
+## domain model
 
-```
-Track ─┬─ LearningModule ─┬─ Lesson ─┬─ Activity (code | choice)
-       │                  │          │
-       │                  │          └─ Submission per user (graded)
-       │                  └─ Comment thread
-       └─ Position-ordered, slug-routed
-```
+- `Track` → `LearningModule` → `Lesson` → `Activity` (`code` or
+  `choice`), each ordered by `position` and routed by `slug`.
+- A `Submission` records each attempt by a `User`; a `Completion`
+  marks a lesson done when every activity in it has a passing
+  submission.
+- A discussion thread (`Comment`) hangs off each lesson.
+- `StreakUpdater` and `BadgeGrantor` react to passing submissions to
+  maintain user streaks and award badges.
 
-- Content lives in `db/seeds/tracks/*.yml` and is loaded by
-  `Seeds::Loader` (`rake rubybits:seed`).
-- `code` activities ship `starter_code`, `solution`, and `spec_code`
-  (which `raise`s when the user's code is wrong). They run inside
-  `Sandbox::RubyRunner` — a 5-second `Open3`/`Timeout` subprocess.
-- `choice` activities ship a YAML map of `choices` plus a
-  `correct_choice` key.
-- Progress is tracked per user via `Completion`, with `StreakUpdater`
-  and `BadgeGrantor` reacting to each passing submission.
+Source: `db/seeds/tracks/*.yml`, loaded by `Seeds::Loader` via `rake
+rubybits:seed`. Code activities run inside `Sandbox::RubyRunner`,
+a 5-second `Open3`/`Timeout` subprocess.
 
 ## boot
 
@@ -67,7 +66,6 @@ Track ─┬─ LearningModule ─┬─ Lesson ─┬─ Activity (code | choic
 bundle install
 rake db:setup
 rake rubybits:seed           # YAML tracks under db/seeds/tracks/
-rake rubybits:import_legacy  # absorb the original level_* dirs
 foreman start                # web (puma) + worker (sidekiq)
 ```
 
@@ -75,7 +73,7 @@ Open <http://localhost:3000>.
 
 ## quality gates
 
-The 2015-faithful local gate is a single rake task:
+The local quality gate is a single rake task:
 
 ```sh
 bundle exec rake ci          # syntax + yaml + rubocop + rspec
@@ -91,45 +89,33 @@ where a tool is not yet present:
 | `rake ci:rubocop`  | `bundle exec rubocop` if `.rubocop.yml` exists |
 | `rake ci:rspec`    | `bundle exec rspec`  if `spec/` is wired       |
 
-A reduced version of the gate also runs on Travis CI
-(see `.travis.yml`). Code Climate + Coveralls configs are in
+A reduced version of the gate also runs on Travis CI (see
+`.travis.yml`). Code Climate + Coveralls configs are in
 `.codeclimate.yml` and `spec/spec_helper.rb`.
-
-## design
-
-Black background, neon green text, CRT scanline + flicker, terminal
-frame with a faux `xterm` title bar, blinking cursor.
-
-```
-+--------------------------------------------------+
-| RubyBits — /usr/local/bin/irb                    |
-+--------------------------------------------------+
-| RubyBits     [tracks] [leaderboard] [~/alice]    |
-| ------------------------------------------------ |
-| » cd expressions && ls                           |
-|                                                  |
-| ├─ [01] Inline if                                |
-| ├─ [02] unless — the negated if                  |
-| └─ [03] Conditional assignment                   |
-|                                                  |
-| _                                                |
-+--------------------------------------------------+
-```
 
 ## github pages
 
 The `gh-pages` branch holds a Jekyll 2.x site (no markdown files —
 all pages are `.html` with front-matter, content driven by
 `_data/tracks.yml`). It is served at
-<https://helmedeiros.github.io/ruby_bits/>.
+<https://helmedeiros.github.io/ruby_bits/> and runs every activity
+**in the browser** via Opal (the Ruby-to-JS compiler), so learners
+can practise without a backend.
 
-To preview locally:
+Local preview:
 
 ```sh
 git worktree add ../ruby_bits-pages gh-pages
 cd ../ruby_bits-pages
 bundle install
 bundle exec jekyll serve --baseurl /ruby_bits
+```
+
+Smoke + content tests for the live site:
+
+```sh
+ruby _test/smoke_test.rb                                  # against the live URL
+BASE=http://localhost:4000/ruby_bits ruby _test/smoke_test.rb   # local
 ```
 
 ## contributing
