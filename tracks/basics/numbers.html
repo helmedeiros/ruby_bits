@@ -1,0 +1,226 @@
+---
+layout: "lesson"
+title: "basics/numbers"
+permalink: "/tracks/basics/numbers/"
+track: "basics"
+lesson_slug: "numbers"
+---
+{% assign track = site.data.tracks | where: "slug", "basics" | first %}
+<article class="lesson">
+  <nav class="crumbs"><a href="{{ site.baseurl }}/">RubyBits</a> / <a href="{{ site.baseurl }}/tracks/{{ track.slug }}/">{{ track.name }}</a> / <span>Numbers</span></nav>
+  <h1>Numbers</h1>
+  <div class="body markdown">
+{% capture lesson_body %}
+## Numbers
+
+Ruby has two number types you'll meet first: **integers** and
+**floats**. They look similar but behave differently in subtle
+ways. Let's walk through the basics and then look at the gotchas.
+
+### Integers
+
+Whole numbers, with no decimal point:
+
+```ruby
+42
+-17
+1_000_000   # underscores are allowed for readability
+```
+
+All the arithmetic you'd expect:
+
+```ruby
+2 + 3       # => 5
+10 - 4      # => 6
+7 * 6       # => 42
+20 / 4      # => 5
+17 % 5      # => 2   (modulo / remainder)
+2 ** 10     # => 1024  (exponent)
+```
+
+### Floats
+
+Decimal numbers:
+
+```ruby
+3.14
+-0.5
+1.5e3       # scientific notation: 1500.0
+```
+
+Floats follow the IEEE-754 standard, so you get the usual
+floating-point quirks:
+
+```ruby
+0.1 + 0.2    # => 0.30000000000000004  (not exactly 0.3)
+```
+
+For money or anything where exactness matters, use `BigDecimal`
+or work in cents (integers).
+
+### Integer division
+
+Here's the most common surprise. Dividing two integers in Ruby
+**truncates** — you get an integer back, not a float:
+
+```ruby
+5 / 2       # => 2     (not 2.5!)
+7 / 3       # => 2
+-7 / 3      # => -3    (rounds toward negative infinity)
+```
+
+To get a float result, **make at least one operand a float**:
+
+```ruby
+5 / 2.0     # => 2.5
+5.0 / 2     # => 2.5
+5.fdiv(2)   # => 2.5   (float division explicitly)
+```
+
+### Useful methods
+
+```ruby
+-7.abs           # => 7
+3.14.round       # => 3
+3.14.round(1)    # => 3.1
+3.14.floor       # => 3
+3.14.ceil        # => 4
+42.to_s          # => "42"
+"42".to_i        # => 42
+"3.14".to_f      # => 3.14
+42.even?         # => true
+7.odd?           # => true
+7.zero?          # => false
+0.zero?          # => true
+```
+
+### Predicates and ranges
+
+`between?` and the comparison family are common:
+
+```ruby
+age = 25
+age.between?(18, 65)   # => true
+age >= 18 && age < 65  # equivalent
+```
+{% endcapture %}
+{{ lesson_body | markdownify }}
+  </div>
+  <hr>
+  <h2>activities</h2>
+  <section class="activity activity-code" id="a-basics-numbers-1">
+    <header class="activity-head"><span class="badge">[ACTIVITY]</span> <h3>Even or odd?</h3></header>
+    <div class="prompt-block">
+{% capture p_basics_numbers_1 %}
+Write `parity(n)` that returns the string `"even"` or `"odd"`.
+{% endcapture %}
+{{ p_basics_numbers_1 | markdownify }}
+    </div>
+    <form class="activity-form" data-kind="code" data-spec="raise unless parity(4) == &quot;even&quot;
+raise unless parity(7) == &quot;odd&quot;
+raise unless parity(0) == &quot;even&quot;
+raise unless parity(-3) == &quot;odd&quot;
+">
+      <textarea class="code-editor" rows="10">def parity(n)
+  # TODO
+end
+</textarea>
+      <div class="actions">
+        <button type="submit" class="btn run">» run</button>
+        <button type="button" class="btn reset">reset</button>
+      </div>
+      <div class="result" data-role="result"></div>
+    </form>
+  </section>
+  <section class="activity activity-choice" id="a-basics-numbers-2">
+    <header class="activity-head"><span class="badge">[ACTIVITY]</span> <h3>Watch out for integer division</h3></header>
+    <div class="prompt-block">
+{% capture p_basics_numbers_2 %}
+What does `5 / 2` evaluate to in Ruby?
+{% endcapture %}
+{{ p_basics_numbers_2 | markdownify }}
+    </div>
+    <form class="activity-form" data-kind="choice" data-correct="b">
+      <ul class="choices">
+        <li><label><input type="radio" name="choice-basics-numbers-2" value="a"> <span class="key">[a]</span> 2.5</label></li>
+        <li><label><input type="radio" name="choice-basics-numbers-2" value="b"> <span class="key">[b]</span> 2</label></li>
+        <li><label><input type="radio" name="choice-basics-numbers-2" value="c"> <span class="key">[c]</span> 2.0</label></li>
+        <li><label><input type="radio" name="choice-basics-numbers-2" value="d"> <span class="key">[d]</span> It raises an error</label></li>
+      </ul>
+      <button type="submit" class="btn">» submit</button>
+      <div class="result" data-role="result"></div>
+    </form>
+  </section>
+  <section class="activity activity-code" id="a-basics-numbers-3">
+    <header class="activity-head"><span class="badge">[ACTIVITY]</span> <h3>Force a float division</h3></header>
+    <div class="prompt-block">
+{% capture p_basics_numbers_3 %}
+Write `average(nums)` that returns the arithmetic mean of an integer array as a `Float`. For an empty array, return `0.0`.
+{% endcapture %}
+{{ p_basics_numbers_3 | markdownify }}
+    </div>
+    <form class="activity-form" data-kind="code" data-spec="raise unless average([1, 2, 3, 4]) == 2.5
+raise unless average([10])         == 10.0
+raise unless average([])           == 0.0
+raise unless average([1, 2]).is_a?(Float)
+">
+      <textarea class="code-editor" rows="10">def average(nums)
+  # TODO
+end
+</textarea>
+      <div class="actions">
+        <button type="submit" class="btn run">» run</button>
+        <button type="button" class="btn reset">reset</button>
+      </div>
+      <div class="result" data-role="result"></div>
+    </form>
+  </section>
+  <section class="activity activity-code" id="a-basics-numbers-4">
+    <header class="activity-head"><span class="badge">[ACTIVITY]</span> <h3>Round a price</h3></header>
+    <div class="prompt-block">
+{% capture p_basics_numbers_4 %}
+Write `format_price(amount)` that rounds the float `amount` to 2 decimal places and prefixes a `$`. `format_price(3.149)` should return `"$3.15"`.
+{% endcapture %}
+{{ p_basics_numbers_4 | markdownify }}
+    </div>
+    <form class="activity-form" data-kind="code" data-spec="raise unless format_price(3.149) == &quot;$3.15&quot;
+raise unless format_price(10.0)  == &quot;$10.0&quot;
+raise unless format_price(0.005).start_with?(&quot;$&quot;)
+">
+      <textarea class="code-editor" rows="10">def format_price(amount)
+  # TODO
+end
+</textarea>
+      <div class="actions">
+        <button type="submit" class="btn run">» run</button>
+        <button type="button" class="btn reset">reset</button>
+      </div>
+      <div class="result" data-role="result"></div>
+    </form>
+  </section>
+  <section class="activity activity-code" id="a-basics-numbers-5">
+    <header class="activity-head"><span class="badge">[ACTIVITY]</span> <h3>FizzBuzz</h3></header>
+    <div class="prompt-block">
+{% capture p_basics_numbers_5 %}
+Write `fizzbuzz(n)` that returns `"FizzBuzz"` if n is divisible by 15, `"Fizz"` if by 3, `"Buzz"` if by 5, otherwise the number as a string. Use `%`.
+{% endcapture %}
+{{ p_basics_numbers_5 | markdownify }}
+    </div>
+    <form class="activity-form" data-kind="code" data-spec="raise unless fizzbuzz(15) == &quot;FizzBuzz&quot;
+raise unless fizzbuzz(9)  == &quot;Fizz&quot;
+raise unless fizzbuzz(10) == &quot;Buzz&quot;
+raise unless fizzbuzz(7)  == &quot;7&quot;
+raise unless fizzbuzz(30) == &quot;FizzBuzz&quot;
+">
+      <textarea class="code-editor" rows="10">def fizzbuzz(n)
+  # TODO
+end
+</textarea>
+      <div class="actions">
+        <button type="submit" class="btn run">» run</button>
+        <button type="button" class="btn reset">reset</button>
+      </div>
+      <div class="result" data-role="result"></div>
+    </form>
+  </section>
+</article>

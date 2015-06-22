@@ -3,6 +3,8 @@
   name: Ruby Basics
   description: From values to methods — the building blocks every Ruby program needs.
   lessons:
+  - slug: numbers
+    title: Numbers
   - slug: strings-and-symbols
     title: Strings and symbols
   - slug: truthy-falsy
