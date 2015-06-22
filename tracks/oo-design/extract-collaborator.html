@@ -13,23 +13,84 @@ lesson_slug: "extract-collaborator"
 {% capture lesson_body %}
 ## Pulling responsibilities apart
 
-The fix is to split each job into its own class. `Invoice`
-keeps the money. Rendering and delivery become collaborators.
+So `Invoice` does too much. How do you fix it?
+
+The refactor pattern is: **extract a class** for each extra
+responsibility, then have the original class **delegate** to
+it (or to its caller, if neither object should own the new
+one).
+
+### Step 1: Identify the seams
+
+From the previous lesson, the three jobs were: money, PDFs,
+mail. So you'll have three classes. `Invoice` keeps the money.
+A new `InvoiceRenderer` owns PDFs. A new `InvoiceMailer` owns
+delivery.
+
+### Step 2: Name them by responsibility
+
+A useful tactic is to pick a noun for each new class that
+describes its **single job**:
 
 ```ruby
 class InvoiceRenderer
-  def initialize(invoice); @invoice = invoice; end
-  def to_pdf; ... end
+  def initialize(invoice)
+    @invoice = invoice
+  end
+
+  def to_pdf
+    # render the PDF using @invoice's data
+  end
 end
 
 class InvoiceMailer
-  def initialize(invoice, transport: SMTP); ... end
-  def deliver_to(customer); ... end
+  def initialize(invoice, transport: SMTP)
+    @invoice, @transport = invoice, transport
+  end
+
+  def deliver_to(customer)
+    # build, attach PDF, send via @transport
+  end
 end
 ```
 
-Now `Invoice` only changes when invoicing rules change.
-`InvoiceRenderer` only changes when the PDF style changes.
+Each new class holds the original invoice as a collaborator
+and asks it for the data it needs (the `total`, the line
+items). Notice neither of them mutates `Invoice` — they only
+*read* it.
+
+### Step 3: Slim down the original
+
+With the extracts in place, `Invoice` shrinks back to just its
+job:
+
+```ruby
+class Invoice
+  def initialize(customer, lines)
+    @customer = customer
+    @lines    = lines
+  end
+
+  def total
+    @lines.sum { |l| l[:qty] * l[:price] }
+  end
+end
+```
+
+### Why this is better
+
+- The class names tell you exactly what to expect.
+- Tests for `Invoice` no longer need a PDF library.
+- You can run `InvoiceRenderer` against any object that
+  responds to `total`, `line_items`, etc. — that's the seed of
+  a *duck type* (you'll meet that idea later).
+
+### A working example to refactor
+
+The next activity gives you a `Notifier` that formats AND
+delivers. You'll extract the formatting into its own class so
+either responsibility can change without dragging the other
+along.
 {% endcapture %}
 {{ lesson_body | markdownify }}
   </div>
@@ -41,8 +102,9 @@ Now `Invoice` only changes when invoicing rules change.
 {% capture p_oo_design_extract_collaborator_1 %}
 `Notifier` formats a message AND sends it. Split it so
 `Notifier#deliver` formats the body via a separate
-`Formatter` class.
-Hint: keep `Notifier`'s public API as `deliver(name)`.
+`Formatter` class. Keep `Notifier`'s public API as
+`deliver(name)`. Pass a `Formatter` in at construction
+time with a default.
 {% endcapture %}
 {{ p_oo_design_extract_collaborator_1 | markdownify }}
     </div>
@@ -50,7 +112,6 @@ Hint: keep `Notifier`'s public API as `deliver(name)`.
 n = Notifier.new(sink)
 raise unless n.deliver(&quot;alice&quot;) == &quot;hi, ALICE!&quot;
 raise unless sink == [&quot;hi, ALICE!&quot;]
-# If the user kept Formatter as its own class, prove it can be swapped:
 raise unless defined?(Formatter)
 ">
       <textarea class="code-editor" rows="10">class Notifier
@@ -66,6 +127,69 @@ raise unless defined?(Formatter)
 end
 
 # write the Formatter class here
+</textarea>
+      <div class="actions">
+        <button type="submit" class="btn run">» run</button>
+        <button type="button" class="btn reset">reset</button>
+      </div>
+      <div class="result" data-role="result"></div>
+    </form>
+  </section>
+  <section class="activity activity-choice" id="a-oo-design-extract-collaborator-2">
+    <header class="activity-head"><span class="badge">[ACTIVITY]</span> <h3>Why extract?</h3></header>
+    <div class="prompt-block">
+{% capture p_oo_design_extract_collaborator_2 %}
+You extracted `InvoiceRenderer` out of `Invoice`. Which
+statement is the strongest benefit?
+{% endcapture %}
+{{ p_oo_design_extract_collaborator_2 | markdownify }}
+    </div>
+    <form class="activity-form" data-kind="choice" data-correct="b">
+      <ul class="choices">
+        <li><label><input type="radio" name="choice-oo-design-extract-collaborator-2" value="a"> <span class="key">[a]</span> You can now subclass `Invoice` to add PDF support.</label></li>
+        <li><label><input type="radio" name="choice-oo-design-extract-collaborator-2" value="b"> <span class="key">[b]</span> PDF changes no longer risk breaking total calculation, and the renderer can be reused for any object that exposes the same data.</label></li>
+        <li><label><input type="radio" name="choice-oo-design-extract-collaborator-2" value="c"> <span class="key">[c]</span> PDFs are now generated faster.</label></li>
+        <li><label><input type="radio" name="choice-oo-design-extract-collaborator-2" value="d"> <span class="key">[d]</span> Ruby requires it for invoices over $100.</label></li>
+      </ul>
+      <button type="submit" class="btn">» submit</button>
+      <div class="result" data-role="result"></div>
+    </form>
+  </section>
+  <section class="activity activity-code" id="a-oo-design-extract-collaborator-3">
+    <header class="activity-head"><span class="badge">[ACTIVITY]</span> <h3>Swap the formatter</h3></header>
+    <div class="prompt-block">
+{% capture p_oo_design_extract_collaborator_3 %}
+Given the `Notifier` from the previous activity, write a
+`LoudFormatter` whose `call(name)` returns
+`"HI, NAME!!!"` (uppercase name, three exclamation
+points). Then verify that `Notifier.new(sink, formatter:
+LoudFormatter.new).deliver("alice")` returns
+`"HI, ALICE!!!"`.
+{% endcapture %}
+{{ p_oo_design_extract_collaborator_3 | markdownify }}
+    </div>
+    <form class="activity-form" data-kind="code" data-spec="sink = []
+n = Notifier.new(sink, formatter: LoudFormatter.new)
+raise unless n.deliver(&quot;alice&quot;) == &quot;HI, ALICE!!!&quot;
+raise unless sink == [&quot;HI, ALICE!!!&quot;]
+">
+      <textarea class="code-editor" rows="10">class Formatter
+  def call(name); "hi, #{name.upcase}!"; end
+end
+
+class Notifier
+  def initialize(sink, formatter: Formatter.new)
+    @sink, @formatter = sink, formatter
+  end
+
+  def deliver(name)
+    body = @formatter.call(name)
+    @sink &lt;&lt; body
+    body
+  end
+end
+
+# write LoudFormatter here
 </textarea>
       <div class="actions">
         <button type="submit" class="btn run">» run</button>

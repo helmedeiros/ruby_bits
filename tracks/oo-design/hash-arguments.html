@@ -13,23 +13,72 @@ lesson_slug: "hash-arguments"
 {% capture lesson_body %}
 ## From positional to keyword arguments
 
-Positional arguments tie callers to the order:
+When you write a method like this:
 
 ```ruby
 def initialize(name, age, role)
+  @name, @age, @role = name, age, role
+end
 ```
 
-Every caller now hard-codes `(name, age, role)`. Swap two
-arguments and you break them all.
+…every caller must know the **exact order** of arguments:
+
+```ruby
+Member.new("alice", 30, :admin)
+```
+
+If next week you decide `role` belongs earlier, or you want to
+add a new field, every call site has to change. That's *order
+coupling*.
+
+### Keyword arguments
+
+Keyword args name each value at the call site:
 
 ```ruby
 def initialize(name:, age:, role:)
   @name, @age, @role = name, age, role
 end
+
+Member.new(name: "alice", age: 30, role: :admin)
 ```
 
-Callers list args by name, in any order. You can add fields
-without breaking existing call sites.
+Two things become easier:
+
+- **Callers don't care about order.** They can write `role:`
+  first, or in any order — the names disambiguate.
+- **You can add new fields without breaking existing callers**
+  (give them defaults). Want to add `team:`? Existing call
+  sites continue to work.
+
+### When positional is fine
+
+For methods with **one** argument (or one obvious argument),
+positional is fine: `square(4)`, `greet("alice")`,
+`Wallet.new(100)`.
+
+The cost-benefit tilts toward keyword args around 3+ arguments
+or when the meaning of any argument isn't obvious from its
+value at the call site.
+
+### Required vs. optional
+
+Add a trailing colon to make a keyword **required** (Ruby
+raises `ArgumentError` if missing):
+
+```ruby
+def shift(point, by:)              # by is required
+  point + by
+end
+```
+
+Add a default value to make it **optional**:
+
+```ruby
+def shift(point, by: 1)            # by is optional
+  point + by
+end
+```
 {% endcapture %}
 {{ lesson_body | markdownify }}
   </div>
@@ -40,7 +89,8 @@ without breaking existing call sites.
     <div class="prompt-block">
 {% capture p_oo_design_hash_arguments_1 %}
 Rewrite `Member#initialize` to use *required* keyword args
-for `name`, `age`, and `role`. The accessors stay the same.
+for `name`, `age`, and `role`. The accessors stay the
+same.
 {% endcapture %}
 {{ p_oo_design_hash_arguments_1 | markdownify }}
     </div>
@@ -48,7 +98,6 @@ for `name`, `age`, and `role`. The accessors stay the same.
 raise unless m.name == &quot;alice&quot;
 raise unless m.age  == 30
 raise unless m.role == :admin
-# order-independence: the same call with reordered kwargs must work
 n = Member.new(role: :admin, name: &quot;alice&quot;, age: 30)
 raise unless n.name == &quot;alice&quot;
 ">
@@ -57,6 +106,52 @@ raise unless n.name == &quot;alice&quot;
   def initialize(name, age, role)
     @name, @age, @role = name, age, role
   end
+end
+</textarea>
+      <div class="actions">
+        <button type="submit" class="btn run">» run</button>
+        <button type="button" class="btn reset">reset</button>
+      </div>
+      <div class="result" data-role="result"></div>
+    </form>
+  </section>
+  <section class="activity activity-choice" id="a-oo-design-hash-arguments-2">
+    <header class="activity-head"><span class="badge">[ACTIVITY]</span> <h3>Order coupling</h3></header>
+    <div class="prompt-block">
+{% capture p_oo_design_hash_arguments_2 %}
+You change `def initialize(name, age, role)` to
+`def initialize(name, role, age)` — only the order of
+`role` and `age` changed. What happens?
+{% endcapture %}
+{{ p_oo_design_hash_arguments_2 | markdownify }}
+    </div>
+    <form class="activity-form" data-kind="choice" data-correct="b">
+      <ul class="choices">
+        <li><label><input type="radio" name="choice-oo-design-hash-arguments-2" value="a"> <span class="key">[a]</span> Nothing — Ruby figures it out by name.</label></li>
+        <li><label><input type="radio" name="choice-oo-design-hash-arguments-2" value="b"> <span class="key">[b]</span> All existing callers now silently swap age and role values, producing wrong data.</label></li>
+        <li><label><input type="radio" name="choice-oo-design-hash-arguments-2" value="c"> <span class="key">[c]</span> Ruby raises an ArgumentError everywhere.</label></li>
+        <li><label><input type="radio" name="choice-oo-design-hash-arguments-2" value="d"> <span class="key">[d]</span> Only new callers are affected.</label></li>
+      </ul>
+      <button type="submit" class="btn">» submit</button>
+      <div class="result" data-role="result"></div>
+    </form>
+  </section>
+  <section class="activity activity-code" id="a-oo-design-hash-arguments-3">
+    <header class="activity-head"><span class="badge">[ACTIVITY]</span> <h3>Mixed signature</h3></header>
+    <div class="prompt-block">
+{% capture p_oo_design_hash_arguments_3 %}
+Write `register(email, name:, admin: false)` that returns
+a hash with `:email`, `:name`, `:admin` keys filled from
+the arguments. `email` is positional, the other two are
+keyword args; `admin` defaults to `false`.
+{% endcapture %}
+{{ p_oo_design_hash_arguments_3 | markdownify }}
+    </div>
+    <form class="activity-form" data-kind="code" data-spec="raise unless register(&quot;a@x&quot;, name: &quot;alice&quot;)               == { email: &quot;a@x&quot;, name: &quot;alice&quot;, admin: false }
+raise unless register(&quot;b@x&quot;, name: &quot;bob&quot;, admin: true)    == { email: &quot;b@x&quot;, name: &quot;bob&quot;,   admin: true  }
+">
+      <textarea class="code-editor" rows="10">def register(email, name:, admin: false)
+  # TODO
 end
 </textarea>
       <div class="actions">

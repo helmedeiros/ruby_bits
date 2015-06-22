@@ -11,10 +11,24 @@ lesson_slug: "srp-violation"
   <h1>Spotting an SRP violation</h1>
   <div class="body markdown">
 {% capture lesson_body %}
-## Single Responsibility Principle
+## Single Responsibility Principle (SRP)
 
-A well-designed class makes change cheap. The first test is:
-*can you describe its job in one sentence?*
+### What's a class for?
+
+A class bundles **data** and **behavior** that belong
+together. The longer it lives, the more pressure it feels to
+grow. New requirements arrive. People add methods. Before you
+know it, a single class does five unrelated things.
+
+The Single Responsibility Principle is a check against that
+growth: **a class should have one reason to change**. Said
+another way — if you can describe what the class does in one
+sentence without using "and" or "or", you're probably fine. If
+you need conjunctions, the class is doing too much.
+
+### A class that does too much
+
+Look at this `Invoice`:
 
 ```ruby
 class Invoice
@@ -28,18 +42,45 @@ class Invoice
   end
 
   def to_pdf
-    # render headers, draw the table, embed company logo, ship to file
+    # render headers, draw the table, embed the company logo,
+    # ship the bytes to a file
   end
 
   def email_to_customer
-    # build HTML body, attach PDF, hit the SMTP server
+    # build an HTML body, attach the PDF, open an SMTP socket,
+    # talk to the mail server
   end
 end
 ```
 
-`Invoice` calculates money, renders PDFs, and sends mail. Three
-reasons to change. Change the SMTP layer and you risk breaking
-totals.
+What does it do? It **calculates totals AND renders PDFs AND
+sends mail**. Three jobs, three reasons to change:
+
+1. The pricing rules change (tax law, discounts).
+2. The marketing team wants a new PDF style.
+3. Operations switches SMTP providers.
+
+Worse, those reasons share **no logic**. Touching the PDF
+renderer to add a logo shouldn't risk breaking the total. But
+here they all live in the same class — so they share tests,
+they share dependencies, and they often share state.
+
+### Why this matters
+
+- **Hard to test**: to test `total`, you might end up loading
+  PDF libraries or stubbing the mailer.
+- **Hard to reuse**: you can't ask `Invoice` to render a PDF
+  without also pulling in mail logic.
+- **Hard to change**: a small change to one responsibility
+  risks the others — code review is slower because reviewers
+  have to think about all three.
+
+### The fix (preview)
+
+Split each job into its own class. `Invoice` keeps the money.
+A separate `InvoiceRenderer` does PDFs. A separate
+`InvoiceMailer` does delivery. The next lesson walks through
+that refactor.
 {% endcapture %}
 {{ lesson_body | markdownify }}
   </div>
@@ -49,7 +90,8 @@ totals.
     <header class="activity-head"><span class="badge">[ACTIVITY]</span> <h3>One-sentence test</h3></header>
     <div class="prompt-block">
 {% capture p_oo_design_srp_violation_1 %}
-Why does the `Invoice` class above fail the one-sentence test?
+Why does the `Invoice` class above fail the one-sentence
+test?
 {% endcapture %}
 {{ p_oo_design_srp_violation_1 | markdownify }}
     </div>
@@ -61,6 +103,84 @@ Why does the `Invoice` class above fail the one-sentence test?
         <li><label><input type="radio" name="choice-oo-design-srp-violation-1" value="d"> <span class="key">[d]</span> It doesn't define an initializer.</label></li>
       </ul>
       <button type="submit" class="btn">» submit</button>
+      <div class="result" data-role="result"></div>
+    </form>
+  </section>
+  <section class="activity activity-choice" id="a-oo-design-srp-violation-2">
+    <header class="activity-head"><span class="badge">[ACTIVITY]</span> <h3>Reasons to change</h3></header>
+    <div class="prompt-block">
+{% capture p_oo_design_srp_violation_2 %}
+Which scenario should NOT require touching `Invoice` in
+a well-factored design?
+{% endcapture %}
+{{ p_oo_design_srp_violation_2 | markdownify }}
+    </div>
+    <form class="activity-form" data-kind="choice" data-correct="b">
+      <ul class="choices">
+        <li><label><input type="radio" name="choice-oo-design-srp-violation-2" value="a"> <span class="key">[a]</span> The company changes pricing rules.</label></li>
+        <li><label><input type="radio" name="choice-oo-design-srp-violation-2" value="b"> <span class="key">[b]</span> The PDF style gets redesigned.</label></li>
+        <li><label><input type="radio" name="choice-oo-design-srp-violation-2" value="c"> <span class="key">[c]</span> A new currency is added.</label></li>
+        <li><label><input type="radio" name="choice-oo-design-srp-violation-2" value="d"> <span class="key">[d]</span> The line-total formula changes.</label></li>
+      </ul>
+      <button type="submit" class="btn">» submit</button>
+      <div class="result" data-role="result"></div>
+    </form>
+  </section>
+  <section class="activity activity-choice" id="a-oo-design-srp-violation-3">
+    <header class="activity-head"><span class="badge">[ACTIVITY]</span> <h3>Find the verbs</h3></header>
+    <div class="prompt-block">
+{% capture p_oo_design_srp_violation_3 %}
+A class called `UserOnboarding` exposes these methods:
+`create_user`, `send_welcome_email`, `bill_first_month`,
+`notify_slack`. How many responsibilities is this?
+{% endcapture %}
+{{ p_oo_design_srp_violation_3 | markdownify }}
+    </div>
+    <form class="activity-form" data-kind="choice" data-correct="b">
+      <ul class="choices">
+        <li><label><input type="radio" name="choice-oo-design-srp-violation-3" value="a"> <span class="key">[a]</span> One — it onboards users.</label></li>
+        <li><label><input type="radio" name="choice-oo-design-srp-violation-3" value="b"> <span class="key">[b]</span> At least four — each verb is a different concern.</label></li>
+        <li><label><input type="radio" name="choice-oo-design-srp-violation-3" value="c"> <span class="key">[c]</span> Two — creation and notification.</label></li>
+        <li><label><input type="radio" name="choice-oo-design-srp-violation-3" value="d"> <span class="key">[d]</span> None — these are just methods.</label></li>
+      </ul>
+      <button type="submit" class="btn">» submit</button>
+      <div class="result" data-role="result"></div>
+    </form>
+  </section>
+  <section class="activity activity-code" id="a-oo-design-srp-violation-4">
+    <header class="activity-head"><span class="badge">[ACTIVITY]</span> <h3>One-line role</h3></header>
+    <div class="prompt-block">
+{% capture p_oo_design_srp_violation_4 %}
+The class below mixes two jobs. Write a description that
+summarizes ONLY its first job (computing the total). Your
+method `role` should return the string
+`"computes the invoice total"`.
+{% endcapture %}
+{{ p_oo_design_srp_violation_4 | markdownify }}
+    </div>
+    <form class="activity-form" data-kind="code" data-spec="raise unless role == &quot;computes the invoice total&quot;
+">
+      <textarea class="code-editor" rows="10">class TwoJobInvoice
+  def initialize(lines); @lines = lines; end
+
+  def total
+    @lines.sum { |l| l[:qty] * l[:price] }
+  end
+
+  def to_pdf
+    "PDF bytes"
+  end
+end
+
+def role
+  # TODO: return the single-sentence description
+  # of just the money-computing responsibility
+end
+</textarea>
+      <div class="actions">
+        <button type="submit" class="btn run">» run</button>
+        <button type="button" class="btn reset">reset</button>
+      </div>
       <div class="result" data-role="result"></div>
     </form>
   </section>

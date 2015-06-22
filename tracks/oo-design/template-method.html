@@ -13,10 +13,18 @@ lesson_slug: "template-method"
 {% capture lesson_body %}
 ## Template method
 
-The parent defines the *shape* of an algorithm and leaves
-specific steps to subclasses, often with `raise
-NotImplementedError` as a contract for "you must implement
-this":
+### The idea
+
+Inheritance is most useful when a family of classes shares the
+**shape** of an algorithm, but differs in one or two specific
+steps.
+
+The Template Method pattern captures this: the parent defines
+the algorithm and reserves "slots" — methods that subclasses
+must implement. The parent guarantees the structure; the
+subclass fills in the details.
+
+### Concrete example
 
 ```ruby
 class Report
@@ -24,8 +32,8 @@ class Report
     "#{header}\n#{body}\n#{footer}"
   end
 
-  def header; "REPORT — #{Time.now.year}"; end
-  def footer; "— end —"; end
+  def header; "REPORT"; end
+  def footer; "-- end --"; end
 
   def body
     raise NotImplementedError, "#{self.class} must implement #body"
@@ -33,13 +41,52 @@ class Report
 end
 ```
 
-Subclasses only fill in the gaps:
+Notice three things:
+
+1. `render` defines the **algorithm**: header, body, footer.
+2. `header` and `footer` have **safe defaults** that
+   subclasses can keep or override.
+3. `body` is **unimplemented** — it raises. This is the
+   "contract": "I, the parent, won't render unless my child
+   tells me what the body is."
+
+### A subclass
 
 ```ruby
 class SalesReport < Report
-  def body; "sales were up 12%"; end
+  def body
+    "sales were up 12%"
+  end
 end
+
+SalesReport.new.render
+# => "REPORT\nsales were up 12%\n-- end --"
 ```
+
+The subclass only had to provide `body`. It inherited the
+algorithm structure plus the default header/footer for free.
+
+### Why `raise NotImplementedError`?
+
+Without the raise, a subclass that forgot to implement `body`
+would silently return `nil`, and your report would render
+weirdly with a blank line in the middle. With the raise, the
+mistake is caught loudly: "you forgot to implement body".
+
+### When to reach for inheritance
+
+Use inheritance only when the relationship is genuinely
+"*is-a*": `SalesReport` *is a* `Report`. If you're using it
+just to share code, prefer composition (next module) or a
+module (later).
+
+### Naming heuristic
+
+You can usually spot template-method opportunities by
+looking at a method that has three to five small steps and
+one or two of those steps vary by use case. Pull the
+framework into a parent, hand the variable steps to
+subclasses.
 {% endcapture %}
 {{ lesson_body | markdownify }}
   </div>
@@ -76,6 +123,60 @@ end
         <button type="submit" class="btn run">» run</button>
         <button type="button" class="btn reset">reset</button>
       </div>
+      <div class="result" data-role="result"></div>
+    </form>
+  </section>
+  <section class="activity activity-code" id="a-oo-design-template-method-2">
+    <header class="activity-head"><span class="badge">[ACTIVITY]</span> <h3>Override the header</h3></header>
+    <div class="prompt-block">
+{% capture p_oo_design_template_method_2 %}
+Write `MarketingReport < Report` whose `#header` returns
+`"MARKETING"` and `#body` returns `"signups doubled"`. The
+full `#render` should produce
+`"MARKETING\nsignups doubled\n-- end --"`.
+{% endcapture %}
+{{ p_oo_design_template_method_2 | markdownify }}
+    </div>
+    <form class="activity-form" data-kind="code" data-spec="raise unless MarketingReport.new.render == &quot;MARKETING\nsignups doubled\n-- end --&quot;
+">
+      <textarea class="code-editor" rows="10">class Report
+  def render
+    "#{header}\n#{body}\n#{footer}"
+  end
+  def header; "REPORT"; end
+  def footer; "-- end --"; end
+  def body
+    raise NotImplementedError
+  end
+end
+
+# write MarketingReport here
+</textarea>
+      <div class="actions">
+        <button type="submit" class="btn run">» run</button>
+        <button type="button" class="btn reset">reset</button>
+      </div>
+      <div class="result" data-role="result"></div>
+    </form>
+  </section>
+  <section class="activity activity-choice" id="a-oo-design-template-method-3">
+    <header class="activity-head"><span class="badge">[ACTIVITY]</span> <h3>The contract method</h3></header>
+    <div class="prompt-block">
+{% capture p_oo_design_template_method_3 %}
+In a template-method parent class, why does the
+unimplemented method `raise NotImplementedError` instead
+of returning `nil`?
+{% endcapture %}
+{{ p_oo_design_template_method_3 | markdownify }}
+    </div>
+    <form class="activity-form" data-kind="choice" data-correct="b">
+      <ul class="choices">
+        <li><label><input type="radio" name="choice-oo-design-template-method-3" value="a"> <span class="key">[a]</span> It runs faster.</label></li>
+        <li><label><input type="radio" name="choice-oo-design-template-method-3" value="b"> <span class="key">[b]</span> It documents the contract — and makes a forgotten subclass implementation fail loudly instead of silently.</label></li>
+        <li><label><input type="radio" name="choice-oo-design-template-method-3" value="c"> <span class="key">[c]</span> Ruby requires it.</label></li>
+        <li><label><input type="radio" name="choice-oo-design-template-method-3" value="d"> <span class="key">[d]</span> It triggers garbage collection.</label></li>
+      </ul>
+      <button type="submit" class="btn">» submit</button>
       <div class="result" data-role="result"></div>
     </form>
   </section>

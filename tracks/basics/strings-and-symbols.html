@@ -13,23 +13,77 @@ lesson_slug: "strings-and-symbols"
 {% capture lesson_body %}
 ## Strings and symbols
 
-A **string** is a sequence of characters. Strings are mutable and
-can be built dynamically with interpolation:
+Ruby gives you two kinds of textual values, and beginners often
+confuse them. Let's go through each carefully.
+
+### Strings
+
+A **string** is a sequence of characters. You create one with
+quotes:
+
+```ruby
+greeting = "hello"
+name     = "alice"
+```
+
+Strings can be combined with `+`, repeated with `*`, and asked
+their length:
+
+```ruby
+"hi" + " " + "alice"   # => "hi alice"
+"ha" * 3               # => "hahaha"
+"alice".length         # => 5
+```
+
+The most useful trick is **interpolation** — embedding values
+right inside a string with `#{...}`. Note this only works
+inside *double* quotes:
 
 ```ruby
 name = "alice"
-"hello, #{name}"   # => "hello, alice"
+"hello, #{name}"        # => "hello, alice"
+'hello, #{name}'        # => 'hello, #{name}'  — no interpolation!
 ```
 
-A **symbol** is an interned identifier — immutable, unique, and
-cheap to compare:
+Strings have many methods you'll use constantly:
 
 ```ruby
-:name              # always the same object
+"Alice".upcase          # => "ALICE"
+"Alice".downcase        # => "alice"
+"  hi  ".strip          # => "hi"
+"hello".include?("ll")  # => true
+"hello".reverse         # => "olleh"
 ```
 
-Use symbols for fixed identifiers (hash keys, states, types).
-Use strings for human-facing text or anything that varies.
+### Symbols
+
+A **symbol** looks like `:name`. It's an immutable label — Ruby
+guarantees the same symbol always refers to the same object in
+memory. Symbols are cheap to compare and never accidentally
+mutate.
+
+```ruby
+:pending
+:status
+:user_id
+```
+
+Symbols and strings are not interchangeable: `:name` is not
+`"name"`. They look similar in the source but behave differently.
+
+### When to use which?
+
+- Use **symbols** for fixed identifiers that name a *kind* of
+  thing: hash keys, states (`:pending`, `:active`), method
+  names. They're not for display.
+- Use **strings** for human-facing text — anything you'd print,
+  log, store, or send over the wire.
+
+### Common pitfall: quote style
+
+A common beginner bug is wondering why interpolation "doesn't
+work" — usually the wrong quote was used. Single quotes are
+literal; double quotes interpolate.
 {% endcapture %}
 {{ lesson_body | markdownify }}
   </div>
@@ -39,7 +93,9 @@ Use strings for human-facing text or anything that varies.
     <header class="activity-head"><span class="badge">[ACTIVITY]</span> <h3>Interpolate a greeting</h3></header>
     <div class="prompt-block">
 {% capture p_basics_strings_and_symbols_1 %}
-Write `greet(name)` so it returns `"hi, NAME!"` with the name uppercased.
+Write `greet(name)` so it returns `"hi, NAME!"` with the
+name uppercased. For `greet("alice")` you should get
+`"hi, ALICE!"`.
 {% endcapture %}
 {{ p_basics_strings_and_symbols_1 | markdownify }}
     </div>
@@ -57,22 +113,95 @@ end
       <div class="result" data-role="result"></div>
     </form>
   </section>
-  <section class="activity activity-choice" id="a-basics-strings-and-symbols-2">
-    <header class="activity-head"><span class="badge">[ACTIVITY]</span> <h3>Symbol or string?</h3></header>
+  <section class="activity activity-code" id="a-basics-strings-and-symbols-2">
+    <header class="activity-head"><span class="badge">[ACTIVITY]</span> <h3>Word count</h3></header>
     <div class="prompt-block">
 {% capture p_basics_strings_and_symbols_2 %}
-Which is the most idiomatic key for a status field that only ever takes a fixed set of values?
+Write `word_count(sentence)` that returns the number of
+words in a sentence (separated by spaces).
+Hint: strings have a `.split` method that returns an array.
 {% endcapture %}
 {{ p_basics_strings_and_symbols_2 | markdownify }}
     </div>
+    <form class="activity-form" data-kind="code" data-spec="raise unless word_count(&quot;hello world&quot;) == 2
+raise unless word_count(&quot;the quick brown fox&quot;) == 4
+raise unless word_count(&quot;solo&quot;) == 1
+">
+      <textarea class="code-editor" rows="10">def word_count(sentence)
+  # TODO
+end
+</textarea>
+      <div class="actions">
+        <button type="submit" class="btn run">» run</button>
+        <button type="button" class="btn reset">reset</button>
+      </div>
+      <div class="result" data-role="result"></div>
+    </form>
+  </section>
+  <section class="activity activity-choice" id="a-basics-strings-and-symbols-3">
+    <header class="activity-head"><span class="badge">[ACTIVITY]</span> <h3>Symbol or string?</h3></header>
+    <div class="prompt-block">
+{% capture p_basics_strings_and_symbols_3 %}
+You're storing the status of an order. It can be one of a
+small fixed set of values: pending, paid, shipped,
+cancelled. What's the most idiomatic Ruby representation?
+{% endcapture %}
+{{ p_basics_strings_and_symbols_3 | markdownify }}
+    </div>
     <form class="activity-form" data-kind="choice" data-correct="b">
       <ul class="choices">
-        <li><label><input type="radio" name="choice-basics-strings-and-symbols-2" value="a"> <span class="key">[a]</span> "pending"</label></li>
-        <li><label><input type="radio" name="choice-basics-strings-and-symbols-2" value="b"> <span class="key">[b]</span> :pending</label></li>
-        <li><label><input type="radio" name="choice-basics-strings-and-symbols-2" value="c"> <span class="key">[c]</span> "PENDING"</label></li>
-        <li><label><input type="radio" name="choice-basics-strings-and-symbols-2" value="d"> <span class="key">[d]</span> 0</label></li>
+        <li><label><input type="radio" name="choice-basics-strings-and-symbols-3" value="a"> <span class="key">[a]</span> "pending", "paid", "shipped", "cancelled" (strings)</label></li>
+        <li><label><input type="radio" name="choice-basics-strings-and-symbols-3" value="b"> <span class="key">[b]</span> :pending, :paid, :shipped, :cancelled (symbols)</label></li>
+        <li><label><input type="radio" name="choice-basics-strings-and-symbols-3" value="c"> <span class="key">[c]</span> 0, 1, 2, 3 (integers)</label></li>
+        <li><label><input type="radio" name="choice-basics-strings-and-symbols-3" value="d"> <span class="key">[d]</span> "PENDING", "PAID", "SHIPPED", "CANCELLED" (uppercase strings)</label></li>
       </ul>
       <button type="submit" class="btn">» submit</button>
+      <div class="result" data-role="result"></div>
+    </form>
+  </section>
+  <section class="activity activity-choice" id="a-basics-strings-and-symbols-4">
+    <header class="activity-head"><span class="badge">[ACTIVITY]</span> <h3>Spot the bug</h3></header>
+    <div class="prompt-block">
+{% capture p_basics_strings_and_symbols_4 %}
+A beginner wrote `puts 'hello, #{name}'` and is confused
+that the output is literally `hello, #{name}` instead of
+their name. What's the fix?
+{% endcapture %}
+{{ p_basics_strings_and_symbols_4 | markdownify }}
+    </div>
+    <form class="activity-form" data-kind="choice" data-correct="b">
+      <ul class="choices">
+        <li><label><input type="radio" name="choice-basics-strings-and-symbols-4" value="a"> <span class="key">[a]</span> They need to capitalize `Name` inside the braces.</label></li>
+        <li><label><input type="radio" name="choice-basics-strings-and-symbols-4" value="b"> <span class="key">[b]</span> Use double quotes instead of single quotes.</label></li>
+        <li><label><input type="radio" name="choice-basics-strings-and-symbols-4" value="c"> <span class="key">[c]</span> Add `puts` twice.</label></li>
+        <li><label><input type="radio" name="choice-basics-strings-and-symbols-4" value="d"> <span class="key">[d]</span> Use `printf` instead of `puts`.</label></li>
+      </ul>
+      <button type="submit" class="btn">» submit</button>
+      <div class="result" data-role="result"></div>
+    </form>
+  </section>
+  <section class="activity activity-code" id="a-basics-strings-and-symbols-5">
+    <header class="activity-head"><span class="badge">[ACTIVITY]</span> <h3>Build a slug</h3></header>
+    <div class="prompt-block">
+{% capture p_basics_strings_and_symbols_5 %}
+Write `slugify(title)` that returns a URL-safe lowercase
+string with spaces replaced by `-`. `"Hello World"` becomes
+`"hello-world"`.
+{% endcapture %}
+{{ p_basics_strings_and_symbols_5 | markdownify }}
+    </div>
+    <form class="activity-form" data-kind="code" data-spec="raise unless slugify(&quot;Hello World&quot;) == &quot;hello-world&quot;
+raise unless slugify(&quot;MY First Post&quot;) == &quot;my-first-post&quot;
+raise unless slugify(&quot;ruby&quot;) == &quot;ruby&quot;
+">
+      <textarea class="code-editor" rows="10">def slugify(title)
+  # TODO
+end
+</textarea>
+      <div class="actions">
+        <button type="submit" class="btn run">» run</button>
+        <button type="button" class="btn reset">reset</button>
+      </div>
       <div class="result" data-role="result"></div>
     </form>
   </section>

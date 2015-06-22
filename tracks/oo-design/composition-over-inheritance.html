@@ -13,11 +13,35 @@ lesson_slug: "composition-over-inheritance"
 {% capture lesson_body %}
 ## Composition over inheritance
 
-When you reach for a superclass, ask: is the new class
-genuinely an *is-a* specialization, or just sharing some
-behavior?
+### Two ways to share behavior
 
-For sharing behavior across unrelated objects, compose:
+Suppose you're building a checkout flow with several pricing
+strategies — fixed price, taxed, volume-discounted. There are
+two common ways to share behavior:
+
+**Inheritance**: `TaxedOrder < Order`. Every taxed order *is*
+an order, with tax behavior added.
+
+**Composition**: `Order` holds a *pricer*. The pricer
+calculates the total. Swap the pricer and the calculation
+changes; the Order doesn't.
+
+Both work for small examples. Composition tends to scale
+better.
+
+### Why composition usually wins
+
+Inheritance is rigid: an object is either a `TaxedOrder` or
+not, forever. If next month you need "taxed AND
+volume-discounted", you're stuck building a combinatorial
+tower of subclasses (`TaxedDiscountedOrder`,
+`TaxedDiscountedPrimeOrder`, …).
+
+Composition is flexible: an `Order` can hold *any* pricer —
+fixed, taxed, discounted, or one you write today that combines
+two others. The structure of `Order` doesn't change.
+
+### A concrete example
 
 ```ruby
 class Order
@@ -31,17 +55,46 @@ class Order
 end
 
 class FixedPricer
-  def total(items); items.sum { |i| i[:price] } end
+  def total(items)
+    items.sum { |i| i[:price] }
+  end
 end
 
 class TaxedPricer
   def initialize(rate); @rate = rate; end
-  def total(items); items.sum { |i| i[:price] } * (1 + @rate); end
+  def total(items)
+    items.sum { |i| i[:price] } * (1 + @rate)
+  end
 end
 ```
 
-`Order` doesn't know how prices are computed — it just asks its
-pricer. Swap pricers freely; `Order` is untouched.
+`Order` only knows it has *a pricer* — anything that responds
+to `total(items)`. The pricer can be as simple or as smart as
+you like. You can also compose pricers (e.g. a
+`DiscountedPricer` that wraps another pricer).
+
+### Has-a vs is-a
+
+The shorthand test: ask "is this new class a more specific
+version of the parent, or does it just *have* one of those?".
+
+- `Cat` *is a* `Animal`. → inheritance is fine.
+- `Order` *has a* pricer. → composition.
+- `Car` *has an* engine. → composition.
+- `RoadBike` *is a* `Bicycle`. → either could work; composition
+  often wins long-term because it stays flexible.
+
+### When to still reach for inheritance
+
+Inheritance is great when you have:
+
+- A real **is-a** relationship.
+- A small (2-4) **closed** set of subclasses that won't
+  multiply.
+- A clear template method or shared algorithm.
+
+Outside those cases, composition usually keeps your design
+friendlier to change.
 {% endcapture %}
 {{ lesson_body | markdownify }}
   </div>
@@ -63,6 +116,65 @@ engine?
         <li><label><input type="radio" name="choice-oo-design-composition-over-inheritance-1" value="b"> <span class="key">[b]</span> Composed object — Car HAS-AN engine. Inject the engine into Car.</label></li>
         <li><label><input type="radio" name="choice-oo-design-composition-over-inheritance-1" value="c"> <span class="key">[c]</span> Module mixed into every vehicle.</label></li>
         <li><label><input type="radio" name="choice-oo-design-composition-over-inheritance-1" value="d"> <span class="key">[d]</span> Singleton method on each instance.</label></li>
+      </ul>
+      <button type="submit" class="btn">» submit</button>
+      <div class="result" data-role="result"></div>
+    </form>
+  </section>
+  <section class="activity activity-code" id="a-oo-design-composition-over-inheritance-2">
+    <header class="activity-head"><span class="badge">[ACTIVITY]</span> <h3>Swap the pricer</h3></header>
+    <div class="prompt-block">
+{% capture p_oo_design_composition_over_inheritance_2 %}
+Given the `Order` class below (which already takes a
+pricer), write a `DiscountPricer.new(rate)` whose `#total`
+applies a `(1 - rate)` discount to the sum of item
+prices.
+{% endcapture %}
+{{ p_oo_design_composition_over_inheritance_2 | markdownify }}
+    </div>
+    <form class="activity-form" data-kind="code" data-spec="items = [{ price: 100 }, { price: 50 }]
+raise unless Order.new(items: items, pricer: FixedPricer.new).total           == 150
+raise unless Order.new(items: items, pricer: DiscountPricer.new(0.1)).total   == 135.0
+raise unless Order.new(items: items, pricer: DiscountPricer.new(0.5)).total   == 75.0
+">
+      <textarea class="code-editor" rows="10">class Order
+  def initialize(items:, pricer:)
+    @items, @pricer = items, pricer
+  end
+
+  def total
+    @pricer.total(@items)
+  end
+end
+
+class FixedPricer
+  def total(items); items.sum { |i| i[:price] }; end
+end
+
+# write DiscountPricer here
+</textarea>
+      <div class="actions">
+        <button type="submit" class="btn run">» run</button>
+        <button type="button" class="btn reset">reset</button>
+      </div>
+      <div class="result" data-role="result"></div>
+    </form>
+  </section>
+  <section class="activity activity-choice" id="a-oo-design-composition-over-inheritance-3">
+    <header class="activity-head"><span class="badge">[ACTIVITY]</span> <h3>When inheritance still fits</h3></header>
+    <div class="prompt-block">
+{% capture p_oo_design_composition_over_inheritance_3 %}
+Which of these is the strongest candidate for inheritance
+rather than composition?
+{% endcapture %}
+{{ p_oo_design_composition_over_inheritance_3 | markdownify }}
+    </div>
+    <form class="activity-form" data-kind="choice" data-correct="b">
+      <ul class="choices">
+        <li><label><input type="radio" name="choice-oo-design-composition-over-inheritance-3" value="a"> <span class="key">[a]</span> Three vehicle classes that each have a different engine.</label></li>
+        <li><label><input type="radio" name="choice-oo-design-composition-over-inheritance-3" value="b"> <span class="key">[b]</span> Four report formats that all follow the same render-header-body-footer algorithm with one varying body step.</label></li>
+        <li><label><input type="radio" name="choice-oo-design-composition-over-inheritance-3" value="c"> <span class="key">[c]</span> A checkout that needs to plug in a dozen pricing strategies over time.</label></li>
+        <li><label><input type="radio" name="choice-oo-design-composition-over-inheritance-3" value="d"> <span class="key">[d]</span> An audit log that should be optional on some entities.</label></li>
       </ul>
       <button type="submit" class="btn">» submit</button>
       <div class="result" data-role="result"></div>

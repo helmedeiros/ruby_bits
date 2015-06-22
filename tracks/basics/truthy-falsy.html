@@ -13,18 +13,56 @@ lesson_slug: "truthy-falsy"
 {% capture lesson_body %}
 ## Truthy and falsy
 
-Ruby treats **only `false` and `nil`** as falsy. Everything else
-— including `0`, `""`, and `[]` — is truthy.
+When Ruby decides whether to enter an `if` branch, it doesn't
+ask "is this true or false?" — it asks "is this truthy?". Two
+values are **falsy**: `false` and `nil`. **Everything else is
+truthy**, including some values that surprise people coming
+from other languages.
+
+### The rule
 
 ```ruby
-puts "yes" if 0      # prints
-puts "yes" if ""     # prints
-puts "yes" if []     # prints
-puts "yes" if nil    # nothing
-puts "yes" if false  # nothing
+puts "truthy" if 0       # prints "truthy"  — zero is truthy
+puts "truthy" if ""      # prints "truthy"  — empty string is truthy
+puts "truthy" if []      # prints "truthy"  — empty array is truthy
+puts "truthy" if {}      # prints "truthy"  — empty hash is truthy
+puts "truthy" if nil     # prints nothing   — nil is falsy
+puts "truthy" if false   # prints nothing   — false is falsy
 ```
 
-This trips up people coming from C or Python — be deliberate.
+This is different from JavaScript or Python, where `0`, `""`,
+and empty containers are falsy. Ruby is stricter: only `nil`
+and `false` are falsy.
+
+### Why nil exists
+
+`nil` is Ruby's "nothing here" value. Methods that don't find
+what they were looking for return `nil`:
+
+```ruby
+[1, 2, 3].find { |n| n > 100 }   # => nil
+{a: 1}[:missing_key]              # => nil
+```
+
+So `if value` is a common shorthand for "did we find
+something?":
+
+```ruby
+user = User.find_by(email: "x")
+if user
+  puts "welcome, #{user.name}"
+end
+```
+
+### Common pitfall: confusing nil and false
+
+Both `nil` and `false` are falsy, so you often can't tell them
+apart in an `if`. If the difference matters (e.g. "user
+explicitly said no" vs "user didn't say"), use `.nil?`:
+
+```ruby
+value.nil?       # true only for nil, not for false
+```
 {% endcapture %}
 {{ lesson_body | markdownify }}
   </div>
@@ -41,11 +79,82 @@ Which value is FALSY in Ruby?
     <form class="activity-form" data-kind="choice" data-correct="c">
       <ul class="choices">
         <li><label><input type="radio" name="choice-basics-truthy-falsy-1" value="a"> <span class="key">[a]</span> 0</label></li>
-        <li><label><input type="radio" name="choice-basics-truthy-falsy-1" value="b"> <span class="key">[b]</span> ""</label></li>
+        <li><label><input type="radio" name="choice-basics-truthy-falsy-1" value="b"> <span class="key">[b]</span> "" (empty string)</label></li>
         <li><label><input type="radio" name="choice-basics-truthy-falsy-1" value="c"> <span class="key">[c]</span> nil</label></li>
-        <li><label><input type="radio" name="choice-basics-truthy-falsy-1" value="d"> <span class="key">[d]</span> []</label></li>
+        <li><label><input type="radio" name="choice-basics-truthy-falsy-1" value="d"> <span class="key">[d]</span> [] (empty array)</label></li>
       </ul>
       <button type="submit" class="btn">» submit</button>
+      <div class="result" data-role="result"></div>
+    </form>
+  </section>
+  <section class="activity activity-choice" id="a-basics-truthy-falsy-2">
+    <header class="activity-head"><span class="badge">[ACTIVITY]</span> <h3>How many truthy?</h3></header>
+    <div class="prompt-block">
+{% capture p_basics_truthy_falsy_2 %}
+How many of these values are truthy?
+0, "", [], nil, false, "false"
+{% endcapture %}
+{{ p_basics_truthy_falsy_2 | markdownify }}
+    </div>
+    <form class="activity-form" data-kind="choice" data-correct="c">
+      <ul class="choices">
+        <li><label><input type="radio" name="choice-basics-truthy-falsy-2" value="a"> <span class="key">[a]</span> 2</label></li>
+        <li><label><input type="radio" name="choice-basics-truthy-falsy-2" value="b"> <span class="key">[b]</span> 3</label></li>
+        <li><label><input type="radio" name="choice-basics-truthy-falsy-2" value="c"> <span class="key">[c]</span> 4</label></li>
+        <li><label><input type="radio" name="choice-basics-truthy-falsy-2" value="d"> <span class="key">[d]</span> 5</label></li>
+      </ul>
+      <button type="submit" class="btn">» submit</button>
+      <div class="result" data-role="result"></div>
+    </form>
+  </section>
+  <section class="activity activity-code" id="a-basics-truthy-falsy-3">
+    <header class="activity-head"><span class="badge">[ACTIVITY]</span> <h3>Default when missing</h3></header>
+    <div class="prompt-block">
+{% capture p_basics_truthy_falsy_3 %}
+Write `display_name(name)` that returns the name if it's
+not nil, or `"anonymous"` if it is. Use the `||` operator.
+{% endcapture %}
+{{ p_basics_truthy_falsy_3 | markdownify }}
+    </div>
+    <form class="activity-form" data-kind="code" data-spec="raise unless display_name(&quot;alice&quot;)     == &quot;alice&quot;
+raise unless display_name(nil)         == &quot;anonymous&quot;
+raise unless display_name(&quot;&quot;)          == &quot;&quot;
+">
+      <textarea class="code-editor" rows="10">def display_name(name)
+  # TODO
+end
+</textarea>
+      <div class="actions">
+        <button type="submit" class="btn run">» run</button>
+        <button type="button" class="btn reset">reset</button>
+      </div>
+      <div class="result" data-role="result"></div>
+    </form>
+  </section>
+  <section class="activity activity-code" id="a-basics-truthy-falsy-4">
+    <header class="activity-head"><span class="badge">[ACTIVITY]</span> <h3>Telling nil and false apart</h3></header>
+    <div class="prompt-block">
+{% capture p_basics_truthy_falsy_4 %}
+Write `describe(value)` that returns `"missing"` if value
+is nil, `"off"` if value is false, and `"set"` for anything
+else.
+{% endcapture %}
+{{ p_basics_truthy_falsy_4 | markdownify }}
+    </div>
+    <form class="activity-form" data-kind="code" data-spec="raise unless describe(nil)   == &quot;missing&quot;
+raise unless describe(false) == &quot;off&quot;
+raise unless describe(true)  == &quot;set&quot;
+raise unless describe(0)     == &quot;set&quot;
+raise unless describe(&quot;&quot;)    == &quot;set&quot;
+">
+      <textarea class="code-editor" rows="10">def describe(value)
+  # TODO
+end
+</textarea>
+      <div class="actions">
+        <button type="submit" class="btn run">» run</button>
+        <button type="button" class="btn reset">reset</button>
+      </div>
       <div class="result" data-role="result"></div>
     </form>
   </section>

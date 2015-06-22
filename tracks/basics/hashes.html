@@ -13,34 +13,152 @@ lesson_slug: "hashes"
 {% capture lesson_body %}
 ## Hashes
 
-Hashes map keys to values. Any object can be a key, but symbols
-are most common:
+A **hash** maps keys to values — like a dictionary. Order is
+preserved (since Ruby 1.9) and any object can be a key, but
+symbols are most common.
+
+### Creating and reading
 
 ```ruby
-user = { name: "alice", age: 30 }
-user[:name]            # => "alice"
-user[:role] = :admin
+user = { name: "alice", age: 30, role: :admin }
+user[:name]    # => "alice"
+user[:age]     # => 30
+user[:missing] # => nil   (no error, just nil)
 ```
 
-A handy trick: `Hash.new(0)` returns `0` for any missing key,
-which makes counting trivial.
+The `{ name: "alice" }` shorthand is for symbol keys.
+Equivalent older syntax: `{ :name => "alice" }`.
+
+### Writing and updating
+
+```ruby
+user[:role] = :viewer    # set or overwrite
+user[:email] = "a@x"     # add a new key
+
+user.delete(:age)        # remove a key
+user.size                # => 2
+user.keys                # => [:name, :role, :email]
+user.values              # => ["alice", :viewer, "a@x"]
+```
+
+### Default values
+
+By default, missing keys return `nil`. But sometimes you want
+a *non-nil* default — e.g. counting things:
+
+```ruby
+counts = Hash.new(0)         # any missing key returns 0
+counts[:a] += 1
+counts[:a] += 1
+counts[:b] += 1
+counts                       # => {a: 2, b: 1}
+```
+
+Without `Hash.new(0)`, the first `counts[:a] += 1` would crash
+because `nil + 1` is an error.
+
+### Iterating
+
+```ruby
+user.each do |key, value|
+  puts "#{key}: #{value}"
+end
+```
+
+Hashes have the same `map`, `select`, `reduce` family as
+arrays, but each block gets `key, value`.
 {% endcapture %}
 {{ lesson_body | markdownify }}
   </div>
   <hr>
   <h2>activities</h2>
   <section class="activity activity-code" id="a-basics-hashes-1">
-    <header class="activity-head"><span class="badge">[ACTIVITY]</span> <h3>Tag counter</h3></header>
+    <header class="activity-head"><span class="badge">[ACTIVITY]</span> <h3>Build a profile</h3></header>
     <div class="prompt-block">
 {% capture p_basics_hashes_1 %}
-Given an array of tags, return a hash mapping each tag to its count.
+Write `profile(name, age)` that returns a hash with
+symbol keys `:name` and `:age` set to the arguments.
 {% endcapture %}
 {{ p_basics_hashes_1 | markdownify }}
     </div>
+    <form class="activity-form" data-kind="code" data-spec="raise unless profile(&quot;alice&quot;, 30) == { name: &quot;alice&quot;, age: 30 }
+raise unless profile(&quot;bob&quot;, 25)   == { name: &quot;bob&quot;,   age: 25 }
+">
+      <textarea class="code-editor" rows="10">def profile(name, age)
+  # TODO
+end
+</textarea>
+      <div class="actions">
+        <button type="submit" class="btn run">» run</button>
+        <button type="button" class="btn reset">reset</button>
+      </div>
+      <div class="result" data-role="result"></div>
+    </form>
+  </section>
+  <section class="activity activity-code" id="a-basics-hashes-2">
+    <header class="activity-head"><span class="badge">[ACTIVITY]</span> <h3>Tag counter</h3></header>
+    <div class="prompt-block">
+{% capture p_basics_hashes_2 %}
+Given an array of tags, return a hash mapping each tag to
+how many times it appears.
+Hint: use `Hash.new(0)` to avoid nil errors.
+{% endcapture %}
+{{ p_basics_hashes_2 | markdownify }}
+    </div>
     <form class="activity-form" data-kind="code" data-spec="raise unless tally([&quot;a&quot;, &quot;b&quot;, &quot;a&quot;]) == { &quot;a&quot; =&gt; 2, &quot;b&quot; =&gt; 1 }
 raise unless tally([])              == {}
+raise unless tally([&quot;x&quot;, &quot;x&quot;, &quot;x&quot;]) == { &quot;x&quot; =&gt; 3 }
 ">
       <textarea class="code-editor" rows="10">def tally(tags)
+  # TODO
+end
+</textarea>
+      <div class="actions">
+        <button type="submit" class="btn run">» run</button>
+        <button type="button" class="btn reset">reset</button>
+      </div>
+      <div class="result" data-role="result"></div>
+    </form>
+  </section>
+  <section class="activity activity-code" id="a-basics-hashes-3">
+    <header class="activity-head"><span class="badge">[ACTIVITY]</span> <h3>Safe lookup</h3></header>
+    <div class="prompt-block">
+{% capture p_basics_hashes_3 %}
+Write `value_of(h, key)` that returns `h[key]` if present,
+or the string `"unknown"` if missing. Don't use a special
+hash default — handle it in the method.
+{% endcapture %}
+{{ p_basics_hashes_3 | markdownify }}
+    </div>
+    <form class="activity-form" data-kind="code" data-spec="raise unless value_of({ a: 1 }, :a)        == 1
+raise unless value_of({ a: 1 }, :b)        == &quot;unknown&quot;
+raise unless value_of({},        :anything) == &quot;unknown&quot;
+">
+      <textarea class="code-editor" rows="10">def value_of(h, key)
+  # TODO
+end
+</textarea>
+      <div class="actions">
+        <button type="submit" class="btn run">» run</button>
+        <button type="button" class="btn reset">reset</button>
+      </div>
+      <div class="result" data-role="result"></div>
+    </form>
+  </section>
+  <section class="activity activity-code" id="a-basics-hashes-4">
+    <header class="activity-head"><span class="badge">[ACTIVITY]</span> <h3>Pick keys</h3></header>
+    <div class="prompt-block">
+{% capture p_basics_hashes_4 %}
+Write `pick(h, keys)` that returns a new hash containing
+only the given keys (skip missing ones).
+{% endcapture %}
+{{ p_basics_hashes_4 | markdownify }}
+    </div>
+    <form class="activity-form" data-kind="code" data-spec="raise unless pick({ a: 1, b: 2, c: 3 }, [:a, :c]) == { a: 1, c: 3 }
+raise unless pick({ a: 1 }, [:a, :missing])       == { a: 1 }
+raise unless pick({}, [:any])                      == {}
+">
+      <textarea class="code-editor" rows="10">def pick(h, keys)
   # TODO
 end
 </textarea>

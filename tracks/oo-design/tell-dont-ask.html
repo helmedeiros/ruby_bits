@@ -13,8 +13,7 @@ lesson_slug: "tell-dont-ask"
 {% capture lesson_body %}
 ## Tell, don't ask
 
-Asking for state and acting on it puts the logic in the wrong
-place:
+When you see code like this, your design alarm should go off:
 
 ```ruby
 if account.balance >= amount
@@ -24,15 +23,56 @@ else
 end
 ```
 
-Tell the object what you want; let it decide:
+The caller is **asking** the account for state, **making a
+decision**, then **mutating** the account. That's three things
+happening at one level above the data — and any other place
+that wants to withdraw money has to re-implement the same
+dance.
+
+### What "tell, don't ask" means
+
+Instead of asking for state and acting on it, **tell the
+object what you want**. Let it decide:
 
 ```ruby
 account.withdraw(amount)   # raises if not enough
 ```
 
-Callers shrink, the object's behavior is testable in isolation,
-and the rule (insufficient funds) lives next to the data it
-guards.
+Now the rule about insufficient funds lives **next to the
+balance**. Other code calling `withdraw` doesn't need to know
+the rule.
+
+### Why this matters
+
+- **Encapsulation**: `account` is the only place that touches
+  its balance. If you want to add an overdraft fee or audit
+  log, you change it in one place.
+- **Smaller callers**: every "I want to spend money" site
+  becomes one line.
+- **Easier to reason about**: when you read `account.withdraw`
+  you don't need to wonder *what* the caller might have done
+  differently — there's one withdrawal path.
+
+### When asking is OK
+
+"Tell, don't ask" isn't an absolute rule. There are legitimate
+reasons to read state — display, search, validation that
+spans multiple objects. The rule is more useful as a **smell
+detector** than as a law:
+
+> If your caller reads a value, branches on it, then writes
+> back to the same object — the logic probably belongs in the
+> object, not the caller.
+
+### Demeter — a related rule of thumb
+
+A related principle says: **talk only to your immediate
+neighbors**. If you find yourself writing
+`customer.profile.address.city.country.code`, you're reaching
+past several objects. Each `.` is a dependency on the structure
+of the object before it. A small change anywhere in that chain
+breaks the caller. Prefer a method on `customer` (like
+`country_code`) that hides the structure.
 {% endcapture %}
 {{ lesson_body | markdownify }}
   </div>
@@ -76,6 +116,65 @@ def pay(wallet, amount)
   else
     raise "insufficient"
   end
+end
+</textarea>
+      <div class="actions">
+        <button type="submit" class="btn run">» run</button>
+        <button type="button" class="btn reset">reset</button>
+      </div>
+      <div class="result" data-role="result"></div>
+    </form>
+  </section>
+  <section class="activity activity-choice" id="a-oo-design-tell-dont-ask-2">
+    <header class="activity-head"><span class="badge">[ACTIVITY]</span> <h3>Demeter smell</h3></header>
+    <div class="prompt-block">
+{% capture p_oo_design_tell_dont_ask_2 %}
+Which of these expressions most strongly violates the Law
+of Demeter ("talk only to your neighbors")?
+{% endcapture %}
+{{ p_oo_design_tell_dont_ask_2 | markdownify }}
+    </div>
+    <form class="activity-form" data-kind="choice" data-correct="a">
+      <ul class="choices">
+        <li><label><input type="radio" name="choice-oo-design-tell-dont-ask-2" value="a"> <span class="key">[a]</span> order.customer.address.country.code</label></li>
+        <li><label><input type="radio" name="choice-oo-design-tell-dont-ask-2" value="b"> <span class="key">[b]</span> order.total</label></li>
+        <li><label><input type="radio" name="choice-oo-design-tell-dont-ask-2" value="c"> <span class="key">[c]</span> order.line_items.length</label></li>
+        <li><label><input type="radio" name="choice-oo-design-tell-dont-ask-2" value="d"> <span class="key">[d]</span> order.confirm!</label></li>
+      </ul>
+      <button type="submit" class="btn">» submit</button>
+      <div class="result" data-role="result"></div>
+    </form>
+  </section>
+  <section class="activity activity-code" id="a-oo-design-tell-dont-ask-3">
+    <header class="activity-head"><span class="badge">[ACTIVITY]</span> <h3>Move the rule</h3></header>
+    <div class="prompt-block">
+{% capture p_oo_design_tell_dont_ask_3 %}
+`apply_discount` currently reads `cart.subtotal` and
+branches outside the cart. Add a `Cart#apply_discount`
+method that subtracts 10% if subtotal ≥ 100, otherwise
+leaves it alone. The method should return the final
+total. Then `apply_discount(cart)` becomes a one-liner.
+{% endcapture %}
+{{ p_oo_design_tell_dont_ask_3 | markdownify }}
+    </div>
+    <form class="activity-form" data-kind="code" data-spec="c = Cart.new(200)
+raise unless apply_discount(c) == 180.0
+raise unless c.subtotal == 180.0
+
+c2 = Cart.new(50)
+raise unless apply_discount(c2) == 50
+raise unless c2.subtotal == 50
+">
+      <textarea class="code-editor" rows="10">class Cart
+  attr_accessor :subtotal
+  def initialize(subtotal); @subtotal = subtotal; end
+end
+
+def apply_discount(cart)
+  if cart.subtotal &gt;= 100
+    cart.subtotal = cart.subtotal * 0.9
+  end
+  cart.subtotal
 end
 </textarea>
       <div class="actions">

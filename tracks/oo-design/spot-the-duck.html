@@ -13,8 +13,21 @@ lesson_slug: "spot-the-duck"
 {% capture lesson_body %}
 ## Duck typing
 
-A `case` that switches on class is almost always a duck type
-waiting to surface:
+### The dictionary definition
+
+> If it walks like a duck and quacks like a duck, it's a duck.
+
+In static languages, you declare types — `String`, `Integer`,
+`Customer`. In Ruby, what matters at runtime is **what messages
+an object responds to**, not what class it belongs to. Any
+object that responds to `each` can be iterated; any object
+that responds to `to_s` can be printed. That's duck typing.
+
+### What it looks like
+
+Compare two ways of writing the same code.
+
+**Without duck typing**, you switch on class:
 
 ```ruby
 def render(report)
@@ -26,7 +39,9 @@ def render(report)
 end
 ```
 
-Replace by giving each report its own `render` method:
+Every new report type means editing `render`.
+
+**With duck typing**, ask each report to render itself:
 
 ```ruby
 def render(report)
@@ -34,7 +49,28 @@ def render(report)
 end
 ```
 
-Now adding a new report type doesn't require editing `render`.
+Now `DailyReport`, `WeeklyReport`, `MonthlyReport` each
+implement `#render` differently. Adding a new report type
+means adding a new class with a `#render` method — no edits
+to the caller.
+
+### Smell: `case … when SomeClass`
+
+A `case` (or `if`) that switches on `is_a?` or class names is
+almost always a duck type waiting to be extracted. Each branch
+can become a method on the object itself.
+
+### Recognizing ducks
+
+Look for clusters where:
+
+- Multiple classes implement the **same method** with the same
+  shape (`#render`, `#price`, `#deliver`).
+- Callers have to **branch** based on which class came in.
+- You feel the urge to add an `if` to support a new type.
+
+Each cluster is a duck type. Name it (e.g. "Printable") and
+let polymorphism do the work.
 {% endcapture %}
 {{ lesson_body | markdownify }}
   </div>
@@ -56,6 +92,66 @@ You see `case x when SomeClass`. It usually signals…
         <li><label><input type="radio" name="choice-oo-design-spot-the-duck-1" value="d"> <span class="key">[d]</span> Ruby being slow.</label></li>
       </ul>
       <button type="submit" class="btn">» submit</button>
+      <div class="result" data-role="result"></div>
+    </form>
+  </section>
+  <section class="activity activity-choice" id="a-oo-design-spot-the-duck-2">
+    <header class="activity-head"><span class="badge">[ACTIVITY]</span> <h3>Find a duck name</h3></header>
+    <div class="prompt-block">
+{% capture p_oo_design_spot_the_duck_2 %}
+Three classes — `Email`, `Sms`, `PushNotification` — each
+implement `#deliver(message)`. What's the *role* (duck
+type) they share?
+{% endcapture %}
+{{ p_oo_design_spot_the_duck_2 | markdownify }}
+    </div>
+    <form class="activity-form" data-kind="choice" data-correct="b">
+      <ul class="choices">
+        <li><label><input type="radio" name="choice-oo-design-spot-the-duck-2" value="a"> <span class="key">[a]</span> Message</label></li>
+        <li><label><input type="radio" name="choice-oo-design-spot-the-duck-2" value="b"> <span class="key">[b]</span> Channel — anything that knows how to deliver a message.</label></li>
+        <li><label><input type="radio" name="choice-oo-design-spot-the-duck-2" value="c"> <span class="key">[c]</span> EmailLike</label></li>
+        <li><label><input type="radio" name="choice-oo-design-spot-the-duck-2" value="d"> <span class="key">[d]</span> Sender</label></li>
+      </ul>
+      <button type="submit" class="btn">» submit</button>
+      <div class="result" data-role="result"></div>
+    </form>
+  </section>
+  <section class="activity activity-code" id="a-oo-design-spot-the-duck-3">
+    <header class="activity-head"><span class="badge">[ACTIVITY]</span> <h3>Replace the case</h3></header>
+    <div class="prompt-block">
+{% capture p_oo_design_spot_the_duck_3 %}
+`total(items)` switches on class to compute prices.
+Refactor each item class to define its own `price` method,
+then `total(items)` should just `sum(&:price)`.
+{% endcapture %}
+{{ p_oo_design_spot_the_duck_3 | markdownify }}
+    </div>
+    <form class="activity-form" data-kind="code" data-spec="items = [Apple.new(3), Book.new(10), Apple.new(2)]
+raise unless total(items) == 3 * 2 + 10 + 2 * 2
+">
+      <textarea class="code-editor" rows="10">class Apple
+  def initialize(weight); @weight = weight; end
+  attr_reader :weight
+end
+
+class Book
+  def initialize(price); @price = price; end
+  attr_reader :price
+end
+
+def total(items)
+  items.sum do |item|
+    case item
+    when Apple then item.weight * 2
+    when Book  then item.price
+    end
+  end
+end
+</textarea>
+      <div class="actions">
+        <button type="submit" class="btn run">» run</button>
+        <button type="button" class="btn reset">reset</button>
+      </div>
       <div class="result" data-role="result"></div>
     </form>
   </section>

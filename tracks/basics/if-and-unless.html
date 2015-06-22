@@ -13,23 +13,95 @@ lesson_slug: "if-and-unless"
 {% capture lesson_body %}
 ## if and unless
 
-`if` runs the body when the condition is truthy; `unless` runs
-it when the condition is falsy. Both are expressions — they
-return the value of the last evaluated branch.
+### if
+
+`if` runs the body when the condition is truthy:
 
 ```ruby
-status = if user.admin?
-           "ALL POWER"
-         else
-           "regular"
-         end
+if score >= 60
+  puts "you passed"
+else
+  puts "study more"
+end
 ```
 
-The inline form is great for guard clauses:
+You can have multiple branches with `elsif`:
 
 ```ruby
-return :ignored unless params[:id]
+if score >= 90
+  grade = "A"
+elsif score >= 80
+  grade = "B"
+elsif score >= 70
+  grade = "C"
+else
+  grade = "F"
+end
 ```
+
+### if as an expression
+
+A surprise for newcomers: `if` *returns* a value. The whole
+block is an expression, so you can assign its result:
+
+```ruby
+grade = if score >= 90 then "A"
+        elsif score >= 80 then "B"
+        else "F"
+        end
+```
+
+The value of the chosen branch becomes the value of the whole
+`if`. There's no need for a temporary variable.
+
+### Inline (modifier) if
+
+For a single-line body, you can put `if` at the end:
+
+```ruby
+puts "you passed" if score >= 60
+```
+
+This reads as "do X, if condition". Great for guard clauses
+and short side effects.
+
+### unless: negative if
+
+`unless` runs the body when the condition is **falsy** —
+basically a `if !`:
+
+```ruby
+unless logged_in
+  redirect_to_login
+end
+
+# same as:
+if !logged_in
+  redirect_to_login
+end
+```
+
+And the inline form:
+
+```ruby
+return :guest unless current_user
+```
+
+A rule of thumb: use `unless` for single negative conditions
+(`unless user`). Avoid `unless` with `else` (it makes the
+reader invert the meaning twice).
+
+### Ternary
+
+For very short conditional values, Ruby has the same `? :`
+syntax as C:
+
+```ruby
+result = score >= 60 ? "pass" : "fail"
+```
+
+Don't nest these — for anything beyond one level use a full
+`if`.
 {% endcapture %}
 {{ lesson_body | markdownify }}
   </div>
@@ -55,6 +127,77 @@ end
         <button type="submit" class="btn run">» run</button>
         <button type="button" class="btn reset">reset</button>
       </div>
+      <div class="result" data-role="result"></div>
+    </form>
+  </section>
+  <section class="activity activity-code" id="a-basics-if-and-unless-2">
+    <header class="activity-head"><span class="badge">[ACTIVITY]</span> <h3>Letter grade</h3></header>
+    <div class="prompt-block">
+{% capture p_basics_if_and_unless_2 %}
+Return `"A"` for ≥ 90, `"B"` for ≥ 80, `"C"` for ≥ 70,
+`"F"` otherwise.
+{% endcapture %}
+{{ p_basics_if_and_unless_2 | markdownify }}
+    </div>
+    <form class="activity-form" data-kind="code" data-spec="raise unless letter_grade(95) == &quot;A&quot;
+raise unless letter_grade(85) == &quot;B&quot;
+raise unless letter_grade(75) == &quot;C&quot;
+raise unless letter_grade(65) == &quot;F&quot;
+raise unless letter_grade(0)  == &quot;F&quot;
+">
+      <textarea class="code-editor" rows="10">def letter_grade(score)
+  # TODO
+end
+</textarea>
+      <div class="actions">
+        <button type="submit" class="btn run">» run</button>
+        <button type="button" class="btn reset">reset</button>
+      </div>
+      <div class="result" data-role="result"></div>
+    </form>
+  </section>
+  <section class="activity activity-code" id="a-basics-if-and-unless-3">
+    <header class="activity-head"><span class="badge">[ACTIVITY]</span> <h3>Guard clause</h3></header>
+    <div class="prompt-block">
+{% capture p_basics_if_and_unless_3 %}
+Write `discount(price, member)` that returns `price * 0.9`
+if `member` is truthy, otherwise returns `price`
+unchanged. Use the inline modifier form.
+{% endcapture %}
+{{ p_basics_if_and_unless_3 | markdownify }}
+    </div>
+    <form class="activity-form" data-kind="code" data-spec="raise unless discount(100, true)  == 90.0
+raise unless discount(100, false) == 100
+raise unless discount(50, nil)    == 50
+">
+      <textarea class="code-editor" rows="10">def discount(price, member)
+  # TODO
+end
+</textarea>
+      <div class="actions">
+        <button type="submit" class="btn run">» run</button>
+        <button type="button" class="btn reset">reset</button>
+      </div>
+      <div class="result" data-role="result"></div>
+    </form>
+  </section>
+  <section class="activity activity-choice" id="a-basics-if-and-unless-4">
+    <header class="activity-head"><span class="badge">[ACTIVITY]</span> <h3>unless idiom</h3></header>
+    <div class="prompt-block">
+{% capture p_basics_if_and_unless_4 %}
+Which is the most idiomatic Ruby way to write "redirect if
+the user is not signed in"?
+{% endcapture %}
+{{ p_basics_if_and_unless_4 | markdownify }}
+    </div>
+    <form class="activity-form" data-kind="choice" data-correct="b">
+      <ul class="choices">
+        <li><label><input type="radio" name="choice-basics-if-and-unless-4" value="a"> <span class="key">[a]</span> redirect_to_login if !current_user</label></li>
+        <li><label><input type="radio" name="choice-basics-if-and-unless-4" value="b"> <span class="key">[b]</span> redirect_to_login unless current_user</label></li>
+        <li><label><input type="radio" name="choice-basics-if-and-unless-4" value="c"> <span class="key">[c]</span> unless current_user then redirect_to_login else nil end</label></li>
+        <li><label><input type="radio" name="choice-basics-if-and-unless-4" value="d"> <span class="key">[d]</span> current_user ? nil : redirect_to_login</label></li>
+      </ul>
+      <button type="submit" class="btn">» submit</button>
       <div class="result" data-role="result"></div>
     </form>
   </section>

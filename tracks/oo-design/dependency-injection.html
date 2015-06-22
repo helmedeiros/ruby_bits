@@ -13,19 +13,46 @@ lesson_slug: "dependency-injection"
 {% capture lesson_body %}
 ## Dependency injection
 
-When a class hard-codes `Sms.new`, it knows the class name.
-Rename `Sms` and the dependent class breaks too.
+### What's a dependency, anyway?
+
+A class **depends on** another whenever it knows *something
+specific* about it. There are four common kinds of dependency:
+
+1. **The other class's name** — `Sms.new` mentions `Sms`.
+2. **The other class's message names** — calling `send_to`
+   means you depend on that method existing.
+3. **The argument order** — `send_to(phone, body)` ties
+   callers to that order.
+4. **The argument types** — `send_to(Phone.new(...), ...)`
+   ties callers to the `Phone` class.
+
+Each dependency is a *risk*: if anything about the other
+class changes, your class might break.
+
+### A tightly coupled example
 
 ```ruby
-# Hard-coded — tight coupling
 class OrderConfirmation
   def deliver(order)
-    Sms.new.send(order.phone, "order #{order.id} confirmed")
+    Sms.new.send_to(order.phone, "order #{order.id} confirmed")
   end
 end
 ```
 
-Pass the dependency in:
+Count the dependencies on the `Sms` class alone:
+
+- Knows the **name** `Sms`.
+- Knows it responds to `new` with no arguments.
+- Knows it responds to `send_to(phone, body)`.
+- Knows the argument **order**.
+
+If anyone renames `Sms`, changes its constructor, or reorders
+the arguments — this class breaks.
+
+### The fix: pass it in
+
+Instead of constructing the collaborator inside, **accept it
+as an argument** (usually through `initialize`):
 
 ```ruby
 class OrderConfirmation
@@ -34,14 +61,37 @@ class OrderConfirmation
   end
 
   def deliver(order)
-    @channel.send(order.phone, "order #{order.id} confirmed")
+    @channel.send_to(order.phone, "order #{order.id} confirmed")
   end
 end
 ```
 
 Now `OrderConfirmation` only knows it has *something that
-responds to `send`*. Swap in an `Email`, a `Push`, or a
-test double — no change to `OrderConfirmation`.
+responds to `send_to(phone, body)`*. The `Sms` class name
+appears in the **default**, not in the body of the method —
+so callers can swap in any other channel without touching this
+class:
+
+```ruby
+OrderConfirmation.new(channel: Email.new)
+OrderConfirmation.new(channel: PushNotification.new)
+OrderConfirmation.new(channel: FakeChannel.new)   # for tests
+```
+
+### Why this matters
+
+- Tests get easier — pass a fake `channel` that just records
+  calls. No SMTP, no network.
+- You can add new channels (push, slack, webhook) without
+  opening `OrderConfirmation`.
+- The single test of "deliver builds the right message body"
+  doesn't care which transport runs underneath.
+
+### Rule of thumb
+
+When you find yourself writing `SomeClass.new(...)` inside
+another class, ask: **could the caller decide which class to
+use?** If yes, inject it.
 {% endcapture %}
 {{ lesson_body | markdownify }}
   </div>
@@ -59,11 +109,125 @@ constructing it inside `OrderConfirmation`?
     <form class="activity-form" data-kind="choice" data-correct="b">
       <ul class="choices">
         <li><label><input type="radio" name="choice-oo-design-dependency-injection-1" value="a"> <span class="key">[a]</span> The code runs faster.</label></li>
-        <li><label><input type="radio" name="choice-oo-design-dependency-injection-1" value="b"> <span class="key">[b]</span> OrderConfirmation no longer depends on a specific class name — any object that responds to `send` works.</label></li>
+        <li><label><input type="radio" name="choice-oo-design-dependency-injection-1" value="b"> <span class="key">[b]</span> OrderConfirmation no longer depends on a specific class name — any object that responds to `send_to` works.</label></li>
         <li><label><input type="radio" name="choice-oo-design-dependency-injection-1" value="c"> <span class="key">[c]</span> It removes the need for `def initialize`.</label></li>
         <li><label><input type="radio" name="choice-oo-design-dependency-injection-1" value="d"> <span class="key">[d]</span> Ruby requires it for keyword arguments.</label></li>
       </ul>
       <button type="submit" class="btn">» submit</button>
+      <div class="result" data-role="result"></div>
+    </form>
+  </section>
+  <section class="activity activity-code" id="a-oo-design-dependency-injection-2">
+    <header class="activity-head"><span class="badge">[ACTIVITY]</span> <h3>Inject the clock</h3></header>
+    <div class="prompt-block">
+{% capture p_oo_design_dependency_injection_2 %}
+`Greeter#hello` currently calls `Time.now` directly, which
+makes testing time-dependent behavior hard. Refactor
+`Greeter` so it accepts a `clock` collaborator at
+construction time (default `Time`). Then `#hello` should
+call `@clock.now.hour` instead of `Time.now.hour`.
+{% endcapture %}
+{{ p_oo_design_dependency_injection_2 | markdownify }}
+    </div>
+    <form class="activity-form" data-kind="code" data-spec="# A fake clock fixed at 9 a.m.
+fake = Object.new
+def fake.now
+  t = Object.new
+  def t.hour; 9; end
+  t
+end
+raise unless Greeter.new(clock: fake).hello == &quot;good morning&quot;
+
+# And one fixed at 3 p.m.
+fake_pm = Object.new
+def fake_pm.now
+  t = Object.new
+  def t.hour; 15; end
+  t
+end
+raise unless Greeter.new(clock: fake_pm).hello == &quot;good afternoon&quot;
+">
+      <textarea class="code-editor" rows="10">class Greeter
+  def hello
+    Time.now.hour &lt; 12 ? "good morning" : "good afternoon"
+  end
+end
+</textarea>
+      <div class="actions">
+        <button type="submit" class="btn run">» run</button>
+        <button type="button" class="btn reset">reset</button>
+      </div>
+      <div class="result" data-role="result"></div>
+    </form>
+  </section>
+  <section class="activity activity-choice" id="a-oo-design-dependency-injection-3">
+    <header class="activity-head"><span class="badge">[ACTIVITY]</span> <h3>Spot the hard-coded dependency</h3></header>
+    <div class="prompt-block">
+{% capture p_oo_design_dependency_injection_3 %}
+Look at this method. Which line is the *strongest* source
+of coupling?
+```ruby
+class Report
+  def render(rows)
+    data = JSON.generate(rows)
+    HTTP::POST.new("/upload", data).call
+  end
+end
+```
+{% endcapture %}
+{{ p_oo_design_dependency_injection_3 | markdownify }}
+    </div>
+    <form class="activity-form" data-kind="choice" data-correct="b">
+      <ul class="choices">
+        <li><label><input type="radio" name="choice-oo-design-dependency-injection-3" value="a"> <span class="key">[a]</span> `JSON.generate(rows)` — JSON is a hard dependency.</label></li>
+        <li><label><input type="radio" name="choice-oo-design-dependency-injection-3" value="b"> <span class="key">[b]</span> `HTTP::POST.new("/upload", ...)` — this hard-codes both the class and the URL.</label></li>
+        <li><label><input type="radio" name="choice-oo-design-dependency-injection-3" value="c"> <span class="key">[c]</span> `def render(rows)` — the method name is too generic.</label></li>
+        <li><label><input type="radio" name="choice-oo-design-dependency-injection-3" value="d"> <span class="key">[d]</span> `Report` shouldn't exist at all.</label></li>
+      </ul>
+      <button type="submit" class="btn">» submit</button>
+      <div class="result" data-role="result"></div>
+    </form>
+  </section>
+  <section class="activity activity-code" id="a-oo-design-dependency-injection-4">
+    <header class="activity-head"><span class="badge">[ACTIVITY]</span> <h3>Inject the storage</h3></header>
+    <div class="prompt-block">
+{% capture p_oo_design_dependency_injection_4 %}
+`Saver` writes to a hard-coded `Disk.write`. Refactor so
+it accepts a `store` collaborator at construction time
+(default `Disk`). `#save(key, value)` should call
+`@store.write(key, value)` and return whatever the store
+returns.
+{% endcapture %}
+{{ p_oo_design_dependency_injection_4 | markdownify }}
+    </div>
+    <form class="activity-form" data-kind="code" data-spec="raise unless Saver.new.save(&quot;k&quot;, &quot;v&quot;) == &quot;wrote k=v to disk&quot;
+
+# Swap in an in-memory store for tests
+class MemStore
+  attr_reader :written
+  def initialize; @written = {}; end
+  def write(key, value); @written[key] = value; &quot;ok&quot;; end
+end
+mem = MemStore.new
+raise unless Saver.new(store: mem).save(&quot;k&quot;, 1) == &quot;ok&quot;
+raise unless mem.written == { &quot;k&quot; =&gt; 1 }
+">
+      <textarea class="code-editor" rows="10">module Disk
+  def self.write(key, value)
+    "wrote #{key}=#{value} to disk"
+  end
+end
+
+class Saver
+  def save(key, value)
+    Disk.write(key, value)
+  end
+end
+</textarea>
+      <div class="actions">
+        <button type="submit" class="btn run">» run</button>
+        <button type="button" class="btn reset">reset</button>
+      </div>
       <div class="result" data-role="result"></div>
     </form>
   </section>
