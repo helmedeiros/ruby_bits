@@ -15,28 +15,86 @@ modules:
         body: |
           ## Strings and symbols
 
-          A **string** is a sequence of characters. Strings are mutable and
-          can be built dynamically with interpolation:
+          Ruby gives you two kinds of textual values, and beginners often
+          confuse them. Let's go through each carefully.
+
+          ### Strings
+
+          A **string** is a sequence of characters. You create one with
+          quotes:
+
+          ```ruby
+          greeting = "hello"
+          name     = "alice"
+          ```
+
+          Strings can be combined with `+`, repeated with `*`, and asked
+          their length:
+
+          ```ruby
+          "hi" + " " + "alice"   # => "hi alice"
+          "ha" * 3               # => "hahaha"
+          "alice".length         # => 5
+          ```
+
+          The most useful trick is **interpolation** — embedding values
+          right inside a string with `#{...}`. Note this only works
+          inside *double* quotes:
 
           ```ruby
           name = "alice"
-          "hello, #{name}"   # => "hello, alice"
+          "hello, #{name}"        # => "hello, alice"
+          'hello, #{name}'        # => 'hello, #{name}'  — no interpolation!
           ```
 
-          A **symbol** is an interned identifier — immutable, unique, and
-          cheap to compare:
+          Strings have many methods you'll use constantly:
 
           ```ruby
-          :name              # always the same object
+          "Alice".upcase          # => "ALICE"
+          "Alice".downcase        # => "alice"
+          "  hi  ".strip          # => "hi"
+          "hello".include?("ll")  # => true
+          "hello".reverse         # => "olleh"
           ```
 
-          Use symbols for fixed identifiers (hash keys, states, types).
-          Use strings for human-facing text or anything that varies.
+          ### Symbols
+
+          A **symbol** looks like `:name`. It's an immutable label — Ruby
+          guarantees the same symbol always refers to the same object in
+          memory. Symbols are cheap to compare and never accidentally
+          mutate.
+
+          ```ruby
+          :pending
+          :status
+          :user_id
+          ```
+
+          Symbols and strings are not interchangeable: `:name` is not
+          `"name"`. They look similar in the source but behave differently.
+
+          ### When to use which?
+
+          - Use **symbols** for fixed identifiers that name a *kind* of
+            thing: hash keys, states (`:pending`, `:active`), method
+            names. They're not for display.
+          - Use **strings** for human-facing text — anything you'd print,
+            log, store, or send over the wire.
+
+          ### Common pitfall: quote style
+
+          A common beginner bug is wondering why interpolation "doesn't
+          work" — usually the wrong quote was used. Single quotes are
+          literal; double quotes interpolate.
+
         activities:
           - title: Interpolate a greeting
             kind: code
             difficulty: 1
-            prompt: Write `greet(name)` so it returns `"hi, NAME!"` with the name uppercased.
+            prompt: |
+              Write `greet(name)` so it returns `"hi, NAME!"` with the
+              name uppercased. For `greet("alice")` you should get
+              `"hi, ALICE!"`.
             starter_code: |
               def greet(name)
                 # TODO
@@ -49,34 +107,130 @@ modules:
               raise unless greet("alice") == "hi, ALICE!"
               raise unless greet("bob")   == "hi, BOB!"
 
+          - title: Word count
+            kind: code
+            difficulty: 1
+            prompt: |
+              Write `word_count(sentence)` that returns the number of
+              words in a sentence (separated by spaces).
+              Hint: strings have a `.split` method that returns an array.
+            starter_code: |
+              def word_count(sentence)
+                # TODO
+              end
+            solution: |
+              def word_count(sentence)
+                sentence.split.length
+              end
+            spec_code: |
+              raise unless word_count("hello world") == 2
+              raise unless word_count("the quick brown fox") == 4
+              raise unless word_count("solo") == 1
+
           - title: Symbol or string?
             kind: choice
             difficulty: 1
-            prompt: Which is the most idiomatic key for a status field that only ever takes a fixed set of values?
+            prompt: |
+              You're storing the status of an order. It can be one of a
+              small fixed set of values: pending, paid, shipped,
+              cancelled. What's the most idiomatic Ruby representation?
             choices:
-              a: '"pending"'
-              b: ':pending'
-              c: '"PENDING"'
-              d: '0'
+              a: '"pending", "paid", "shipped", "cancelled" (strings)'
+              b: ':pending, :paid, :shipped, :cancelled (symbols)'
+              c: '0, 1, 2, 3 (integers)'
+              d: '"PENDING", "PAID", "SHIPPED", "CANCELLED" (uppercase strings)'
             correct_choice: b
+
+          - title: Spot the bug
+            kind: choice
+            difficulty: 2
+            prompt: |
+              A beginner wrote `puts 'hello, #{name}'` and is confused
+              that the output is literally `hello, #{name}` instead of
+              their name. What's the fix?
+            choices:
+              a: They need to capitalize `Name` inside the braces.
+              b: Use double quotes instead of single quotes.
+              c: Add `puts` twice.
+              d: Use `printf` instead of `puts`.
+            correct_choice: b
+
+          - title: Build a slug
+            kind: code
+            difficulty: 2
+            prompt: |
+              Write `slugify(title)` that returns a URL-safe lowercase
+              string with spaces replaced by `-`. `"Hello World"` becomes
+              `"hello-world"`.
+            starter_code: |
+              def slugify(title)
+                # TODO
+              end
+            solution: |
+              def slugify(title)
+                title.downcase.gsub(" ", "-")
+              end
+            spec_code: |
+              raise unless slugify("Hello World") == "hello-world"
+              raise unless slugify("MY First Post") == "my-first-post"
+              raise unless slugify("ruby") == "ruby"
 
       - slug: truthy-falsy
         title: Truthy and falsy
         body: |
           ## Truthy and falsy
 
-          Ruby treats **only `false` and `nil`** as falsy. Everything else
-          — including `0`, `""`, and `[]` — is truthy.
+          When Ruby decides whether to enter an `if` branch, it doesn't
+          ask "is this true or false?" — it asks "is this truthy?". Two
+          values are **falsy**: `false` and `nil`. **Everything else is
+          truthy**, including some values that surprise people coming
+          from other languages.
+
+          ### The rule
 
           ```ruby
-          puts "yes" if 0      # prints
-          puts "yes" if ""     # prints
-          puts "yes" if []     # prints
-          puts "yes" if nil    # nothing
-          puts "yes" if false  # nothing
+          puts "truthy" if 0       # prints "truthy"  — zero is truthy
+          puts "truthy" if ""      # prints "truthy"  — empty string is truthy
+          puts "truthy" if []      # prints "truthy"  — empty array is truthy
+          puts "truthy" if {}      # prints "truthy"  — empty hash is truthy
+          puts "truthy" if nil     # prints nothing   — nil is falsy
+          puts "truthy" if false   # prints nothing   — false is falsy
           ```
 
-          This trips up people coming from C or Python — be deliberate.
+          This is different from JavaScript or Python, where `0`, `""`,
+          and empty containers are falsy. Ruby is stricter: only `nil`
+          and `false` are falsy.
+
+          ### Why nil exists
+
+          `nil` is Ruby's "nothing here" value. Methods that don't find
+          what they were looking for return `nil`:
+
+          ```ruby
+          [1, 2, 3].find { |n| n > 100 }   # => nil
+          {a: 1}[:missing_key]              # => nil
+          ```
+
+          So `if value` is a common shorthand for "did we find
+          something?":
+
+          ```ruby
+          user = User.find_by(email: "x")
+          if user
+            puts "welcome, #{user.name}"
+          end
+          ```
+
+          ### Common pitfall: confusing nil and false
+
+          Both `nil` and `false` are falsy, so you often can't tell them
+          apart in an `if`. If the difference matters (e.g. "user
+          explicitly said no" vs "user didn't say"), use `.nil?`:
+
+          ```ruby
+          value.nil?       # true only for nil, not for false
+          ```
+
         activities:
           - title: Spot the falsy
             kind: choice
@@ -84,10 +238,66 @@ modules:
             prompt: Which value is FALSY in Ruby?
             choices:
               a: '0'
-              b: '""'
+              b: '"" (empty string)'
               c: 'nil'
-              d: '[]'
+              d: '[] (empty array)'
             correct_choice: c
+
+          - title: How many truthy?
+            kind: choice
+            difficulty: 2
+            prompt: |
+              How many of these values are truthy?
+              0, "", [], nil, false, "false"
+            choices:
+              a: '2'
+              b: '3'
+              c: '4'
+              d: '5'
+            correct_choice: c
+
+          - title: Default when missing
+            kind: code
+            difficulty: 2
+            prompt: |
+              Write `display_name(name)` that returns the name if it's
+              not nil, or `"anonymous"` if it is. Use the `||` operator.
+            starter_code: |
+              def display_name(name)
+                # TODO
+              end
+            solution: |
+              def display_name(name)
+                name || "anonymous"
+              end
+            spec_code: |
+              raise unless display_name("alice")     == "alice"
+              raise unless display_name(nil)         == "anonymous"
+              raise unless display_name("")          == ""
+
+          - title: Telling nil and false apart
+            kind: code
+            difficulty: 3
+            prompt: |
+              Write `describe(value)` that returns `"missing"` if value
+              is nil, `"off"` if value is false, and `"set"` for anything
+              else.
+            starter_code: |
+              def describe(value)
+                # TODO
+              end
+            solution: |
+              def describe(value)
+                return "missing" if value.nil?
+                return "off"     if value == false
+                "set"
+              end
+            spec_code: |
+              raise unless describe(nil)   == "missing"
+              raise unless describe(false) == "off"
+              raise unless describe(true)  == "set"
+              raise unless describe(0)     == "set"
+              raise unless describe("")    == "set"
 
   - slug: collections
     name: Collections
@@ -100,23 +310,89 @@ modules:
         body: |
           ## Arrays
 
-          Create with a literal, index with `[]`, append with `<<`:
+          An **array** is an ordered list of values. Indexes start at
+          `0`. Arrays can hold anything — numbers, strings, even other
+          arrays — and they can mix types.
+
+          ### Creating and indexing
 
           ```ruby
           fruits = ["apple", "banana", "cherry"]
-          fruits[0]      # => "apple"
-          fruits.last    # => "cherry"
-          fruits.size    # => 3
-          fruits << "date"
+          fruits[0]     # => "apple"
+          fruits[1]     # => "banana"
+          fruits[2]     # => "cherry"
+          fruits[3]     # => nil   (out of bounds is nil, not an error)
           ```
 
-          Iterate with `each`, transform with `map`, sum with `sum` (Ruby
-          2.4+) or `reduce(0, :+)` everywhere else.
+          Negative indexes count from the end:
+
+          ```ruby
+          fruits[-1]    # => "cherry"  (last item)
+          fruits[-2]    # => "banana"
+          ```
+
+          Useful methods:
+
+          ```ruby
+          fruits.first        # => "apple"
+          fruits.last         # => "cherry"
+          fruits.size         # => 3
+          fruits.empty?       # => false
+          fruits.include?("banana")   # => true
+          ```
+
+          ### Adding and removing
+
+          ```ruby
+          fruits << "date"           # append (mutates)
+          fruits.push("elderberry")  # same as <<
+          fruits.pop                 # removes & returns last
+          fruits.shift               # removes & returns first
+          fruits.unshift("apricot")  # prepend
+          ```
+
+          ### Iterating
+
+          The most common loop pattern in Ruby is `.each`:
+
+          ```ruby
+          fruits.each do |fruit|
+            puts fruit.upcase
+          end
+          ```
+
+          When you want to transform every element into a new array, use
+          `.map`:
+
+          ```ruby
+          lengths = fruits.map { |f| f.length }
+          # => [5, 6, 6]
+          ```
+
+          When you want to keep only some elements, use `.select`:
+
+          ```ruby
+          short = fruits.select { |f| f.length < 6 }
+          # => ["apple"]
+          ```
+
+          When you want a single value out of a collection (sum,
+          product, …), use `.reduce`:
+
+          ```ruby
+          [1, 2, 3, 4].reduce(0) { |sum, n| sum + n }   # => 10
+          ```
+
+          These four — `each`, `map`, `select`, `reduce` — solve most
+          collection problems you'll ever face.
+
         activities:
           - title: Sum it up
             kind: code
             difficulty: 1
-            prompt: Return the sum of an integer array. Empty array → `0`.
+            prompt: |
+              Return the sum of an integer array. An empty array should
+              return `0`.
             starter_code: |
               def sum(nums)
                 # TODO
@@ -130,27 +406,169 @@ modules:
               raise unless sum([1, 2, 3, 4]) == 10
               raise unless sum([-1, 1])      == 0
 
+          - title: Doubles
+            kind: code
+            difficulty: 1
+            prompt: |
+              Write `doubles(nums)` that returns a new array where every
+              number has been multiplied by 2. Use `.map`.
+            starter_code: |
+              def doubles(nums)
+                # TODO
+              end
+            solution: |
+              def doubles(nums)
+                nums.map { |n| n * 2 }
+              end
+            spec_code: |
+              raise unless doubles([1, 2, 3]) == [2, 4, 6]
+              raise unless doubles([])        == []
+              raise unless doubles([-1, 0])   == [-2, 0]
+
+          - title: Filter shorts
+            kind: code
+            difficulty: 2
+            prompt: |
+              Write `long_words(words)` that returns only the words with
+              more than 4 characters.
+            starter_code: |
+              def long_words(words)
+                # TODO
+              end
+            solution: |
+              def long_words(words)
+                words.select { |w| w.length > 4 }
+              end
+            spec_code: |
+              raise unless long_words(["hi", "hello", "yes"])      == ["hello"]
+              raise unless long_words(["apple", "pear", "orange"]) == ["apple", "orange"]
+              raise unless long_words([])                          == []
+
+          - title: First or default
+            kind: code
+            difficulty: 2
+            prompt: |
+              Write `first_or(items, default)` that returns the first
+              item in the array, or `default` if the array is empty.
+            starter_code: |
+              def first_or(items, default)
+                # TODO
+              end
+            solution: |
+              def first_or(items, default)
+                items.first || default
+              end
+            spec_code: |
+              raise unless first_or([1, 2, 3], 0)         == 1
+              raise unless first_or([],         "empty")  == "empty"
+              raise unless first_or(["a", "b"], "fallback") == "a"
+
+          - title: Unique double
+            kind: code
+            difficulty: 3
+            prompt: |
+              Write `unique_doubles(nums)` that doubles every number AND
+              removes duplicates from the result. Order doesn't matter.
+              Hint: arrays have a `.uniq` method.
+            starter_code: |
+              def unique_doubles(nums)
+                # TODO
+              end
+            solution: |
+              def unique_doubles(nums)
+                nums.map { |n| n * 2 }.uniq
+              end
+            spec_code: |
+              raise unless unique_doubles([1, 2, 1, 3]).sort == [2, 4, 6]
+              raise unless unique_doubles([5, 5, 5])         == [10]
+              raise unless unique_doubles([])                == []
+
       - slug: hashes
         title: Hashes
         body: |
           ## Hashes
 
-          Hashes map keys to values. Any object can be a key, but symbols
-          are most common:
+          A **hash** maps keys to values — like a dictionary. Order is
+          preserved (since Ruby 1.9) and any object can be a key, but
+          symbols are most common.
+
+          ### Creating and reading
 
           ```ruby
-          user = { name: "alice", age: 30 }
-          user[:name]            # => "alice"
-          user[:role] = :admin
+          user = { name: "alice", age: 30, role: :admin }
+          user[:name]    # => "alice"
+          user[:age]     # => 30
+          user[:missing] # => nil   (no error, just nil)
           ```
 
-          A handy trick: `Hash.new(0)` returns `0` for any missing key,
-          which makes counting trivial.
+          The `{ name: "alice" }` shorthand is for symbol keys.
+          Equivalent older syntax: `{ :name => "alice" }`.
+
+          ### Writing and updating
+
+          ```ruby
+          user[:role] = :viewer    # set or overwrite
+          user[:email] = "a@x"     # add a new key
+
+          user.delete(:age)        # remove a key
+          user.size                # => 2
+          user.keys                # => [:name, :role, :email]
+          user.values              # => ["alice", :viewer, "a@x"]
+          ```
+
+          ### Default values
+
+          By default, missing keys return `nil`. But sometimes you want
+          a *non-nil* default — e.g. counting things:
+
+          ```ruby
+          counts = Hash.new(0)         # any missing key returns 0
+          counts[:a] += 1
+          counts[:a] += 1
+          counts[:b] += 1
+          counts                       # => {a: 2, b: 1}
+          ```
+
+          Without `Hash.new(0)`, the first `counts[:a] += 1` would crash
+          because `nil + 1` is an error.
+
+          ### Iterating
+
+          ```ruby
+          user.each do |key, value|
+            puts "#{key}: #{value}"
+          end
+          ```
+
+          Hashes have the same `map`, `select`, `reduce` family as
+          arrays, but each block gets `key, value`.
+
         activities:
+          - title: Build a profile
+            kind: code
+            difficulty: 1
+            prompt: |
+              Write `profile(name, age)` that returns a hash with
+              symbol keys `:name` and `:age` set to the arguments.
+            starter_code: |
+              def profile(name, age)
+                # TODO
+              end
+            solution: |
+              def profile(name, age)
+                { name: name, age: age }
+              end
+            spec_code: |
+              raise unless profile("alice", 30) == { name: "alice", age: 30 }
+              raise unless profile("bob", 25)   == { name: "bob",   age: 25 }
+
           - title: Tag counter
             kind: code
             difficulty: 2
-            prompt: Given an array of tags, return a hash mapping each tag to its count.
+            prompt: |
+              Given an array of tags, return a hash mapping each tag to
+              how many times it appears.
+              Hint: use `Hash.new(0)` to avoid nil errors.
             starter_code: |
               def tally(tags)
                 # TODO
@@ -162,40 +580,155 @@ modules:
             spec_code: |
               raise unless tally(["a", "b", "a"]) == { "a" => 2, "b" => 1 }
               raise unless tally([])              == {}
+              raise unless tally(["x", "x", "x"]) == { "x" => 3 }
+
+          - title: Safe lookup
+            kind: code
+            difficulty: 2
+            prompt: |
+              Write `value_of(h, key)` that returns `h[key]` if present,
+              or the string `"unknown"` if missing. Don't use a special
+              hash default — handle it in the method.
+            starter_code: |
+              def value_of(h, key)
+                # TODO
+              end
+            solution: |
+              def value_of(h, key)
+                h[key] || "unknown"
+              end
+            spec_code: |
+              raise unless value_of({ a: 1 }, :a)        == 1
+              raise unless value_of({ a: 1 }, :b)        == "unknown"
+              raise unless value_of({},        :anything) == "unknown"
+
+          - title: Pick keys
+            kind: code
+            difficulty: 3
+            prompt: |
+              Write `pick(h, keys)` that returns a new hash containing
+              only the given keys (skip missing ones).
+            starter_code: |
+              def pick(h, keys)
+                # TODO
+              end
+            solution: |
+              def pick(h, keys)
+                keys.each_with_object({}) do |k, acc|
+                  acc[k] = h[k] if h.key?(k)
+                end
+              end
+            spec_code: |
+              raise unless pick({ a: 1, b: 2, c: 3 }, [:a, :c]) == { a: 1, c: 3 }
+              raise unless pick({ a: 1 }, [:a, :missing])       == { a: 1 }
+              raise unless pick({}, [:any])                      == {}
 
   - slug: control-flow
     name: Control flow
     overview: |
       Decisions and loops. Ruby's conditional expressions return values,
-      so most of these can be used inside assignments and method bodies
-      without temporary variables.
+      so you can use them inside assignments and method bodies without
+      temporary variables.
     lessons:
       - slug: if-and-unless
         title: if and unless
         body: |
           ## if and unless
 
-          `if` runs the body when the condition is truthy; `unless` runs
-          it when the condition is falsy. Both are expressions — they
-          return the value of the last evaluated branch.
+          ### if
+
+          `if` runs the body when the condition is truthy:
 
           ```ruby
-          status = if user.admin?
-                     "ALL POWER"
-                   else
-                     "regular"
-                   end
+          if score >= 60
+            puts "you passed"
+          else
+            puts "study more"
+          end
           ```
 
-          The inline form is great for guard clauses:
+          You can have multiple branches with `elsif`:
 
           ```ruby
-          return :ignored unless params[:id]
+          if score >= 90
+            grade = "A"
+          elsif score >= 80
+            grade = "B"
+          elsif score >= 70
+            grade = "C"
+          else
+            grade = "F"
+          end
           ```
+
+          ### if as an expression
+
+          A surprise for newcomers: `if` *returns* a value. The whole
+          block is an expression, so you can assign its result:
+
+          ```ruby
+          grade = if score >= 90 then "A"
+                  elsif score >= 80 then "B"
+                  else "F"
+                  end
+          ```
+
+          The value of the chosen branch becomes the value of the whole
+          `if`. There's no need for a temporary variable.
+
+          ### Inline (modifier) if
+
+          For a single-line body, you can put `if` at the end:
+
+          ```ruby
+          puts "you passed" if score >= 60
+          ```
+
+          This reads as "do X, if condition". Great for guard clauses
+          and short side effects.
+
+          ### unless: negative if
+
+          `unless` runs the body when the condition is **falsy** —
+          basically a `if !`:
+
+          ```ruby
+          unless logged_in
+            redirect_to_login
+          end
+
+          # same as:
+          if !logged_in
+            redirect_to_login
+          end
+          ```
+
+          And the inline form:
+
+          ```ruby
+          return :guest unless current_user
+          ```
+
+          A rule of thumb: use `unless` for single negative conditions
+          (`unless user`). Avoid `unless` with `else` (it makes the
+          reader invert the meaning twice).
+
+          ### Ternary
+
+          For very short conditional values, Ruby has the same `? :`
+          syntax as C:
+
+          ```ruby
+          result = score >= 60 ? "pass" : "fail"
+          ```
+
+          Don't nest these — for anything beyond one level use a full
+          `if`.
+
         activities:
           - title: Categorize a score
             kind: code
-            difficulty: 2
+            difficulty: 1
             prompt: |
               Return `"pass"` for scores ≥ 60, `"fail"` otherwise.
             starter_code: |
@@ -211,6 +744,64 @@ modules:
               raise unless grade(60) == "pass"
               raise unless grade(59) == "fail"
 
+          - title: Letter grade
+            kind: code
+            difficulty: 2
+            prompt: |
+              Return `"A"` for ≥ 90, `"B"` for ≥ 80, `"C"` for ≥ 70,
+              `"F"` otherwise.
+            starter_code: |
+              def letter_grade(score)
+                # TODO
+              end
+            solution: |
+              def letter_grade(score)
+                return "A" if score >= 90
+                return "B" if score >= 80
+                return "C" if score >= 70
+                "F"
+              end
+            spec_code: |
+              raise unless letter_grade(95) == "A"
+              raise unless letter_grade(85) == "B"
+              raise unless letter_grade(75) == "C"
+              raise unless letter_grade(65) == "F"
+              raise unless letter_grade(0)  == "F"
+
+          - title: Guard clause
+            kind: code
+            difficulty: 2
+            prompt: |
+              Write `discount(price, member)` that returns `price * 0.9`
+              if `member` is truthy, otherwise returns `price`
+              unchanged. Use the inline modifier form.
+            starter_code: |
+              def discount(price, member)
+                # TODO
+              end
+            solution: |
+              def discount(price, member)
+                return price * 0.9 if member
+                price
+              end
+            spec_code: |
+              raise unless discount(100, true)  == 90.0
+              raise unless discount(100, false) == 100
+              raise unless discount(50, nil)    == 50
+
+          - title: unless idiom
+            kind: choice
+            difficulty: 2
+            prompt: |
+              Which is the most idiomatic Ruby way to write "redirect if
+              the user is not signed in"?
+            choices:
+              a: 'redirect_to_login if !current_user'
+              b: 'redirect_to_login unless current_user'
+              c: 'unless current_user then redirect_to_login else nil end'
+              d: 'current_user ? nil : redirect_to_login'
+            correct_choice: b
+
   - slug: methods
     name: Methods
     overview: |
@@ -223,31 +814,114 @@ modules:
         body: |
           ## Defining methods
 
+          A method is a named block of code you can call repeatedly. You
+          define one with `def` and end it with `end`:
+
           ```ruby
           def square(n)
             n * n
           end
 
-          square(4)   # => 16
+          square(4)     # => 16
           ```
 
-          Arguments can have defaults, can be splatted (`*rest`), and can
-          be keyword-style (`name:`). Keyword args remove ordering
-          coupling between callers and definition.
+          ### Return values
+
+          The value of the **last expression** in the body is the return
+          value — no `return` keyword required.
 
           ```ruby
-          def shift(point, by: 1)
+          def double(n)
+            n * 2          # this is what gets returned
+          end
+          ```
+
+          You *can* use `return` when you want to exit early:
+
+          ```ruby
+          def safe_divide(a, b)
+            return nil if b == 0
+            a / b
+          end
+          ```
+
+          ### Default arguments
+
+          You can give arguments a default value:
+
+          ```ruby
+          def greet(name, greeting = "hi")
+            "#{greeting}, #{name}"
+          end
+
+          greet("alice")           # => "hi, alice"
+          greet("bob", "hello")    # => "hello, bob"
+          ```
+
+          Defaults must come *after* required arguments in the
+          signature.
+
+          ### Keyword arguments
+
+          For methods with several arguments, positional order gets
+          confusing. Keyword arguments let callers say what each value
+          is for:
+
+          ```ruby
+          def shift(point, by: 1, axis: :x)
+            "#{point} shifted by #{by} on #{axis}"
+          end
+
+          shift("p", by: 3, axis: :y)
+          shift("p")                  # uses defaults
+          ```
+
+          You can also make keyword args *required* by leaving off the
+          default:
+
+          ```ruby
+          def shift(point, by:)
             point + by
           end
 
-          shift(10, by: 3)   # => 13
-          shift(10)          # => 11
+          shift("p", by: 3)
+          shift("p")    # ArgumentError: missing keyword: by
           ```
+
+          Keyword args are the easiest way to make method calls
+          self-documenting at the call site.
+
+          ### Splat arguments
+
+          When you don't know how many arguments will be passed, prefix
+          with `*`:
+
+          ```ruby
+          def sum(*nums)
+            nums.reduce(0, :+)
+          end
+
+          sum                # => 0
+          sum(1, 2, 3, 4)    # => 10
+          ```
+
+          Inside the method, `nums` is an array.
+
+          ### Naming convention
+
+          - Methods that return a boolean usually end in `?`:
+            `empty?`, `include?`, `admin?`.
+          - Methods that mutate their receiver (or raise) often end in
+            `!`: `upcase!`, `save!`.
+          - Use `snake_case` for method names — never `camelCase`.
+
         activities:
           - title: Implement abs_diff
             kind: code
             difficulty: 1
-            prompt: Define `abs_diff(a, b)` returning the absolute difference of two numbers.
+            prompt: |
+              Define `abs_diff(a, b)` returning the absolute difference
+              of two numbers.
             starter_code: |
               def abs_diff(a, b)
                 # TODO
@@ -260,3 +934,81 @@ modules:
               raise unless abs_diff(5, 3)  == 2
               raise unless abs_diff(3, 5)  == 2
               raise unless abs_diff(-1, 1) == 2
+
+          - title: Greet with default
+            kind: code
+            difficulty: 1
+            prompt: |
+              Write `greet(name, greeting = "hi")` that returns
+              `"GREETING, NAME"`.
+            starter_code: |
+              def greet(name, greeting = "hi")
+                # TODO
+              end
+            solution: |
+              def greet(name, greeting = "hi")
+                "#{greeting}, #{name}"
+              end
+            spec_code: |
+              raise unless greet("alice")         == "hi, alice"
+              raise unless greet("bob", "hello")  == "hello, bob"
+
+          - title: Safe divide
+            kind: code
+            difficulty: 2
+            prompt: |
+              Write `safe_divide(a, b)` that returns `a / b`, or `nil`
+              if `b` is zero. Use an early `return`.
+            starter_code: |
+              def safe_divide(a, b)
+                # TODO
+              end
+            solution: |
+              def safe_divide(a, b)
+                return nil if b == 0
+                a / b
+              end
+            spec_code: |
+              raise unless safe_divide(10, 2) == 5
+              raise unless safe_divide(7, 0).nil?
+              raise unless safe_divide(0, 5) == 0
+
+          - title: Keyword args
+            kind: code
+            difficulty: 2
+            prompt: |
+              Write `shift(point, by: 1)` that returns `point + by`.
+              `by` should be a keyword argument with a default of `1`.
+            starter_code: |
+              def shift(point, by: 1)
+                # TODO
+              end
+            solution: |
+              def shift(point, by: 1)
+                point + by
+              end
+            spec_code: |
+              raise unless shift(10)         == 11
+              raise unless shift(10, by: 5)  == 15
+              raise unless shift(10, by: -3) == 7
+
+          - title: Variadic sum
+            kind: code
+            difficulty: 3
+            prompt: |
+              Write `sum_all(*nums)` that accepts any number of integer
+              arguments and returns their sum. With no arguments it
+              should return `0`.
+            starter_code: |
+              def sum_all(*nums)
+                # TODO
+              end
+            solution: |
+              def sum_all(*nums)
+                nums.reduce(0, :+)
+              end
+            spec_code: |
+              raise unless sum_all          == 0
+              raise unless sum_all(5)       == 5
+              raise unless sum_all(1, 2, 3) == 6
+              raise unless sum_all(*[1, 2, 3, 4]) == 10
