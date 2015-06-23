@@ -13,6 +13,8 @@
     title: Arrays
   - slug: hashes
     title: Hashes
+  - slug: ranges
+    title: Ranges
   - slug: if-and-unless
     title: if and unless
   - slug: defining-methods
