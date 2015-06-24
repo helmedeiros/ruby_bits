@@ -1,0 +1,145 @@
+---
+layout: "lesson"
+title: "basics/comparison-operators"
+permalink: "/tracks/basics/comparison-operators/"
+track: "basics"
+lesson_slug: "comparison-operators"
+---
+{% assign track = site.data.tracks | where: "slug", "basics" | first %}
+<article class="lesson">
+  <nav class="crumbs"><a href="{{ site.baseurl }}/">RubyBits</a> / <a href="{{ site.baseurl }}/tracks/{{ track.slug }}/">{{ track.name }}</a> / <span>Comparison operators</span></nav>
+  <h1>Comparison operators</h1>
+  <div class="body markdown">
+{% capture lesson_body %}
+## Comparison operators
+
+Ruby gives you several operators for comparing values. They look
+familiar from other languages, but a few behave subtly differently.
+
+### Equality: `==`, `eql?`, `equal?`
+
+- `==` is **value equality**. Most code uses this.
+- `eql?` is **stricter** — same value AND same type. `1 == 1.0` is
+  `true`, but `1.eql?(1.0)` is `false` (Integer vs Float).
+- `equal?` is **identity** — the same object in memory. Rarely used
+  directly; don't override it.
+
+```ruby
+1 == 1.0          # => true
+1.eql?(1.0)       # => false
+"hi".equal?("hi") # => false  (two different String objects)
+```
+
+### Ordering: `<`, `<=`, `>`, `>=`
+
+Numbers and strings (and dates, and many other types) order
+themselves the natural way:
+
+```ruby
+3 < 5             # => true
+"alice" < "bob"   # => true   (string compare is alphabetical)
+```
+
+### The spaceship: `<=>`
+
+`<=>` returns `-1`, `0`, or `1` depending on whether the left side is
+less than, equal to, or greater than the right:
+
+```ruby
+1 <=> 2     # => -1
+2 <=> 2     # =>  0
+3 <=> 2     # =>  1
+```
+
+This is the operator `sort` uses, and the one you'd implement in your
+own class to plug into `Comparable`.
+
+### `between?`
+
+Shortcut for "is the value between two bounds, inclusive":
+
+```ruby
+age = 25
+age.between?(18, 65)    # => true
+```
+
+### Pitfall: assignment vs equality
+
+`=` assigns. `==` compares. Mixing them up is a classic bug:
+
+```ruby
+if x = 5     # assigns 5 to x — always truthy!
+if x == 5    # compares x to 5
+```
+{% endcapture %}
+{{ lesson_body | markdownify }}
+  </div>
+  <hr>
+  <h2>activities</h2>
+  <section class="activity activity-choice" id="a-basics-comparison-operators-1">
+    <header class="activity-head"><span class="badge">[ACTIVITY]</span> <h3>Strict equality</h3></header>
+    <div class="prompt-block">
+{% capture p_basics_comparison_operators_1 %}
+Which of these returns `false` in Ruby?
+{% endcapture %}
+{{ p_basics_comparison_operators_1 | markdownify }}
+    </div>
+    <form class="activity-form" data-kind="choice" data-correct="b">
+      <ul class="choices">
+        <li><label><input type="radio" name="choice-basics-comparison-operators-1" value="a"> <span class="key">[a]</span> 1 == 1.0</label></li>
+        <li><label><input type="radio" name="choice-basics-comparison-operators-1" value="b"> <span class="key">[b]</span> 1.eql?(1.0)</label></li>
+        <li><label><input type="radio" name="choice-basics-comparison-operators-1" value="c"> <span class="key">[c]</span> "a" == "a"</label></li>
+        <li><label><input type="radio" name="choice-basics-comparison-operators-1" value="d"> <span class="key">[d]</span> 0 == 0</label></li>
+      </ul>
+      <button type="submit" class="btn">» submit</button>
+      <div class="result" data-role="result"></div>
+    </form>
+  </section>
+  <section class="activity activity-code" id="a-basics-comparison-operators-2">
+    <header class="activity-head"><span class="badge">[ACTIVITY]</span> <h3>Min of three</h3></header>
+    <div class="prompt-block">
+{% capture p_basics_comparison_operators_2 %}
+Write `min3(a, b, c)` that returns the smallest of three numbers. Use `<` directly, no built-in `min`.
+{% endcapture %}
+{{ p_basics_comparison_operators_2 | markdownify }}
+    </div>
+    <form class="activity-form" data-kind="code" data-spec="raise unless min3(1, 2, 3) == 1
+raise unless min3(3, 2, 1) == 1
+raise unless min3(2, 1, 3) == 1
+raise unless min3(5, 5, 5) == 5
+">
+      <textarea class="code-editor" rows="10">def min3(a, b, c)
+  # TODO
+end
+</textarea>
+      <div class="actions">
+        <button type="submit" class="btn run">» run</button>
+        <button type="button" class="btn reset">reset</button>
+      </div>
+      <div class="result" data-role="result"></div>
+    </form>
+  </section>
+  <section class="activity activity-code" id="a-basics-comparison-operators-3">
+    <header class="activity-head"><span class="badge">[ACTIVITY]</span> <h3>Sort with spaceship</h3></header>
+    <div class="prompt-block">
+{% capture p_basics_comparison_operators_3 %}
+Write `compare_lengths(a, b)` that returns `-1`, `0`, or `1` depending on whether `a`'s length is less than, equal to, or greater than `b`'s. Use the spaceship operator.
+{% endcapture %}
+{{ p_basics_comparison_operators_3 | markdownify }}
+    </div>
+    <form class="activity-form" data-kind="code" data-spec="raise unless compare_lengths(&quot;hi&quot;, &quot;hello&quot;)   == -1
+raise unless compare_lengths(&quot;abc&quot;, &quot;def&quot;)     == 0
+raise unless compare_lengths(&quot;hello&quot;, &quot;hi&quot;)    == 1
+">
+      <textarea class="code-editor" rows="10">def compare_lengths(a, b)
+  # TODO
+end
+</textarea>
+      <div class="actions">
+        <button type="submit" class="btn run">» run</button>
+        <button type="button" class="btn reset">reset</button>
+      </div>
+      <div class="result" data-role="result"></div>
+    </form>
+  </section>
+</article>

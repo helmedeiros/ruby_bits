@@ -9,6 +9,8 @@
     title: Strings and symbols
   - slug: truthy-falsy
     title: Truthy and falsy
+  - slug: comparison-operators
+    title: Comparison operators
   - slug: arrays
     title: Arrays
   - slug: hashes
