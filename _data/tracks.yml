@@ -11,6 +11,8 @@
     title: Truthy and falsy
   - slug: comparison-operators
     title: Comparison operators
+  - slug: boolean-operators
+    title: Boolean operators
   - slug: arrays
     title: Arrays
   - slug: hashes

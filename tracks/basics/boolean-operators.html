@@ -1,0 +1,155 @@
+---
+layout: "lesson"
+title: "basics/boolean-operators"
+permalink: "/tracks/basics/boolean-operators/"
+track: "basics"
+lesson_slug: "boolean-operators"
+---
+{% assign track = site.data.tracks | where: "slug", "basics" | first %}
+<article class="lesson">
+  <nav class="crumbs"><a href="{{ site.baseurl }}/">RubyBits</a> / <a href="{{ site.baseurl }}/tracks/{{ track.slug }}/">{{ track.name }}</a> / <span>Boolean operators</span></nav>
+  <h1>Boolean operators</h1>
+  <div class="body markdown">
+{% capture lesson_body %}
+## Boolean operators
+
+Ruby has three boolean operators: `&&` (and), `||` (or), `!` (not).
+They look like other languages — but two things make them more useful
+than the basics suggest.
+
+### Short-circuit
+
+Both `&&` and `||` stop as soon as the result is known.
+
+```ruby
+false && expensive_call    # expensive_call never runs
+true  || expensive_call    # expensive_call never runs
+```
+
+Use this to guard expensive or nil-prone work:
+
+```ruby
+user && user.admin?        # safe: stops at nil
+```
+
+### They return values, not just true/false
+
+This is the part that trips up newcomers. `||` returns the **first
+truthy operand**, not literally `true`:
+
+```ruby
+nil   || "default"      # => "default"
+false || "default"      # => "default"
+"alice" || "default"    # => "alice"   (first truthy stops the chain)
+```
+
+And `&&` returns the **last truthy operand** (or the first falsy one):
+
+```ruby
+"a" && "b" && "c"       # => "c"
+"a" && nil && "c"       # => nil
+```
+
+This makes `||` perfect for default values:
+
+```ruby
+name = input || "anonymous"
+```
+
+### `!` — logical NOT
+
+```ruby
+!true       # => false
+!false      # => true
+!nil        # => true     (nil is falsy, so !nil is true)
+!"hello"    # => false    ("hello" is truthy)
+```
+
+### Pitfall: `||=` is not always "if nil"
+
+`x ||= y` means `x = x || y`. It assigns `y` to `x` **only when `x`
+is falsy** — i.e. `nil` or `false`. If `false` is a meaningful value,
+use `defined?` instead.
+
+### `and` / `or` / `not` keywords
+
+Ruby also has English versions, but they have **much lower
+precedence** than `&&`/`||`/`!`, which can lead to surprises. Stick
+with the symbols unless you have a specific reason.
+{% endcapture %}
+{{ lesson_body | markdownify }}
+  </div>
+  <hr>
+  <h2>activities</h2>
+  <section class="activity activity-choice" id="a-basics-boolean-operators-1">
+    <header class="activity-head"><span class="badge">[ACTIVITY]</span> <h3>What does || return?</h3></header>
+    <div class="prompt-block">
+{% capture p_basics_boolean_operators_1 %}
+What does `nil || "fallback"` return?
+{% endcapture %}
+{{ p_basics_boolean_operators_1 | markdownify }}
+    </div>
+    <form class="activity-form" data-kind="choice" data-correct="b">
+      <ul class="choices">
+        <li><label><input type="radio" name="choice-basics-boolean-operators-1" value="a"> <span class="key">[a]</span> true</label></li>
+        <li><label><input type="radio" name="choice-basics-boolean-operators-1" value="b"> <span class="key">[b]</span> "fallback"</label></li>
+        <li><label><input type="radio" name="choice-basics-boolean-operators-1" value="c"> <span class="key">[c]</span> nil</label></li>
+        <li><label><input type="radio" name="choice-basics-boolean-operators-1" value="d"> <span class="key">[d]</span> false</label></li>
+      </ul>
+      <button type="submit" class="btn">» submit</button>
+      <div class="result" data-role="result"></div>
+    </form>
+  </section>
+  <section class="activity activity-code" id="a-basics-boolean-operators-2">
+    <header class="activity-head"><span class="badge">[ACTIVITY]</span> <h3>Memoized result</h3></header>
+    <div class="prompt-block">
+{% capture p_basics_boolean_operators_2 %}
+Write a class `Cache` whose `#value` returns `42` on the first call and the same cached value on every later call. Use `||=`.
+{% endcapture %}
+{{ p_basics_boolean_operators_2 | markdownify }}
+    </div>
+    <form class="activity-form" data-kind="code" data-spec="c = Cache.new
+raise unless c.value == 42
+# Mutate the ivar to prove the second call returned the cached one
+c.instance_variable_set(:@value, 99)
+raise unless c.value == 99
+">
+      <textarea class="code-editor" rows="10">class Cache
+  def value
+    # TODO
+  end
+end
+</textarea>
+      <div class="actions">
+        <button type="submit" class="btn run">» run</button>
+        <button type="button" class="btn reset">reset</button>
+      </div>
+      <div class="result" data-role="result"></div>
+    </form>
+  </section>
+  <section class="activity activity-code" id="a-basics-boolean-operators-3">
+    <header class="activity-head"><span class="badge">[ACTIVITY]</span> <h3>Safe chain</h3></header>
+    <div class="prompt-block">
+{% capture p_basics_boolean_operators_3 %}
+Write `country_code(user)` that returns `user.profile.country` if both `user` and `user.profile` are truthy, otherwise `"XX"`. Use `&&` to short-circuit.
+{% endcapture %}
+{{ p_basics_boolean_operators_3 | markdownify }}
+    </div>
+    <form class="activity-form" data-kind="code" data-spec="Profile = Struct.new(:country)
+User    = Struct.new(:profile)
+raise unless country_code(User.new(Profile.new(&quot;BR&quot;))) == &quot;BR&quot;
+raise unless country_code(User.new(nil))                == &quot;XX&quot;
+raise unless country_code(nil)                          == &quot;XX&quot;
+">
+      <textarea class="code-editor" rows="10">def country_code(user)
+  # TODO
+end
+</textarea>
+      <div class="actions">
+        <button type="submit" class="btn run">» run</button>
+        <button type="button" class="btn reset">reset</button>
+      </div>
+      <div class="result" data-role="result"></div>
+    </form>
+  </section>
+</article>
