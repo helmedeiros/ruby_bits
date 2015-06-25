@@ -584,6 +584,127 @@ modules:
         raise unless compare_lengths("hi", "hello")   == -1
         raise unless compare_lengths("abc", "def")     == 0
         raise unless compare_lengths("hello", "hi")    == 1
+  - slug: boolean-operators
+    title: Boolean operators
+    body: |
+      ## Boolean operators
+
+      Ruby has three boolean operators: `&&` (and), `||` (or), `!` (not).
+      They look like other languages — but two things make them more useful
+      than the basics suggest.
+
+      ### Short-circuit
+
+      Both `&&` and `||` stop as soon as the result is known.
+
+      ```ruby
+      false && expensive_call    # expensive_call never runs
+      true  || expensive_call    # expensive_call never runs
+      ```
+
+      Use this to guard expensive or nil-prone work:
+
+      ```ruby
+      user && user.admin?        # safe: stops at nil
+      ```
+
+      ### They return values, not just true/false
+
+      This is the part that trips up newcomers. `||` returns the **first
+      truthy operand**, not literally `true`:
+
+      ```ruby
+      nil   || "default"      # => "default"
+      false || "default"      # => "default"
+      "alice" || "default"    # => "alice"   (first truthy stops the chain)
+      ```
+
+      And `&&` returns the **last truthy operand** (or the first falsy one):
+
+      ```ruby
+      "a" && "b" && "c"       # => "c"
+      "a" && nil && "c"       # => nil
+      ```
+
+      This makes `||` perfect for default values:
+
+      ```ruby
+      name = input || "anonymous"
+      ```
+
+      ### `!` — logical NOT
+
+      ```ruby
+      !true       # => false
+      !false      # => true
+      !nil        # => true     (nil is falsy, so !nil is true)
+      !"hello"    # => false    ("hello" is truthy)
+      ```
+
+      ### Pitfall: `||=` is not always "if nil"
+
+      `x ||= y` means `x = x || y`. It assigns `y` to `x` **only when `x`
+      is falsy** — i.e. `nil` or `false`. If `false` is a meaningful value,
+      use `defined?` instead.
+
+      ### `and` / `or` / `not` keywords
+
+      Ruby also has English versions, but they have **much lower
+      precedence** than `&&`/`||`/`!`, which can lead to surprises. Stick
+      with the symbols unless you have a specific reason.
+    activities:
+    - title: What does || return?
+      kind: choice
+      difficulty: 1
+      prompt: What does `nil || "fallback"` return?
+      choices:
+        a: 'true'
+        b: '"fallback"'
+        c: nil
+        d: 'false'
+      correct_choice: b
+    - title: Memoized result
+      kind: code
+      difficulty: 2
+      prompt: Write a class `Cache` whose `#value` returns `42` on the first call
+        and the same cached value on every later call. Use `||=`.
+      starter_code: |
+        class Cache
+          def value
+            # TODO
+          end
+        end
+      solution: |
+        class Cache
+          def value
+            @value ||= 42
+          end
+        end
+      spec_code: |
+        c = Cache.new
+        raise unless c.value == 42
+        # Mutate the ivar to prove the second call returned the cached one
+        c.instance_variable_set(:@value, 99)
+        raise unless c.value == 99
+    - title: Safe chain
+      kind: code
+      difficulty: 3
+      prompt: Write `country_code(user)` that returns `user.profile.country` if both
+        `user` and `user.profile` are truthy, otherwise `"XX"`. Use `&&` to short-circuit.
+      starter_code: |
+        def country_code(user)
+          # TODO
+        end
+      solution: |
+        def country_code(user)
+          (user && user.profile && user.profile.country) || "XX"
+        end
+      spec_code: |
+        Profile = Struct.new(:country)
+        User    = Struct.new(:profile)
+        raise unless country_code(User.new(Profile.new("BR"))) == "BR"
+        raise unless country_code(User.new(nil))                == "XX"
+        raise unless country_code(nil)                          == "XX"
 - slug: collections
   name: Collections
   overview: |
