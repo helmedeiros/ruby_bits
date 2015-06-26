@@ -1301,6 +1301,124 @@ modules:
         c: unless current_user then redirect_to_login else nil end
         d: 'current_user ? nil : redirect_to_login'
       correct_choice: b
+  - slug: case-when
+    title: case / when
+    body: |
+      ## case / when
+
+      When you have several conditions to check against the same value,
+      `case`/`when` reads much cleaner than a chain of `if`/`elsif`:
+
+      ### Basic form
+
+      ```ruby
+      case status
+      when :pending  then "still going"
+      when :paid     then "money in the bank"
+      when :shipped  then "on its way"
+      else                "unknown status"
+      end
+      ```
+
+      Like `if`, `case` is an **expression** — the whole block returns the
+      value of the matched branch. You can assign it directly.
+
+      ### How matching works
+
+      `when X` uses `X === value` (the **case equality** operator) to decide
+      whether to match. For most types this is the same as `==`, but a few
+      classes override it for nice patterns:
+
+      - **Classes** match instances: `when Integer` matches if the value is
+        an Integer.
+      - **Ranges** match membership: `when 1..10` matches numbers in that
+        range.
+      - **Regexes** match patterns: `when /\Aerror/` matches strings
+        starting with "error".
+
+      ```ruby
+      case input
+      when Integer       then "got a number"
+      when String        then "got text"
+      when 1..10         then "small number"  # (only if input is an Integer)
+      when /^http/       then "URL"
+      else                    "something else"
+      end
+      ```
+
+      ### Multiple matches per branch
+
+      Separate values with a comma to share a body:
+
+      ```ruby
+      case day
+      when "Sat", "Sun"  then "weekend"
+      when "Mon".."Fri"  then "weekday"
+      end
+      ```
+
+      ### Pitfall: no fall-through
+
+      Unlike C/Java, Ruby's `case` does **not** fall through between
+      branches. The first matching `when` runs, then the case ends. No
+      `break` needed.
+    activities:
+    - title: Day type
+      kind: code
+      difficulty: 1
+      prompt: Write `day_type(day)` that returns `"weekend"` for `"Sat"` or `"Sun"`
+        and `"weekday"` for any other string. Use case/when.
+      starter_code: |
+        def day_type(day)
+          # TODO
+        end
+      solution: |
+        def day_type(day)
+          case day
+          when "Sat", "Sun" then "weekend"
+          else                  "weekday"
+          end
+        end
+      spec_code: |
+        raise unless day_type("Sat") == "weekend"
+        raise unless day_type("Sun") == "weekend"
+        raise unless day_type("Mon") == "weekday"
+        raise unless day_type("Fri") == "weekday"
+    - title: Range match
+      kind: code
+      difficulty: 2
+      prompt: Write `bucket(n)` that returns `"low"` for `0..3`, `"mid"` for `4..7`,
+        `"high"` for `8..10`, and `"out of range"` otherwise. Use case/when with ranges.
+      starter_code: |
+        def bucket(n)
+          # TODO
+        end
+      solution: |
+        def bucket(n)
+          case n
+          when 0..3  then "low"
+          when 4..7  then "mid"
+          when 8..10 then "high"
+          else            "out of range"
+          end
+        end
+      spec_code: |
+        raise unless bucket(0)  == "low"
+        raise unless bucket(5)  == "mid"
+        raise unless bucket(10) == "high"
+        raise unless bucket(11) == "out of range"
+        raise unless bucket(-1) == "out of range"
+    - title: Case equality
+      kind: choice
+      difficulty: 2
+      prompt: Which operator does `when X` actually use to test the case value against
+        `X`?
+      choices:
+        a: "=="
+        b: "==="
+        c: eql?
+        d: equal?
+      correct_choice: b
 - slug: methods
   name: Methods
   overview: |
