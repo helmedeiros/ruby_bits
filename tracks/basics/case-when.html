@@ -1,0 +1,145 @@
+---
+layout: "lesson"
+title: "basics/case-when"
+permalink: "/tracks/basics/case-when/"
+track: "basics"
+lesson_slug: "case-when"
+---
+{% assign track = site.data.tracks | where: "slug", "basics" | first %}
+<article class="lesson">
+  <nav class="crumbs"><a href="{{ site.baseurl }}/">RubyBits</a> / <a href="{{ site.baseurl }}/tracks/{{ track.slug }}/">{{ track.name }}</a> / <span>case / when</span></nav>
+  <h1>case / when</h1>
+  <div class="body markdown">
+{% capture lesson_body %}
+## case / when
+
+When you have several conditions to check against the same value,
+`case`/`when` reads much cleaner than a chain of `if`/`elsif`:
+
+### Basic form
+
+```ruby
+case status
+when :pending  then "still going"
+when :paid     then "money in the bank"
+when :shipped  then "on its way"
+else                "unknown status"
+end
+```
+
+Like `if`, `case` is an **expression** — the whole block returns the
+value of the matched branch. You can assign it directly.
+
+### How matching works
+
+`when X` uses `X === value` (the **case equality** operator) to decide
+whether to match. For most types this is the same as `==`, but a few
+classes override it for nice patterns:
+
+- **Classes** match instances: `when Integer` matches if the value is
+  an Integer.
+- **Ranges** match membership: `when 1..10` matches numbers in that
+  range.
+- **Regexes** match patterns: `when /\Aerror/` matches strings
+  starting with "error".
+
+```ruby
+case input
+when Integer       then "got a number"
+when String        then "got text"
+when 1..10         then "small number"  # (only if input is an Integer)
+when /^http/       then "URL"
+else                    "something else"
+end
+```
+
+### Multiple matches per branch
+
+Separate values with a comma to share a body:
+
+```ruby
+case day
+when "Sat", "Sun"  then "weekend"
+when "Mon".."Fri"  then "weekday"
+end
+```
+
+### Pitfall: no fall-through
+
+Unlike C/Java, Ruby's `case` does **not** fall through between
+branches. The first matching `when` runs, then the case ends. No
+`break` needed.
+{% endcapture %}
+{{ lesson_body | markdownify }}
+  </div>
+  <hr>
+  <h2>activities</h2>
+  <section class="activity activity-code" id="a-basics-case-when-1">
+    <header class="activity-head"><span class="badge">[ACTIVITY]</span> <h3>Day type</h3></header>
+    <div class="prompt-block">
+{% capture p_basics_case_when_1 %}
+Write `day_type(day)` that returns `"weekend"` for `"Sat"` or `"Sun"` and `"weekday"` for any other string. Use case/when.
+{% endcapture %}
+{{ p_basics_case_when_1 | markdownify }}
+    </div>
+    <form class="activity-form" data-kind="code" data-spec="raise unless day_type(&quot;Sat&quot;) == &quot;weekend&quot;
+raise unless day_type(&quot;Sun&quot;) == &quot;weekend&quot;
+raise unless day_type(&quot;Mon&quot;) == &quot;weekday&quot;
+raise unless day_type(&quot;Fri&quot;) == &quot;weekday&quot;
+">
+      <textarea class="code-editor" rows="10">def day_type(day)
+  # TODO
+end
+</textarea>
+      <div class="actions">
+        <button type="submit" class="btn run">» run</button>
+        <button type="button" class="btn reset">reset</button>
+      </div>
+      <div class="result" data-role="result"></div>
+    </form>
+  </section>
+  <section class="activity activity-code" id="a-basics-case-when-2">
+    <header class="activity-head"><span class="badge">[ACTIVITY]</span> <h3>Range match</h3></header>
+    <div class="prompt-block">
+{% capture p_basics_case_when_2 %}
+Write `bucket(n)` that returns `"low"` for `0..3`, `"mid"` for `4..7`, `"high"` for `8..10`, and `"out of range"` otherwise. Use case/when with ranges.
+{% endcapture %}
+{{ p_basics_case_when_2 | markdownify }}
+    </div>
+    <form class="activity-form" data-kind="code" data-spec="raise unless bucket(0)  == &quot;low&quot;
+raise unless bucket(5)  == &quot;mid&quot;
+raise unless bucket(10) == &quot;high&quot;
+raise unless bucket(11) == &quot;out of range&quot;
+raise unless bucket(-1) == &quot;out of range&quot;
+">
+      <textarea class="code-editor" rows="10">def bucket(n)
+  # TODO
+end
+</textarea>
+      <div class="actions">
+        <button type="submit" class="btn run">» run</button>
+        <button type="button" class="btn reset">reset</button>
+      </div>
+      <div class="result" data-role="result"></div>
+    </form>
+  </section>
+  <section class="activity activity-choice" id="a-basics-case-when-3">
+    <header class="activity-head"><span class="badge">[ACTIVITY]</span> <h3>Case equality</h3></header>
+    <div class="prompt-block">
+{% capture p_basics_case_when_3 %}
+Which operator does `when X` actually use to test the case value against `X`?
+{% endcapture %}
+{{ p_basics_case_when_3 | markdownify }}
+    </div>
+    <form class="activity-form" data-kind="choice" data-correct="b">
+      <ul class="choices">
+        <li><label><input type="radio" name="choice-basics-case-when-3" value="a"> <span class="key">[a]</span> ==</label></li>
+        <li><label><input type="radio" name="choice-basics-case-when-3" value="b"> <span class="key">[b]</span> ===</label></li>
+        <li><label><input type="radio" name="choice-basics-case-when-3" value="c"> <span class="key">[c]</span> eql?</label></li>
+        <li><label><input type="radio" name="choice-basics-case-when-3" value="d"> <span class="key">[d]</span> equal?</label></li>
+      </ul>
+      <button type="submit" class="btn">» submit</button>
+      <div class="result" data-role="result"></div>
+    </form>
+  </section>
+</article>

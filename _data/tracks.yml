@@ -21,6 +21,8 @@
     title: Ranges
   - slug: if-and-unless
     title: if and unless
+  - slug: case-when
+    title: case / when
   - slug: defining-methods
     title: Defining methods
 - slug: oo-design
