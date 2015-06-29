@@ -23,6 +23,8 @@
     title: if and unless
   - slug: case-when
     title: case / when
+  - slug: iteration-methods
+    title: Iteration methods
   - slug: defining-methods
     title: Defining methods
 - slug: oo-design

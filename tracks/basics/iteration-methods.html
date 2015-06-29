@@ -1,0 +1,157 @@
+---
+layout: "lesson"
+title: "basics/iteration-methods"
+permalink: "/tracks/basics/iteration-methods/"
+track: "basics"
+lesson_slug: "iteration-methods"
+---
+{% assign track = site.data.tracks | where: "slug", "basics" | first %}
+<article class="lesson">
+  <nav class="crumbs"><a href="{{ site.baseurl }}/">RubyBits</a> / <a href="{{ site.baseurl }}/tracks/{{ track.slug }}/">{{ track.name }}</a> / <span>Iteration methods</span></nav>
+  <h1>Iteration methods</h1>
+  <div class="body markdown">
+{% capture lesson_body %}
+## Iteration methods
+
+Most other languages give you `for` and `while`. Ruby has those too,
+but `for` is rarely used in real code. Idiomatic Ruby uses **methods
+on the collection** itself, with a block.
+
+### `times`
+
+Run a block N times:
+
+```ruby
+3.times { puts "ping" }
+3.times { |i| puts "iteration #{i}" }   # i goes 0..2
+```
+
+### `each`
+
+The bread-and-butter iterator. Available on arrays, hashes, ranges,
+and anything that includes `Enumerable`.
+
+```ruby
+[1, 2, 3].each   { |n| puts n }
+(1..3).each      { |n| puts n }
+{ a: 1, b: 2 }.each { |k, v| puts "#{k}=#{v}" }
+```
+
+### `while` and `until`
+
+When you don't know how many iterations you'll need:
+
+```ruby
+while balance > 0
+  balance -= withdraw
+end
+
+until queue.empty?
+  process(queue.shift)
+end
+```
+
+### `loop`
+
+Infinite loop — pair with `break` to exit:
+
+```ruby
+loop do
+  job = next_job
+  break unless job
+  job.run
+end
+```
+
+### Breaking and skipping
+
+Inside any of these, you can use:
+
+- `break` — exit the loop
+- `next` — skip to the next iteration
+- `redo` — re-run the current iteration (rare)
+
+```ruby
+(1..10).each do |n|
+  next if n.even?      # skip even
+  break if n > 7       # stop at 7
+  puts n               # prints 1, 3, 5, 7
+end
+```
+
+### Pitfall: prefer `each` over `for`
+
+Ruby has `for x in arr` syntax, but it leaks the loop variable into
+the enclosing scope, while `each` doesn't. Stick with `each`.
+{% endcapture %}
+{{ lesson_body | markdownify }}
+  </div>
+  <hr>
+  <h2>activities</h2>
+  <section class="activity activity-code" id="a-basics-iteration-methods-1">
+    <header class="activity-head"><span class="badge">[ACTIVITY]</span> <h3>Count down</h3></header>
+    <div class="prompt-block">
+{% capture p_basics_iteration_methods_1 %}
+Write `countdown(n)` that returns an array of `[n, n-1, ..., 1, 0]`. Use `times` or `each` with a range.
+{% endcapture %}
+{{ p_basics_iteration_methods_1 | markdownify }}
+    </div>
+    <form class="activity-form" data-kind="code" data-spec="raise unless countdown(3) == [3, 2, 1, 0]
+raise unless countdown(0) == [0]
+raise unless countdown(5) == [5, 4, 3, 2, 1, 0]
+">
+      <textarea class="code-editor" rows="10">def countdown(n)
+  # TODO
+end
+</textarea>
+      <div class="actions">
+        <button type="submit" class="btn run">» run</button>
+        <button type="button" class="btn reset">reset</button>
+      </div>
+      <div class="result" data-role="result"></div>
+    </form>
+  </section>
+  <section class="activity activity-code" id="a-basics-iteration-methods-2">
+    <header class="activity-head"><span class="badge">[ACTIVITY]</span> <h3>Find first match</h3></header>
+    <div class="prompt-block">
+{% capture p_basics_iteration_methods_2 %}
+Write `first_negative(nums)` that returns the first negative number using `each` with `break`, or `nil` if none.
+{% endcapture %}
+{{ p_basics_iteration_methods_2 | markdownify }}
+    </div>
+    <form class="activity-form" data-kind="code" data-spec="raise unless first_negative([1, 2, -3, 4]) == -3
+raise unless first_negative([1, 2, 3]).nil?
+raise unless first_negative([]).nil?
+raise unless first_negative([-5, -1]) == -5
+">
+      <textarea class="code-editor" rows="10">def first_negative(nums)
+  # TODO
+end
+</textarea>
+      <div class="actions">
+        <button type="submit" class="btn run">» run</button>
+        <button type="button" class="btn reset">reset</button>
+      </div>
+      <div class="result" data-role="result"></div>
+    </form>
+  </section>
+  <section class="activity activity-choice" id="a-basics-iteration-methods-3">
+    <header class="activity-head"><span class="badge">[ACTIVITY]</span> <h3>next vs break</h3></header>
+    <div class="prompt-block">
+{% capture p_basics_iteration_methods_3 %}
+Inside an `each` block, which keyword *skips the rest of this iteration* but keeps the loop running?
+{% endcapture %}
+{{ p_basics_iteration_methods_3 | markdownify }}
+    </div>
+    <form class="activity-form" data-kind="choice" data-correct="b">
+      <ul class="choices">
+        <li><label><input type="radio" name="choice-basics-iteration-methods-3" value="a"> <span class="key">[a]</span> break</label></li>
+        <li><label><input type="radio" name="choice-basics-iteration-methods-3" value="b"> <span class="key">[b]</span> next</label></li>
+        <li><label><input type="radio" name="choice-basics-iteration-methods-3" value="c"> <span class="key">[c]</span> return</label></li>
+        <li><label><input type="radio" name="choice-basics-iteration-methods-3" value="d"> <span class="key">[d]</span> continue</label></li>
+      </ul>
+      <button type="submit" class="btn">» submit</button>
+      <div class="result" data-role="result"></div>
+    </form>
+  </section>
+</article>
