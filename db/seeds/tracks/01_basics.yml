@@ -1419,6 +1419,129 @@ modules:
         c: eql?
         d: equal?
       correct_choice: b
+  - slug: iteration-methods
+    title: Iteration methods
+    body: |
+      ## Iteration methods
+
+      Most other languages give you `for` and `while`. Ruby has those too,
+      but `for` is rarely used in real code. Idiomatic Ruby uses **methods
+      on the collection** itself, with a block.
+
+      ### `times`
+
+      Run a block N times:
+
+      ```ruby
+      3.times { puts "ping" }
+      3.times { |i| puts "iteration #{i}" }   # i goes 0..2
+      ```
+
+      ### `each`
+
+      The bread-and-butter iterator. Available on arrays, hashes, ranges,
+      and anything that includes `Enumerable`.
+
+      ```ruby
+      [1, 2, 3].each   { |n| puts n }
+      (1..3).each      { |n| puts n }
+      { a: 1, b: 2 }.each { |k, v| puts "#{k}=#{v}" }
+      ```
+
+      ### `while` and `until`
+
+      When you don't know how many iterations you'll need:
+
+      ```ruby
+      while balance > 0
+        balance -= withdraw
+      end
+
+      until queue.empty?
+        process(queue.shift)
+      end
+      ```
+
+      ### `loop`
+
+      Infinite loop — pair with `break` to exit:
+
+      ```ruby
+      loop do
+        job = next_job
+        break unless job
+        job.run
+      end
+      ```
+
+      ### Breaking and skipping
+
+      Inside any of these, you can use:
+
+      - `break` — exit the loop
+      - `next` — skip to the next iteration
+      - `redo` — re-run the current iteration (rare)
+
+      ```ruby
+      (1..10).each do |n|
+        next if n.even?      # skip even
+        break if n > 7       # stop at 7
+        puts n               # prints 1, 3, 5, 7
+      end
+      ```
+
+      ### Pitfall: prefer `each` over `for`
+
+      Ruby has `for x in arr` syntax, but it leaks the loop variable into
+      the enclosing scope, while `each` doesn't. Stick with `each`.
+    activities:
+    - title: Count down
+      kind: code
+      difficulty: 1
+      prompt: Write `countdown(n)` that returns an array of `[n, n-1, ..., 1, 0]`.
+        Use `times` or `each` with a range.
+      starter_code: |
+        def countdown(n)
+          # TODO
+        end
+      solution: |
+        def countdown(n)
+          (0..n).to_a.reverse
+        end
+      spec_code: |
+        raise unless countdown(3) == [3, 2, 1, 0]
+        raise unless countdown(0) == [0]
+        raise unless countdown(5) == [5, 4, 3, 2, 1, 0]
+    - title: Find first match
+      kind: code
+      difficulty: 2
+      prompt: Write `first_negative(nums)` that returns the first negative number
+        using `each` with `break`, or `nil` if none.
+      starter_code: |
+        def first_negative(nums)
+          # TODO
+        end
+      solution: |
+        def first_negative(nums)
+          nums.each { |n| return n if n < 0 }
+          nil
+        end
+      spec_code: |
+        raise unless first_negative([1, 2, -3, 4]) == -3
+        raise unless first_negative([1, 2, 3]).nil?
+        raise unless first_negative([]).nil?
+        raise unless first_negative([-5, -1]) == -5
+    - title: next vs break
+      kind: choice
+      difficulty: 2
+      prompt: Inside an `each` block, which keyword *skips the rest of this iteration*
+        but keeps the loop running?
+      choices:
+        a: break
+        b: next
+        c: return
+        d: continue
+      correct_choice: b
 - slug: methods
   name: Methods
   overview: |
