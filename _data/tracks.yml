@@ -13,6 +13,8 @@
     title: Comparison operators
   - slug: boolean-operators
     title: Boolean operators
+  - slug: variables-and-scope
+    title: Variables and scope
   - slug: arrays
     title: Arrays
   - slug: hashes

@@ -1,0 +1,168 @@
+---
+layout: "lesson"
+title: "basics/variables-and-scope"
+permalink: "/tracks/basics/variables-and-scope/"
+track: "basics"
+lesson_slug: "variables-and-scope"
+---
+{% assign track = site.data.tracks | where: "slug", "basics" | first %}
+<article class="lesson">
+  <nav class="crumbs"><a href="{{ site.baseurl }}/">RubyBits</a> / <a href="{{ site.baseurl }}/tracks/{{ track.slug }}/">{{ track.name }}</a> / <span>Variables and scope</span></nav>
+  <h1>Variables and scope</h1>
+  <div class="body markdown">
+{% capture lesson_body %}
+## Variables and scope
+
+Ruby has four kinds of variable. Each one is identified by a prefix
+(or lack of one), and each lives in a different scope.
+
+### Local variables: `name`
+
+Lower-case identifiers, no prefix. Local to the block / method / file
+where they're defined.
+
+```ruby
+def greet
+  msg = "hello"     # local — visible only inside #greet
+  msg
+end
+```
+
+Each block creates its own local scope.
+
+### Instance variables: `@name`
+
+Begin with `@`. Belong to a specific object instance — useful for
+holding state on a class.
+
+```ruby
+class User
+  def initialize(name)
+    @name = name   # belongs to this specific User
+  end
+
+  def greet
+    "hi, #{@name}"
+  end
+end
+```
+
+An unset instance variable returns `nil` (no warning). Be careful
+with typos.
+
+### Class variables: `@@name`
+
+Two `@`s. Shared across **all** instances of a class (and its
+subclasses). Used rarely — they're easy to misuse.
+
+```ruby
+class Counter
+  @@count = 0
+  def self.bump; @@count += 1; end
+  def self.count; @@count; end
+end
+```
+
+### Global variables: `$name`
+
+Begin with `$`. Visible everywhere in the program. Almost always a
+bad idea — like global state in any language, they make code hard to
+reason about. Avoid except for true globals (`$stdout`, `$LOAD_PATH`).
+
+### Block-local shadowing
+
+Inside a block, you can shadow an outer local explicitly:
+
+```ruby
+x = 10
+[1, 2, 3].each { |x| puts x }   # this x shadows the outer x
+```
+
+After the block, the outer `x` is still `10`.
+
+### Pitfall: undefined locals
+
+Referencing a local variable that has never been assigned raises
+`NameError`. Referencing an unset instance variable returns `nil` —
+no error. This asymmetry catches beginners.
+{% endcapture %}
+{{ lesson_body | markdownify }}
+  </div>
+  <hr>
+  <h2>activities</h2>
+  <section class="activity activity-choice" id="a-basics-variables-and-scope-1">
+    <header class="activity-head"><span class="badge">[ACTIVITY]</span> <h3>Which sigil?</h3></header>
+    <div class="prompt-block">
+{% capture p_basics_variables_and_scope_1 %}
+Which prefix marks a variable that belongs to a specific instance of a class?
+{% endcapture %}
+{{ p_basics_variables_and_scope_1 | markdownify }}
+    </div>
+    <form class="activity-form" data-kind="choice" data-correct="b">
+      <ul class="choices">
+        <li><label><input type="radio" name="choice-basics-variables-and-scope-1" value="a"> <span class="key">[a]</span> none (e.g. `name`)</label></li>
+        <li><label><input type="radio" name="choice-basics-variables-and-scope-1" value="b"> <span class="key">[b]</span> @ (e.g. `@name`)</label></li>
+        <li><label><input type="radio" name="choice-basics-variables-and-scope-1" value="c"> <span class="key">[c]</span> @@ (e.g. `@@name`)</label></li>
+        <li><label><input type="radio" name="choice-basics-variables-and-scope-1" value="d"> <span class="key">[d]</span> $ (e.g. `$name`)</label></li>
+      </ul>
+      <button type="submit" class="btn">» submit</button>
+      <div class="result" data-role="result"></div>
+    </form>
+  </section>
+  <section class="activity activity-code" id="a-basics-variables-and-scope-2">
+    <header class="activity-head"><span class="badge">[ACTIVITY]</span> <h3>Counter with instance state</h3></header>
+    <div class="prompt-block">
+{% capture p_basics_variables_and_scope_2 %}
+Implement `Counter` with an instance variable `@n` that starts at 0. `bump` increments it, `value` returns the current count.
+{% endcapture %}
+{{ p_basics_variables_and_scope_2 | markdownify }}
+    </div>
+    <form class="activity-form" data-kind="code" data-spec="c = Counter.new
+raise unless c.value == 0
+c.bump; c.bump; c.bump
+raise unless c.value == 3
+# Each instance has its own state
+d = Counter.new
+raise unless d.value == 0
+">
+      <textarea class="code-editor" rows="10">class Counter
+  def initialize
+    # TODO
+  end
+
+  def bump
+    # TODO
+  end
+
+  def value
+    # TODO
+  end
+end
+</textarea>
+      <div class="actions">
+        <button type="submit" class="btn run">» run</button>
+        <button type="button" class="btn reset">reset</button>
+      </div>
+      <div class="result" data-role="result"></div>
+    </form>
+  </section>
+  <section class="activity activity-choice" id="a-basics-variables-and-scope-3">
+    <header class="activity-head"><span class="badge">[ACTIVITY]</span> <h3>Local lives where?</h3></header>
+    <div class="prompt-block">
+{% capture p_basics_variables_and_scope_3 %}
+What does this print?  `def f; x = 1; end; f; puts x`
+{% endcapture %}
+{{ p_basics_variables_and_scope_3 | markdownify }}
+    </div>
+    <form class="activity-form" data-kind="choice" data-correct="d">
+      <ul class="choices">
+        <li><label><input type="radio" name="choice-basics-variables-and-scope-3" value="a"> <span class="key">[a]</span> 1</label></li>
+        <li><label><input type="radio" name="choice-basics-variables-and-scope-3" value="b"> <span class="key">[b]</span> 0</label></li>
+        <li><label><input type="radio" name="choice-basics-variables-and-scope-3" value="c"> <span class="key">[c]</span> nil</label></li>
+        <li><label><input type="radio" name="choice-basics-variables-and-scope-3" value="d"> <span class="key">[d]</span> It raises NameError because `x` is not defined outside `f`.</label></li>
+      </ul>
+      <button type="submit" class="btn">» submit</button>
+      <div class="result" data-role="result"></div>
+    </form>
+  </section>
+</article>
