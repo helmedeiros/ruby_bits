@@ -705,6 +705,146 @@ modules:
         raise unless country_code(User.new(Profile.new("BR"))) == "BR"
         raise unless country_code(User.new(nil))                == "XX"
         raise unless country_code(nil)                          == "XX"
+  - slug: variables-and-scope
+    title: Variables and scope
+    body: |
+      ## Variables and scope
+
+      Ruby has four kinds of variable. Each one is identified by a prefix
+      (or lack of one), and each lives in a different scope.
+
+      ### Local variables: `name`
+
+      Lower-case identifiers, no prefix. Local to the block / method / file
+      where they're defined.
+
+      ```ruby
+      def greet
+        msg = "hello"     # local — visible only inside #greet
+        msg
+      end
+      ```
+
+      Each block creates its own local scope.
+
+      ### Instance variables: `@name`
+
+      Begin with `@`. Belong to a specific object instance — useful for
+      holding state on a class.
+
+      ```ruby
+      class User
+        def initialize(name)
+          @name = name   # belongs to this specific User
+        end
+
+        def greet
+          "hi, #{@name}"
+        end
+      end
+      ```
+
+      An unset instance variable returns `nil` (no warning). Be careful
+      with typos.
+
+      ### Class variables: `@@name`
+
+      Two `@`s. Shared across **all** instances of a class (and its
+      subclasses). Used rarely — they're easy to misuse.
+
+      ```ruby
+      class Counter
+        @@count = 0
+        def self.bump; @@count += 1; end
+        def self.count; @@count; end
+      end
+      ```
+
+      ### Global variables: `$name`
+
+      Begin with `$`. Visible everywhere in the program. Almost always a
+      bad idea — like global state in any language, they make code hard to
+      reason about. Avoid except for true globals (`$stdout`, `$LOAD_PATH`).
+
+      ### Block-local shadowing
+
+      Inside a block, you can shadow an outer local explicitly:
+
+      ```ruby
+      x = 10
+      [1, 2, 3].each { |x| puts x }   # this x shadows the outer x
+      ```
+
+      After the block, the outer `x` is still `10`.
+
+      ### Pitfall: undefined locals
+
+      Referencing a local variable that has never been assigned raises
+      `NameError`. Referencing an unset instance variable returns `nil` —
+      no error. This asymmetry catches beginners.
+    activities:
+    - title: Which sigil?
+      kind: choice
+      difficulty: 1
+      prompt: Which prefix marks a variable that belongs to a specific instance of
+        a class?
+      choices:
+        a: none (e.g. `name`)
+        b: "@ (e.g. `@name`)"
+        c: "@@ (e.g. `@@name`)"
+        d: "$ (e.g. `$name`)"
+      correct_choice: b
+    - title: Counter with instance state
+      kind: code
+      difficulty: 2
+      prompt: Implement `Counter` with an instance variable `@n` that starts at 0.
+        `bump` increments it, `value` returns the current count.
+      starter_code: |
+        class Counter
+          def initialize
+            # TODO
+          end
+
+          def bump
+            # TODO
+          end
+
+          def value
+            # TODO
+          end
+        end
+      solution: |
+        class Counter
+          def initialize
+            @n = 0
+          end
+
+          def bump
+            @n += 1
+          end
+
+          def value
+            @n
+          end
+        end
+      spec_code: |
+        c = Counter.new
+        raise unless c.value == 0
+        c.bump; c.bump; c.bump
+        raise unless c.value == 3
+        # Each instance has its own state
+        d = Counter.new
+        raise unless d.value == 0
+    - title: Local lives where?
+      kind: choice
+      difficulty: 2
+      prompt: What does this print?  `def f; x = 1; end; f; puts x`
+      choices:
+        a: '1'
+        b: '0'
+        c: nil
+        d: It raises NameError because `x` is not defined outside `f`.
+      correct_choice: d
 - slug: collections
   name: Collections
   overview: |
