@@ -845,6 +845,125 @@ modules:
         c: nil
         d: It raises NameError because `x` is not defined outside `f`.
       correct_choice: d
+  - slug: constants
+    title: Constants
+    body: |
+      ## Constants
+
+      A **constant** is an identifier that starts with an uppercase letter.
+      Ruby treats it as a name you don't expect to change.
+
+      ### Syntax
+
+      ```ruby
+      PI         = 3.14159
+      MAX_RETRY  = 3
+      COLORS     = %w[red green blue]
+      ```
+
+      Class and module names are also constants:
+
+      ```ruby
+      class User; end       # `User` is a constant
+      module Auth; end      # so is `Auth`
+      ```
+
+      ### "Constant" doesn't mean "frozen"
+
+      Ruby will *warn* you if you reassign a constant, but it lets you do
+      it. And the *value* of a constant is mutable unless you freeze it:
+
+      ```ruby
+      COLORS = %w[red green blue]
+      COLORS << "yellow"        # works! COLORS is now 4 elements
+      COLORS = ["only red"]     # warns: "already initialized constant"
+      ```
+
+      To make a constant actually immutable, freeze its value:
+
+      ```ruby
+      COLORS = %w[red green blue].freeze
+      COLORS << "yellow"        # FrozenError
+      ```
+
+      ### Scoping
+
+      Top-level constants are global. Constants defined inside a class or
+      module belong to that namespace and you access them with `::`:
+
+      ```ruby
+      class Order
+        STATUSES = [:pending, :paid, :shipped].freeze
+      end
+
+      Order::STATUSES   # => [:pending, :paid, :shipped]
+      ```
+
+      ### Naming conventions
+
+      - **`SCREAMING_SNAKE_CASE`** for true constants (numbers, strings,
+        lists).
+      - **`PascalCase`** for class and module names.
+
+      ### When to use a constant
+
+      Anywhere a magic value would otherwise appear inline:
+
+      ```ruby
+      # bad
+      raise "max retries hit" if retries > 3
+
+      # good
+      MAX_RETRIES = 3
+      raise "max retries hit" if retries > MAX_RETRIES
+      ```
+    activities:
+    - title: Identify the constant
+      kind: choice
+      difficulty: 1
+      prompt: Which of these names is a *constant* in Ruby?
+      choices:
+        a: maxRetry
+        b: MAX_RETRY
+        c: "@max_retry"
+        d: "$max_retry"
+      correct_choice: b
+    - title: Replace the magic number
+      kind: code
+      difficulty: 1
+      prompt: Define a top-level constant `MAX_ITEMS = 5`, then write `room_for?(count)`
+        returning `true` if `count < MAX_ITEMS`.
+      starter_code: "# define MAX_ITEMS and room_for? here\n"
+      solution: |
+        MAX_ITEMS = 5
+
+        def room_for?(count)
+          count < MAX_ITEMS
+        end
+      spec_code: |
+        raise unless room_for?(0)
+        raise unless room_for?(4)
+        raise     if room_for?(5)
+        raise     if room_for?(10)
+        raise unless MAX_ITEMS == 5
+    - title: Freeze the list
+      kind: code
+      difficulty: 2
+      prompt: Define a frozen constant `STATUSES = [:pending, :paid, :shipped]` so
+        that calling `STATUSES << :anything` raises `FrozenError`.
+      starter_code: "# define STATUSES here\n"
+      solution: 'STATUSES = [:pending, :paid, :shipped].freeze
+
+'
+      spec_code: |
+        raise unless STATUSES == [:pending, :paid, :shipped]
+        raise unless STATUSES.frozen?
+        begin
+          STATUSES << :foo
+          raise "should have raised"
+        rescue FrozenError, RuntimeError
+          :ok
+        end
 - slug: collections
   name: Collections
   overview: |
