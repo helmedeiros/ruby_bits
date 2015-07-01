@@ -1,0 +1,156 @@
+---
+layout: "lesson"
+title: "basics/constants"
+permalink: "/tracks/basics/constants/"
+track: "basics"
+lesson_slug: "constants"
+---
+{% assign track = site.data.tracks | where: "slug", "basics" | first %}
+<article class="lesson">
+  <nav class="crumbs"><a href="{{ site.baseurl }}/">RubyBits</a> / <a href="{{ site.baseurl }}/tracks/{{ track.slug }}/">{{ track.name }}</a> / <span>Constants</span></nav>
+  <h1>Constants</h1>
+  <div class="body markdown">
+{% capture lesson_body %}
+## Constants
+
+A **constant** is an identifier that starts with an uppercase letter.
+Ruby treats it as a name you don't expect to change.
+
+### Syntax
+
+```ruby
+PI         = 3.14159
+MAX_RETRY  = 3
+COLORS     = %w[red green blue]
+```
+
+Class and module names are also constants:
+
+```ruby
+class User; end       # `User` is a constant
+module Auth; end      # so is `Auth`
+```
+
+### "Constant" doesn't mean "frozen"
+
+Ruby will *warn* you if you reassign a constant, but it lets you do
+it. And the *value* of a constant is mutable unless you freeze it:
+
+```ruby
+COLORS = %w[red green blue]
+COLORS << "yellow"        # works! COLORS is now 4 elements
+COLORS = ["only red"]     # warns: "already initialized constant"
+```
+
+To make a constant actually immutable, freeze its value:
+
+```ruby
+COLORS = %w[red green blue].freeze
+COLORS << "yellow"        # FrozenError
+```
+
+### Scoping
+
+Top-level constants are global. Constants defined inside a class or
+module belong to that namespace and you access them with `::`:
+
+```ruby
+class Order
+  STATUSES = [:pending, :paid, :shipped].freeze
+end
+
+Order::STATUSES   # => [:pending, :paid, :shipped]
+```
+
+### Naming conventions
+
+- **`SCREAMING_SNAKE_CASE`** for true constants (numbers, strings,
+  lists).
+- **`PascalCase`** for class and module names.
+
+### When to use a constant
+
+Anywhere a magic value would otherwise appear inline:
+
+```ruby
+# bad
+raise "max retries hit" if retries > 3
+
+# good
+MAX_RETRIES = 3
+raise "max retries hit" if retries > MAX_RETRIES
+```
+{% endcapture %}
+{{ lesson_body | markdownify }}
+  </div>
+  <hr>
+  <h2>activities</h2>
+  <section class="activity activity-choice" id="a-basics-constants-1">
+    <header class="activity-head"><span class="badge">[ACTIVITY]</span> <h3>Identify the constant</h3></header>
+    <div class="prompt-block">
+{% capture p_basics_constants_1 %}
+Which of these names is a *constant* in Ruby?
+{% endcapture %}
+{{ p_basics_constants_1 | markdownify }}
+    </div>
+    <form class="activity-form" data-kind="choice" data-correct="b">
+      <ul class="choices">
+        <li><label><input type="radio" name="choice-basics-constants-1" value="a"> <span class="key">[a]</span> maxRetry</label></li>
+        <li><label><input type="radio" name="choice-basics-constants-1" value="b"> <span class="key">[b]</span> MAX_RETRY</label></li>
+        <li><label><input type="radio" name="choice-basics-constants-1" value="c"> <span class="key">[c]</span> @max_retry</label></li>
+        <li><label><input type="radio" name="choice-basics-constants-1" value="d"> <span class="key">[d]</span> $max_retry</label></li>
+      </ul>
+      <button type="submit" class="btn">» submit</button>
+      <div class="result" data-role="result"></div>
+    </form>
+  </section>
+  <section class="activity activity-code" id="a-basics-constants-2">
+    <header class="activity-head"><span class="badge">[ACTIVITY]</span> <h3>Replace the magic number</h3></header>
+    <div class="prompt-block">
+{% capture p_basics_constants_2 %}
+Define a top-level constant `MAX_ITEMS = 5`, then write `room_for?(count)` returning `true` if `count < MAX_ITEMS`.
+{% endcapture %}
+{{ p_basics_constants_2 | markdownify }}
+    </div>
+    <form class="activity-form" data-kind="code" data-spec="raise unless room_for?(0)
+raise unless room_for?(4)
+raise     if room_for?(5)
+raise     if room_for?(10)
+raise unless MAX_ITEMS == 5
+">
+      <textarea class="code-editor" rows="10"># define MAX_ITEMS and room_for? here
+</textarea>
+      <div class="actions">
+        <button type="submit" class="btn run">» run</button>
+        <button type="button" class="btn reset">reset</button>
+      </div>
+      <div class="result" data-role="result"></div>
+    </form>
+  </section>
+  <section class="activity activity-code" id="a-basics-constants-3">
+    <header class="activity-head"><span class="badge">[ACTIVITY]</span> <h3>Freeze the list</h3></header>
+    <div class="prompt-block">
+{% capture p_basics_constants_3 %}
+Define a frozen constant `STATUSES = [:pending, :paid, :shipped]` so that calling `STATUSES << :anything` raises `FrozenError`.
+{% endcapture %}
+{{ p_basics_constants_3 | markdownify }}
+    </div>
+    <form class="activity-form" data-kind="code" data-spec="raise unless STATUSES == [:pending, :paid, :shipped]
+raise unless STATUSES.frozen?
+begin
+  STATUSES &lt;&lt; :foo
+  raise &quot;should have raised&quot;
+rescue FrozenError, RuntimeError
+  :ok
+end
+">
+      <textarea class="code-editor" rows="10"># define STATUSES here
+</textarea>
+      <div class="actions">
+        <button type="submit" class="btn run">» run</button>
+        <button type="button" class="btn reset">reset</button>
+      </div>
+      <div class="result" data-role="result"></div>
+    </form>
+  </section>
+</article>
