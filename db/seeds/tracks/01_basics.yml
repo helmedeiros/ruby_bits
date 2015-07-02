@@ -964,6 +964,106 @@ modules:
         rescue FrozenError, RuntimeError
           :ok
         end
+  - slug: string-formatting
+    title: String formatting
+    body: |
+      ## String formatting
+
+      Interpolation (`"#{value}"`) covers most cases, but sometimes you
+      want padding, decimal places, or column alignment. Ruby has three
+      tools for that.
+
+      ### `String#%` — printf-style
+
+      Same format specifiers as C's printf. Apply with the `%` operator:
+
+      ```ruby
+      "name: %s, age: %d" % ["alice", 30]   # => "name: alice, age: 30"
+      "%5d"                 % 42            # => "   42"   (right-pad to width 5)
+      "%-5d"                % 42            # => "42   "   (left-pad)
+      "%.2f"                % 3.14159       # => "3.14"
+      "%08.2f"              % 3.14          # => "00003.14"
+      ```
+
+      Common specifiers:
+      - `%s` — string (calls `.to_s`)
+      - `%d` / `%i` — integer
+      - `%f` — float
+      - `%x` — hex
+      - `%5d` — width 5
+      - `%.2f` — 2 decimals
+      - `%-5s` — left-align
+
+      ### `Kernel#format` (alias `sprintf`)
+
+      Same syntax, function form. Some people find it more readable:
+
+      ```ruby
+      format("%5d", 42)          # => "   42"
+      sprintf("%.2f", 3.14159)   # => "3.14"
+      ```
+
+      ### Multi-value with hash interpolation
+
+      When you have several values, the `%{name}` form pairs with a hash —
+      much clearer than positional `%s %d`:
+
+      ```ruby
+      "name: %{name}, age: %{age}" % { name: "alice", age: 30 }
+      # => "name: alice, age: 30"
+      ```
+
+      ### When to use what
+
+      - **Plain interpolation** for general string building.
+      - **`%`/`format`** when you need padding, precision, or column
+        alignment.
+      - **`%{...}`** when you have many fields and want them named.
+    activities:
+    - title: Pad an integer
+      kind: code
+      difficulty: 1
+      prompt: Write `pad(n)` that returns `n` formatted as a 4-wide right-padded string
+        (e.g. `pad(7) == "   7"`).
+      starter_code: |
+        def pad(n)
+          # TODO
+        end
+      solution: |
+        def pad(n)
+          "%4d" % n
+        end
+      spec_code: |
+        raise unless pad(7)    == "   7"
+        raise unless pad(42)   == "  42"
+        raise unless pad(1234) == "1234"
+    - title: Money format
+      kind: code
+      difficulty: 2
+      prompt: Write `money(amount)` that returns the float `amount` formatted as a
+        dollar amount with exactly two decimals. `money(3.1) == "$3.10"`.
+      starter_code: |
+        def money(amount)
+          # TODO
+        end
+      solution: |
+        def money(amount)
+          "$%.2f" % amount
+        end
+      spec_code: |
+        raise unless money(3.1)   == "$3.10"
+        raise unless money(0)     == "$0.00"
+        raise unless money(99.99) == "$99.99"
+    - title: Choose the specifier
+      kind: choice
+      difficulty: 1
+      prompt: Which specifier formats a float with exactly two decimal places?
+      choices:
+        a: "%s"
+        b: "%d"
+        c: "%.2f"
+        d: "%2f"
+      correct_choice: c
 - slug: collections
   name: Collections
   overview: |
