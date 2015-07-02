@@ -17,6 +17,8 @@
     title: Variables and scope
   - slug: constants
     title: Constants
+  - slug: string-formatting
+    title: String formatting
   - slug: arrays
     title: Arrays
   - slug: hashes
