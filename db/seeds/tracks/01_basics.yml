@@ -2106,3 +2106,125 @@ modules:
         raise unless sum_all(5)       == 5
         raise unless sum_all(1, 2, 3) == 6
         raise unless sum_all(*[1, 2, 3, 4]) == 10
+  - slug: blocks-and-yield
+    title: Blocks and yield
+    body: |
+      ## Blocks and yield
+
+      A **block** is a chunk of code attached to a method call. You've
+      already seen them with `each`, `map`, `times` — the part between
+      `{ ... }` or `do ... end`. This lesson is about writing methods that
+      *accept* blocks.
+
+      ### Two syntaxes — same thing
+
+      ```ruby
+      [1, 2, 3].each { |n| puts n }        # one-line: braces
+
+      [1, 2, 3].each do |n|                # multi-line: do/end
+        puts n
+      end
+      ```
+
+      Style convention: `{ }` for one-liners, `do/end` for multi-line.
+
+      ### `yield` — calling the block
+
+      Inside a method, `yield` calls whatever block was passed in:
+
+      ```ruby
+      def shout_each(words)
+        words.each { |w| yield w.upcase }
+      end
+
+      shout_each(["hi", "bye"]) { |w| puts w }
+      # HI
+      # BYE
+      ```
+
+      You can `yield` multiple values, or none:
+
+      ```ruby
+      def with_pair
+        yield 1, 2
+      end
+
+      with_pair { |a, b| puts a + b }    # 3
+      ```
+
+      ### `block_given?`
+
+      Without a block, `yield` raises `LocalJumpError`. Guard with
+      `block_given?` when the block is optional:
+
+      ```ruby
+      def maybe_yield
+        yield "value" if block_given?
+      end
+      ```
+
+      ### Why blocks?
+
+      Blocks let a method **invert control** — the caller fills in part of
+      the behavior. That's what `map`/`select`/`reduce` do: they own the
+      loop, you fill in "what to do with each element".
+
+      ### Pitfall: `do/end` vs `{}` precedence
+
+      ```ruby
+      puts [1,2,3].map { |n| n * 2 }     # prints [2, 4, 6]
+      puts [1,2,3].map do |n| n * 2 end  # prints #<Enumerator: ...>
+      ```
+
+      With `do/end`, `puts` binds to `[1,2,3].map` *without* the block.
+      With `{ }`, the block binds tighter. When chaining, use `{ }`.
+    activities:
+    - title: Yield each square
+      kind: code
+      difficulty: 2
+      prompt: Write `each_square(nums)` that yields the square of every number. With
+        no block, it should not raise — just return `nil`.
+      starter_code: |
+        def each_square(nums)
+          # TODO
+        end
+      solution: |
+        def each_square(nums)
+          return nil unless block_given?
+          nums.each { |n| yield n * n }
+          nil
+        end
+      spec_code: |
+        out = []
+        each_square([1, 2, 3]) { |s| out << s }
+        raise unless out == [1, 4, 9]
+        raise unless each_square([1, 2, 3]).nil?  # no block, no raise
+    - title: When does yield raise?
+      kind: choice
+      difficulty: 2
+      prompt: A method calls `yield` but no block was passed. What happens?
+      choices:
+        a: The method returns `nil`.
+        b: Ruby raises `LocalJumpError`.
+        c: Ruby silently skips the `yield`.
+        d: The method raises `ArgumentError`.
+      correct_choice: b
+    - title: Filter with a block
+      kind: code
+      difficulty: 3
+      prompt: Write `keep_if(arr)` that yields each element and returns a new array
+        of elements for which the block was truthy. No use of `select`.
+      starter_code: |
+        def keep_if(arr)
+          # TODO
+        end
+      solution: |
+        def keep_if(arr)
+          out = []
+          arr.each { |x| out << x if yield(x) }
+          out
+        end
+      spec_code: |
+        raise unless keep_if([1, 2, 3, 4]) { |n| n.even? }          == [2, 4]
+        raise unless keep_if([])           { |n| true }              == []
+        raise unless keep_if(["a", "bb", "c"]) { |s| s.length > 1 } == ["bb"]
