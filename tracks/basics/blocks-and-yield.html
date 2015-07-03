@@ -1,0 +1,154 @@
+---
+layout: "lesson"
+title: "basics/blocks-and-yield"
+permalink: "/tracks/basics/blocks-and-yield/"
+track: "basics"
+lesson_slug: "blocks-and-yield"
+---
+{% assign track = site.data.tracks | where: "slug", "basics" | first %}
+<article class="lesson">
+  <nav class="crumbs"><a href="{{ site.baseurl }}/">RubyBits</a> / <a href="{{ site.baseurl }}/tracks/{{ track.slug }}/">{{ track.name }}</a> / <span>Blocks and yield</span></nav>
+  <h1>Blocks and yield</h1>
+  <div class="body markdown">
+{% capture lesson_body %}
+## Blocks and yield
+
+A **block** is a chunk of code attached to a method call. You've
+already seen them with `each`, `map`, `times` — the part between
+`{ ... }` or `do ... end`. This lesson is about writing methods that
+*accept* blocks.
+
+### Two syntaxes — same thing
+
+```ruby
+[1, 2, 3].each { |n| puts n }        # one-line: braces
+
+[1, 2, 3].each do |n|                # multi-line: do/end
+  puts n
+end
+```
+
+Style convention: `{ }` for one-liners, `do/end` for multi-line.
+
+### `yield` — calling the block
+
+Inside a method, `yield` calls whatever block was passed in:
+
+```ruby
+def shout_each(words)
+  words.each { |w| yield w.upcase }
+end
+
+shout_each(["hi", "bye"]) { |w| puts w }
+# HI
+# BYE
+```
+
+You can `yield` multiple values, or none:
+
+```ruby
+def with_pair
+  yield 1, 2
+end
+
+with_pair { |a, b| puts a + b }    # 3
+```
+
+### `block_given?`
+
+Without a block, `yield` raises `LocalJumpError`. Guard with
+`block_given?` when the block is optional:
+
+```ruby
+def maybe_yield
+  yield "value" if block_given?
+end
+```
+
+### Why blocks?
+
+Blocks let a method **invert control** — the caller fills in part of
+the behavior. That's what `map`/`select`/`reduce` do: they own the
+loop, you fill in "what to do with each element".
+
+### Pitfall: `do/end` vs `{}` precedence
+
+```ruby
+puts [1,2,3].map { |n| n * 2 }     # prints [2, 4, 6]
+puts [1,2,3].map do |n| n * 2 end  # prints #<Enumerator: ...>
+```
+
+With `do/end`, `puts` binds to `[1,2,3].map` *without* the block.
+With `{ }`, the block binds tighter. When chaining, use `{ }`.
+{% endcapture %}
+{{ lesson_body | markdownify }}
+  </div>
+  <hr>
+  <h2>activities</h2>
+  <section class="activity activity-code" id="a-basics-blocks-and-yield-1">
+    <header class="activity-head"><span class="badge">[ACTIVITY]</span> <h3>Yield each square</h3></header>
+    <div class="prompt-block">
+{% capture p_basics_blocks_and_yield_1 %}
+Write `each_square(nums)` that yields the square of every number. With no block, it should not raise — just return `nil`.
+{% endcapture %}
+{{ p_basics_blocks_and_yield_1 | markdownify }}
+    </div>
+    <form class="activity-form" data-kind="code" data-spec="out = []
+each_square([1, 2, 3]) { |s| out &lt;&lt; s }
+raise unless out == [1, 4, 9]
+raise unless each_square([1, 2, 3]).nil?  # no block, no raise
+">
+      <textarea class="code-editor" rows="10">def each_square(nums)
+  # TODO
+end
+</textarea>
+      <div class="actions">
+        <button type="submit" class="btn run">» run</button>
+        <button type="button" class="btn reset">reset</button>
+      </div>
+      <div class="result" data-role="result"></div>
+    </form>
+  </section>
+  <section class="activity activity-choice" id="a-basics-blocks-and-yield-2">
+    <header class="activity-head"><span class="badge">[ACTIVITY]</span> <h3>When does yield raise?</h3></header>
+    <div class="prompt-block">
+{% capture p_basics_blocks_and_yield_2 %}
+A method calls `yield` but no block was passed. What happens?
+{% endcapture %}
+{{ p_basics_blocks_and_yield_2 | markdownify }}
+    </div>
+    <form class="activity-form" data-kind="choice" data-correct="b">
+      <ul class="choices">
+        <li><label><input type="radio" name="choice-basics-blocks-and-yield-2" value="a"> <span class="key">[a]</span> The method returns `nil`.</label></li>
+        <li><label><input type="radio" name="choice-basics-blocks-and-yield-2" value="b"> <span class="key">[b]</span> Ruby raises `LocalJumpError`.</label></li>
+        <li><label><input type="radio" name="choice-basics-blocks-and-yield-2" value="c"> <span class="key">[c]</span> Ruby silently skips the `yield`.</label></li>
+        <li><label><input type="radio" name="choice-basics-blocks-and-yield-2" value="d"> <span class="key">[d]</span> The method raises `ArgumentError`.</label></li>
+      </ul>
+      <button type="submit" class="btn">» submit</button>
+      <div class="result" data-role="result"></div>
+    </form>
+  </section>
+  <section class="activity activity-code" id="a-basics-blocks-and-yield-3">
+    <header class="activity-head"><span class="badge">[ACTIVITY]</span> <h3>Filter with a block</h3></header>
+    <div class="prompt-block">
+{% capture p_basics_blocks_and_yield_3 %}
+Write `keep_if(arr)` that yields each element and returns a new array of elements for which the block was truthy. No use of `select`.
+{% endcapture %}
+{{ p_basics_blocks_and_yield_3 | markdownify }}
+    </div>
+    <form class="activity-form" data-kind="code" data-spec="raise unless keep_if([1, 2, 3, 4]) { |n| n.even? }          == [2, 4]
+raise unless keep_if([])           { |n| true }              == []
+raise unless keep_if([&quot;a&quot;, &quot;bb&quot;, &quot;c&quot;]) { |s| s.length &gt; 1 } == [&quot;bb&quot;]
+">
+      <textarea class="code-editor" rows="10">def keep_if(arr)
+  # TODO
+end
+</textarea>
+      <div class="actions">
+        <button type="submit" class="btn run">» run</button>
+        <button type="button" class="btn reset">reset</button>
+      </div>
+      <div class="result" data-role="result"></div>
+    </form>
+  </section>
+</article>

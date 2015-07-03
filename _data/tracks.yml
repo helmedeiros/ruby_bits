@@ -33,6 +33,8 @@
     title: Iteration methods
   - slug: defining-methods
     title: Defining methods
+  - slug: blocks-and-yield
+    title: Blocks and yield
 - slug: oo-design
   name: OO Design
   description: Design rules that survive the next change — principles from Sandi Metz's
