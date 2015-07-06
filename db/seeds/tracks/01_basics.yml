@@ -2228,3 +2228,109 @@ modules:
         raise unless keep_if([1, 2, 3, 4]) { |n| n.even? }          == [2, 4]
         raise unless keep_if([])           { |n| true }              == []
         raise unless keep_if(["a", "bb", "c"]) { |s| s.length > 1 } == ["bb"]
+  - slug: procs-vs-lambdas
+    title: Procs vs lambdas
+    body: |
+      ## Procs and lambdas
+
+      Blocks are great, but they're not first-class objects — you can't
+      store one in a variable. **Procs** and **lambdas** are blocks
+      wrapped in an object you can pass around, store, and call later.
+
+      ### Creating them
+
+      ```ruby
+      square_p = Proc.new   { |n| n * n }
+      square_p = proc       { |n| n * n }    # shorter
+      square_l = lambda     { |n| n * n }
+      square_l = ->(n) { n * n }              # arrow syntax (Ruby 1.9+)
+      ```
+
+      Both respond to `call`:
+
+      ```ruby
+      square_p.call(4)    # => 16
+      square_l.(4)        # => 16   shorthand
+      square_l[4]         # => 16   another shorthand
+      ```
+
+      ### Difference 1: arity checking
+
+      - **Procs** are lenient. Pass too many or too few args — they don't
+        complain.
+      - **Lambdas** are strict. Wrong arity raises `ArgumentError`.
+
+      ```ruby
+      proc   { |a, b| [a, b] }.call(1)        # => [1, nil]
+      lambda { |a, b| [a, b] }.call(1)        # ArgumentError
+      ```
+
+      ### Difference 2: `return`
+
+      Inside a **proc**, `return` returns from the **enclosing method** —
+      often surprising.
+
+      Inside a **lambda**, `return` returns just from the lambda.
+
+      ```ruby
+      def proc_test
+        p = proc { return :from_proc }
+        p.call
+        :never_reached
+      end
+      proc_test     # => :from_proc
+
+      def lambda_test
+        l = lambda { return :from_lambda }
+        l.call
+        :reached
+      end
+      lambda_test   # => :reached
+      ```
+
+      ### When to use which
+
+      - For a callback that should behave like a method — use a **lambda**.
+        Strict arity + sane `return`.
+      - For a quick block-like wrapper used inline — `proc` is fine.
+
+      When in doubt, prefer lambdas. They're harder to surprise you with.
+    activities:
+    - title: Arity strictness
+      kind: choice
+      difficulty: 1
+      prompt: What does `lambda { |a, b| a + b }.call(1)` do?
+      choices:
+        a: Returns 1
+        b: Returns nil
+        c: Raises ArgumentError
+        d: Returns the lambda unchanged
+      correct_choice: c
+    - title: Store a callable
+      kind: code
+      difficulty: 2
+      prompt: Write `make_adder(n)` that returns a lambda which, when called with
+        `x`, returns `x + n`. So `make_adder(3).call(4) == 7`.
+      starter_code: |
+        def make_adder(n)
+          # TODO
+        end
+      solution: |
+        def make_adder(n)
+          ->(x) { x + n }
+        end
+      spec_code: |
+        raise unless make_adder(3).call(4) == 7
+        raise unless make_adder(0).call(10) == 10
+        raise unless make_adder(-5).call(10) == 5
+    - title: Pick a tool
+      kind: choice
+      difficulty: 2
+      prompt: You need a callback that should fail loudly if the caller passes the
+        wrong number of arguments. Which should you reach for?
+      choices:
+        a: Proc.new
+        b: lambda
+        c: Block with yield
+        d: A method definition
+      correct_choice: b
