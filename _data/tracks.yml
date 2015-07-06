@@ -35,6 +35,8 @@
     title: Defining methods
   - slug: blocks-and-yield
     title: Blocks and yield
+  - slug: procs-vs-lambdas
+    title: Procs vs lambdas
 - slug: oo-design
   name: OO Design
   description: Design rules that survive the next change — principles from Sandi Metz's

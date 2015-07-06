@@ -1,0 +1,144 @@
+---
+layout: "lesson"
+title: "basics/procs-vs-lambdas"
+permalink: "/tracks/basics/procs-vs-lambdas/"
+track: "basics"
+lesson_slug: "procs-vs-lambdas"
+---
+{% assign track = site.data.tracks | where: "slug", "basics" | first %}
+<article class="lesson">
+  <nav class="crumbs"><a href="{{ site.baseurl }}/">RubyBits</a> / <a href="{{ site.baseurl }}/tracks/{{ track.slug }}/">{{ track.name }}</a> / <span>Procs vs lambdas</span></nav>
+  <h1>Procs vs lambdas</h1>
+  <div class="body markdown">
+{% capture lesson_body %}
+## Procs and lambdas
+
+Blocks are great, but they're not first-class objects — you can't
+store one in a variable. **Procs** and **lambdas** are blocks
+wrapped in an object you can pass around, store, and call later.
+
+### Creating them
+
+```ruby
+square_p = Proc.new   { |n| n * n }
+square_p = proc       { |n| n * n }    # shorter
+square_l = lambda     { |n| n * n }
+square_l = ->(n) { n * n }              # arrow syntax (Ruby 1.9+)
+```
+
+Both respond to `call`:
+
+```ruby
+square_p.call(4)    # => 16
+square_l.(4)        # => 16   shorthand
+square_l[4]         # => 16   another shorthand
+```
+
+### Difference 1: arity checking
+
+- **Procs** are lenient. Pass too many or too few args — they don't
+  complain.
+- **Lambdas** are strict. Wrong arity raises `ArgumentError`.
+
+```ruby
+proc   { |a, b| [a, b] }.call(1)        # => [1, nil]
+lambda { |a, b| [a, b] }.call(1)        # ArgumentError
+```
+
+### Difference 2: `return`
+
+Inside a **proc**, `return` returns from the **enclosing method** —
+often surprising.
+
+Inside a **lambda**, `return` returns just from the lambda.
+
+```ruby
+def proc_test
+  p = proc { return :from_proc }
+  p.call
+  :never_reached
+end
+proc_test     # => :from_proc
+
+def lambda_test
+  l = lambda { return :from_lambda }
+  l.call
+  :reached
+end
+lambda_test   # => :reached
+```
+
+### When to use which
+
+- For a callback that should behave like a method — use a **lambda**.
+  Strict arity + sane `return`.
+- For a quick block-like wrapper used inline — `proc` is fine.
+
+When in doubt, prefer lambdas. They're harder to surprise you with.
+{% endcapture %}
+{{ lesson_body | markdownify }}
+  </div>
+  <hr>
+  <h2>activities</h2>
+  <section class="activity activity-choice" id="a-basics-procs-vs-lambdas-1">
+    <header class="activity-head"><span class="badge">[ACTIVITY]</span> <h3>Arity strictness</h3></header>
+    <div class="prompt-block">
+{% capture p_basics_procs_vs_lambdas_1 %}
+What does `lambda { |a, b| a + b }.call(1)` do?
+{% endcapture %}
+{{ p_basics_procs_vs_lambdas_1 | markdownify }}
+    </div>
+    <form class="activity-form" data-kind="choice" data-correct="c">
+      <ul class="choices">
+        <li><label><input type="radio" name="choice-basics-procs-vs-lambdas-1" value="a"> <span class="key">[a]</span> Returns 1</label></li>
+        <li><label><input type="radio" name="choice-basics-procs-vs-lambdas-1" value="b"> <span class="key">[b]</span> Returns nil</label></li>
+        <li><label><input type="radio" name="choice-basics-procs-vs-lambdas-1" value="c"> <span class="key">[c]</span> Raises ArgumentError</label></li>
+        <li><label><input type="radio" name="choice-basics-procs-vs-lambdas-1" value="d"> <span class="key">[d]</span> Returns the lambda unchanged</label></li>
+      </ul>
+      <button type="submit" class="btn">» submit</button>
+      <div class="result" data-role="result"></div>
+    </form>
+  </section>
+  <section class="activity activity-code" id="a-basics-procs-vs-lambdas-2">
+    <header class="activity-head"><span class="badge">[ACTIVITY]</span> <h3>Store a callable</h3></header>
+    <div class="prompt-block">
+{% capture p_basics_procs_vs_lambdas_2 %}
+Write `make_adder(n)` that returns a lambda which, when called with `x`, returns `x + n`. So `make_adder(3).call(4) == 7`.
+{% endcapture %}
+{{ p_basics_procs_vs_lambdas_2 | markdownify }}
+    </div>
+    <form class="activity-form" data-kind="code" data-spec="raise unless make_adder(3).call(4) == 7
+raise unless make_adder(0).call(10) == 10
+raise unless make_adder(-5).call(10) == 5
+">
+      <textarea class="code-editor" rows="10">def make_adder(n)
+  # TODO
+end
+</textarea>
+      <div class="actions">
+        <button type="submit" class="btn run">» run</button>
+        <button type="button" class="btn reset">reset</button>
+      </div>
+      <div class="result" data-role="result"></div>
+    </form>
+  </section>
+  <section class="activity activity-choice" id="a-basics-procs-vs-lambdas-3">
+    <header class="activity-head"><span class="badge">[ACTIVITY]</span> <h3>Pick a tool</h3></header>
+    <div class="prompt-block">
+{% capture p_basics_procs_vs_lambdas_3 %}
+You need a callback that should fail loudly if the caller passes the wrong number of arguments. Which should you reach for?
+{% endcapture %}
+{{ p_basics_procs_vs_lambdas_3 | markdownify }}
+    </div>
+    <form class="activity-form" data-kind="choice" data-correct="b">
+      <ul class="choices">
+        <li><label><input type="radio" name="choice-basics-procs-vs-lambdas-3" value="a"> <span class="key">[a]</span> Proc.new</label></li>
+        <li><label><input type="radio" name="choice-basics-procs-vs-lambdas-3" value="b"> <span class="key">[b]</span> lambda</label></li>
+        <li><label><input type="radio" name="choice-basics-procs-vs-lambdas-3" value="c"> <span class="key">[c]</span> Block with yield</label></li>
+        <li><label><input type="radio" name="choice-basics-procs-vs-lambdas-3" value="d"> <span class="key">[d]</span> A method definition</label></li>
+      </ul>
+      <button type="submit" class="btn">» submit</button>
+      <div class="result" data-role="result"></div>
+    </form>
+  </section>
+</article>
