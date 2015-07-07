@@ -1064,6 +1064,129 @@ modules:
         c: "%.2f"
         d: "%2f"
       correct_choice: c
+  - slug: regular-expressions
+    title: Regular expressions
+    body: |
+      ## Regular expressions
+
+      A **regular expression** (regex) is a small language for describing
+      string patterns. Ruby builds them with `/.../` literals.
+
+      ### Matching
+
+      ```ruby
+      "hello world" =~ /world/   # => 6     (index of match)
+      "hello world" =~ /bye/     # => nil   (no match)
+
+      "user@x.com".match?(/@/)   # => true  (boolean check)
+      ```
+
+      `=~` returns the index of the match or `nil`. `match?` is a clean
+      true/false test (Ruby 2.4+) — prefer it when you don't need the data.
+
+      ### Character classes
+
+      ```ruby
+      /[aeiou]/     # any vowel
+      /[0-9]/       # any digit (same as \d)
+      /[a-zA-Z]/    # any letter
+      /[^0-9]/      # NOT a digit  (^ inside [] negates)
+      ```
+
+      ### Common shortcuts
+
+      - `\d` — digit
+      - `\w` — word char (letter, digit, underscore)
+      - `\s` — whitespace
+      - `\D`, `\W`, `\S` — negations
+
+      ### Quantifiers
+
+      - `*` — zero or more
+      - `+` — one or more
+      - `?` — zero or one
+      - `{3}` — exactly 3
+      - `{2,4}` — between 2 and 4
+
+      ```ruby
+      /\A\d{3}-\d{4}\z/   # ###-####  (whole string)
+      /^http/             # starts with "http"  (line)
+      ```
+
+      ### Capture groups
+
+      Parentheses **capture** parts of the match. Use `match` to get them:
+
+      ```ruby
+      m = "alice@example.com".match(/(\w+)@(\w+)/)
+      m[0]   # => "alice@example"   (full match)
+      m[1]   # => "alice"            (1st group)
+      m[2]   # => "example"          (2nd group)
+      ```
+
+      ### Replace with `gsub`
+
+      ```ruby
+      "hello world".gsub(/o/, "0")       # => "hell0 w0rld"
+      "a 1, b 2".gsub(/\d+/) { |n| n.to_i * 2 }   # => "a 2, b 4"
+      ```
+
+      ### Anchors
+
+      - `^` / `$` — start / end of **line**
+      - `\A` / `\z` — start / end of **string**
+
+      Prefer `\A` / `\z` over `^` / `$` when validating a whole input —
+      multi-line strings can fool you otherwise.
+    activities:
+    - title: Looks like an email?
+      kind: code
+      difficulty: 2
+      prompt: Write `email?(s)` returning `true` if `s` looks like `text@text.text`
+        (any non-space chars on either side of @, then a dot and more chars). Use
+        `match?`.
+      starter_code: |
+        def email?(s)
+          # TODO
+        end
+      solution: |
+        def email?(s)
+          s.match?(/\A\S+@\S+\.\S+\z/)
+        end
+      spec_code: |
+        raise unless email?("alice@x.com")
+        raise unless email?("bob@example.io")
+        raise     if email?("no-at-sign")
+        raise     if email?("missing.dot@io")
+        raise     if email?("")
+    - title: Extract digits
+      kind: code
+      difficulty: 2
+      prompt: Write `digits_only(s)` that returns only the digit characters from `s`
+        as a string, in order.
+      starter_code: |
+        def digits_only(s)
+          # TODO
+        end
+      solution: |
+        def digits_only(s)
+          s.gsub(/\D/, "")
+        end
+      spec_code: |
+        raise unless digits_only("abc123")        == "123"
+        raise unless digits_only("(11) 9876-5432") == "1198765432"
+        raise unless digits_only("no digits")      == ""
+    - title: Which anchor?
+      kind: choice
+      difficulty: 2
+      prompt: Which anchor pair matches the *whole string* (and not just a line) at
+        start and end?
+      choices:
+        a: "^ and $"
+        b: "\\A and \\z"
+        c: "\\b and \\B"
+        d: "<start> and <end>"
+      correct_choice: b
 - slug: collections
   name: Collections
   overview: |
