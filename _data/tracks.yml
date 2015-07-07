@@ -19,6 +19,8 @@
     title: Constants
   - slug: string-formatting
     title: String formatting
+  - slug: regular-expressions
+    title: Regular expressions
   - slug: arrays
     title: Arrays
   - slug: hashes

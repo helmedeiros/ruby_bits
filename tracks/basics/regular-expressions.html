@@ -1,0 +1,157 @@
+---
+layout: "lesson"
+title: "basics/regular-expressions"
+permalink: "/tracks/basics/regular-expressions/"
+track: "basics"
+lesson_slug: "regular-expressions"
+---
+{% assign track = site.data.tracks | where: "slug", "basics" | first %}
+<article class="lesson">
+  <nav class="crumbs"><a href="{{ site.baseurl }}/">RubyBits</a> / <a href="{{ site.baseurl }}/tracks/{{ track.slug }}/">{{ track.name }}</a> / <span>Regular expressions</span></nav>
+  <h1>Regular expressions</h1>
+  <div class="body markdown">
+{% capture lesson_body %}
+## Regular expressions
+
+A **regular expression** (regex) is a small language for describing
+string patterns. Ruby builds them with `/.../` literals.
+
+### Matching
+
+```ruby
+"hello world" =~ /world/   # => 6     (index of match)
+"hello world" =~ /bye/     # => nil   (no match)
+
+"user@x.com".match?(/@/)   # => true  (boolean check)
+```
+
+`=~` returns the index of the match or `nil`. `match?` is a clean
+true/false test (Ruby 2.4+) — prefer it when you don't need the data.
+
+### Character classes
+
+```ruby
+/[aeiou]/     # any vowel
+/[0-9]/       # any digit (same as \d)
+/[a-zA-Z]/    # any letter
+/[^0-9]/      # NOT a digit  (^ inside [] negates)
+```
+
+### Common shortcuts
+
+- `\d` — digit
+- `\w` — word char (letter, digit, underscore)
+- `\s` — whitespace
+- `\D`, `\W`, `\S` — negations
+
+### Quantifiers
+
+- `*` — zero or more
+- `+` — one or more
+- `?` — zero or one
+- `{3}` — exactly 3
+- `{2,4}` — between 2 and 4
+
+```ruby
+/\A\d{3}-\d{4}\z/   # ###-####  (whole string)
+/^http/             # starts with "http"  (line)
+```
+
+### Capture groups
+
+Parentheses **capture** parts of the match. Use `match` to get them:
+
+```ruby
+m = "alice@example.com".match(/(\w+)@(\w+)/)
+m[0]   # => "alice@example"   (full match)
+m[1]   # => "alice"            (1st group)
+m[2]   # => "example"          (2nd group)
+```
+
+### Replace with `gsub`
+
+```ruby
+"hello world".gsub(/o/, "0")       # => "hell0 w0rld"
+"a 1, b 2".gsub(/\d+/) { |n| n.to_i * 2 }   # => "a 2, b 4"
+```
+
+### Anchors
+
+- `^` / `$` — start / end of **line**
+- `\A` / `\z` — start / end of **string**
+
+Prefer `\A` / `\z` over `^` / `$` when validating a whole input —
+multi-line strings can fool you otherwise.
+{% endcapture %}
+{{ lesson_body | markdownify }}
+  </div>
+  <hr>
+  <h2>activities</h2>
+  <section class="activity activity-code" id="a-basics-regular-expressions-1">
+    <header class="activity-head"><span class="badge">[ACTIVITY]</span> <h3>Looks like an email?</h3></header>
+    <div class="prompt-block">
+{% capture p_basics_regular_expressions_1 %}
+Write `email?(s)` returning `true` if `s` looks like `text@text.text` (any non-space chars on either side of @, then a dot and more chars). Use `match?`.
+{% endcapture %}
+{{ p_basics_regular_expressions_1 | markdownify }}
+    </div>
+    <form class="activity-form" data-kind="code" data-spec="raise unless email?(&quot;alice@x.com&quot;)
+raise unless email?(&quot;bob@example.io&quot;)
+raise     if email?(&quot;no-at-sign&quot;)
+raise     if email?(&quot;missing.dot@io&quot;)
+raise     if email?(&quot;&quot;)
+">
+      <textarea class="code-editor" rows="10">def email?(s)
+  # TODO
+end
+</textarea>
+      <div class="actions">
+        <button type="submit" class="btn run">» run</button>
+        <button type="button" class="btn reset">reset</button>
+      </div>
+      <div class="result" data-role="result"></div>
+    </form>
+  </section>
+  <section class="activity activity-code" id="a-basics-regular-expressions-2">
+    <header class="activity-head"><span class="badge">[ACTIVITY]</span> <h3>Extract digits</h3></header>
+    <div class="prompt-block">
+{% capture p_basics_regular_expressions_2 %}
+Write `digits_only(s)` that returns only the digit characters from `s` as a string, in order.
+{% endcapture %}
+{{ p_basics_regular_expressions_2 | markdownify }}
+    </div>
+    <form class="activity-form" data-kind="code" data-spec="raise unless digits_only(&quot;abc123&quot;)        == &quot;123&quot;
+raise unless digits_only(&quot;(11) 9876-5432&quot;) == &quot;1198765432&quot;
+raise unless digits_only(&quot;no digits&quot;)      == &quot;&quot;
+">
+      <textarea class="code-editor" rows="10">def digits_only(s)
+  # TODO
+end
+</textarea>
+      <div class="actions">
+        <button type="submit" class="btn run">» run</button>
+        <button type="button" class="btn reset">reset</button>
+      </div>
+      <div class="result" data-role="result"></div>
+    </form>
+  </section>
+  <section class="activity activity-choice" id="a-basics-regular-expressions-3">
+    <header class="activity-head"><span class="badge">[ACTIVITY]</span> <h3>Which anchor?</h3></header>
+    <div class="prompt-block">
+{% capture p_basics_regular_expressions_3 %}
+Which anchor pair matches the *whole string* (and not just a line) at start and end?
+{% endcapture %}
+{{ p_basics_regular_expressions_3 | markdownify }}
+    </div>
+    <form class="activity-form" data-kind="choice" data-correct="b">
+      <ul class="choices">
+        <li><label><input type="radio" name="choice-basics-regular-expressions-3" value="a"> <span class="key">[a]</span> ^ and $</label></li>
+        <li><label><input type="radio" name="choice-basics-regular-expressions-3" value="b"> <span class="key">[b]</span> \A and \z</label></li>
+        <li><label><input type="radio" name="choice-basics-regular-expressions-3" value="c"> <span class="key">[c]</span> \b and \B</label></li>
+        <li><label><input type="radio" name="choice-basics-regular-expressions-3" value="d"> <span class="key">[d]</span> &lt;start&gt; and &lt;end&gt;</label></li>
+      </ul>
+      <button type="submit" class="btn">» submit</button>
+      <div class="result" data-role="result"></div>
+    </form>
+  </section>
+</article>
