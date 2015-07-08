@@ -1,1409 +1,1544 @@
+---
 slug: oo-design
 name: OO Design
-description: Design rules that survive the next change — principles from Sandi Metz's POODR, taught with original examples.
+description: Design rules that survive the next change — principles from Sandi Metz's
+  POODR, taught with original examples.
 position: 2
 modules:
-  - slug: single-responsibility
-    name: Single Responsibility
-    overview: |
-      A class should have one reason to change. Try to describe what it
-      does in a single sentence — if you have to say "and" or "or", it's
-      probably doing too much.
-    lessons:
-      - slug: srp-violation
-        title: Spotting an SRP violation
-        body: |
-          ## Single Responsibility Principle (SRP)
+- slug: classes-and-objects
+  name: Classes and objects
+  overview: |
+    Before we talk about *design*, you need to know how to *define* a
+    class. Three lessons walk through the skeleton, accessors, and the
+    difference between instance and class behavior.
+  lessons:
+  - slug: defining-classes
+    title: Defining classes
+    body: |
+      ## Defining classes
 
-          ### What's a class for?
+      A **class** in Ruby groups data (instance variables) and behavior
+      (methods) under one name. Every class you write follows the same
+      shape.
 
-          A class bundles **data** and **behavior** that belong
-          together. The longer it lives, the more pressure it feels to
-          grow. New requirements arrive. People add methods. Before you
-          know it, a single class does five unrelated things.
+      ### Skeleton
 
-          The Single Responsibility Principle is a check against that
-          growth: **a class should have one reason to change**. Said
-          another way — if you can describe what the class does in one
-          sentence without using "and" or "or", you're probably fine. If
-          you need conjunctions, the class is doing too much.
+      ```ruby
+      class Account
+        def initialize(balance)
+          @balance = balance
+        end
 
-          ### A class that does too much
+        def deposit(amount)
+          @balance += amount
+        end
 
-          Look at this `Invoice`:
+        def balance
+          @balance
+        end
+      end
+      ```
 
-          ```ruby
-          class Invoice
-            def initialize(customer, lines)
-              @customer = customer
-              @lines    = lines
-            end
+      Three things to notice:
 
-            def total
-              @lines.sum { |l| l[:qty] * l[:price] }
-            end
+      1. **`class Name`** opens a class definition. `Name` must start with
+         an uppercase letter — it's a constant.
+      2. **`initialize`** is the special method Ruby calls when you write
+         `Account.new(...)`. Whatever args you pass to `new` get forwarded
+         to `initialize`.
+      3. **`@balance`** is an instance variable — each `Account.new`
+         creates a fresh `@balance` on that object.
 
-            def to_pdf
-              # render headers, draw the table, embed the company logo,
-              # ship the bytes to a file
-            end
+      ### Creating and using instances
 
-            def email_to_customer
-              # build an HTML body, attach the PDF, open an SMTP socket,
-              # talk to the mail server
-            end
-          end
-          ```
+      ```ruby
+      acc = Account.new(100)   # calls initialize(100)
+      acc.deposit(50)
+      acc.balance              # => 150
+      ```
 
-          What does it do? It **calculates totals AND renders PDFs AND
-          sends mail**. Three jobs, three reasons to change:
+      `acc.deposit(50)` is Ruby's way of saying "send the `deposit`
+      message to `acc` with the argument `50`."
 
-          1. The pricing rules change (tax law, discounts).
-          2. The marketing team wants a new PDF style.
-          3. Operations switches SMTP providers.
+      ### Each instance has its own state
 
-          Worse, those reasons share **no logic**. Touching the PDF
-          renderer to add a logo shouldn't risk breaking the total. But
-          here they all live in the same class — so they share tests,
-          they share dependencies, and they often share state.
+      ```ruby
+      a = Account.new(100)
+      b = Account.new(0)
+      a.deposit(50)
+      a.balance    # => 150
+      b.balance    # =>   0    (untouched)
+      ```
 
-          ### Why this matters
+      Two instances of the same class hold independent `@balance` values.
+      This is the whole point of OO: bundle data with the behavior that
+      operates on it, and let each object hold its own data.
 
-          - **Hard to test**: to test `total`, you might end up loading
-            PDF libraries or stubbing the mailer.
-          - **Hard to reuse**: you can't ask `Invoice` to render a PDF
-            without also pulling in mail logic.
-          - **Hard to change**: a small change to one responsibility
-            risks the others — code review is slower because reviewers
-            have to think about all three.
+      ### `attr_reader`, `attr_writer`, `attr_accessor`
 
-          ### The fix (preview)
+      Writing `def balance; @balance; end` for every variable is tedious.
+      The next lesson covers the shorthand.
 
-          Split each job into its own class. `Invoice` keeps the money.
-          A separate `InvoiceRenderer` does PDFs. A separate
-          `InvoiceMailer` does delivery. The next lesson walks through
-          that refactor.
+      ### Pitfall: typos in `@names`
 
-        activities:
-          - title: One-sentence test
-            kind: choice
-            difficulty: 2
-            prompt: |
-              Why does the `Invoice` class above fail the one-sentence
-              test?
-            choices:
-              a: It uses `sum` instead of a manual loop.
-              b: It calculates totals, renders PDFs, and sends mail — three responsibilities.
-              c: It uses `@` instance variables instead of accessors.
-              d: It doesn't define an initializer.
-            correct_choice: b
-
-          - title: Reasons to change
-            kind: choice
-            difficulty: 2
-            prompt: |
-              Which scenario should NOT require touching `Invoice` in
-              a well-factored design?
-            choices:
-              a: The company changes pricing rules.
-              b: The PDF style gets redesigned.
-              c: A new currency is added.
-              d: The line-total formula changes.
-            correct_choice: b
-
-          - title: Find the verbs
-            kind: choice
-            difficulty: 2
-            prompt: |
-              A class called `UserOnboarding` exposes these methods:
-              `create_user`, `send_welcome_email`, `bill_first_month`,
-              `notify_slack`. How many responsibilities is this?
-            choices:
-              a: 'One — it onboards users.'
-              b: 'At least four — each verb is a different concern.'
-              c: 'Two — creation and notification.'
-              d: 'None — these are just methods.'
-            correct_choice: b
-
-          - title: One-line role
-            kind: code
-            difficulty: 2
-            prompt: |
-              The class below mixes two jobs. Write a description that
-              summarizes ONLY its first job (computing the total). Your
-              method `role` should return the string
-              `"computes the invoice total"`.
-            starter_code: |
-              class TwoJobInvoice
-                def initialize(lines); @lines = lines; end
-
-                def total
-                  @lines.sum { |l| l[:qty] * l[:price] }
-                end
-
-                def to_pdf
-                  "PDF bytes"
-                end
-              end
-
-              def role
-                # TODO: return the single-sentence description
-                # of just the money-computing responsibility
-              end
-            solution: |
-              class TwoJobInvoice
-                def initialize(lines); @lines = lines; end
-                def total
-                  @lines.sum { |l| l[:qty] * l[:price] }
-                end
-                def to_pdf
-                  "PDF bytes"
-                end
-              end
-
-              def role
-                "computes the invoice total"
-              end
-            spec_code: |
-              raise unless role == "computes the invoice total"
-
-      - slug: extract-collaborator
-        title: Extract a collaborator
-        body: |
-          ## Pulling responsibilities apart
-
-          So `Invoice` does too much. How do you fix it?
-
-          The refactor pattern is: **extract a class** for each extra
-          responsibility, then have the original class **delegate** to
-          it (or to its caller, if neither object should own the new
-          one).
-
-          ### Step 1: Identify the seams
-
-          From the previous lesson, the three jobs were: money, PDFs,
-          mail. So you'll have three classes. `Invoice` keeps the money.
-          A new `InvoiceRenderer` owns PDFs. A new `InvoiceMailer` owns
-          delivery.
-
-          ### Step 2: Name them by responsibility
-
-          A useful tactic is to pick a noun for each new class that
-          describes its **single job**:
-
-          ```ruby
-          class InvoiceRenderer
-            def initialize(invoice)
-              @invoice = invoice
-            end
-
-            def to_pdf
-              # render the PDF using @invoice's data
-            end
+      A misspelled `@balanace` doesn't raise — it just creates a new
+      (always `nil`) instance variable. Watch for typos.
+    activities:
+    - title: Build a Counter
+      kind: code
+      difficulty: 1
+      prompt: Define `Counter` with an `initialize` that starts at 0, a `tick` method
+        that increments, and a `count` method that returns the current value.
+      starter_code: |
+        class Counter
+          # TODO
+        end
+      solution: |
+        class Counter
+          def initialize
+            @count = 0
           end
 
-          class InvoiceMailer
-            def initialize(invoice, transport: SMTP)
-              @invoice, @transport = invoice, transport
-            end
-
-            def deliver_to(customer)
-              # build, attach PDF, send via @transport
-            end
+          def tick
+            @count += 1
           end
-          ```
 
-          Each new class holds the original invoice as a collaborator
-          and asks it for the data it needs (the `total`, the line
-          items). Notice neither of them mutates `Invoice` — they only
-          *read* it.
-
-          ### Step 3: Slim down the original
-
-          With the extracts in place, `Invoice` shrinks back to just its
-          job:
-
-          ```ruby
-          class Invoice
-            def initialize(customer, lines)
-              @customer = customer
-              @lines    = lines
-            end
-
-            def total
-              @lines.sum { |l| l[:qty] * l[:price] }
-            end
+          def count
+            @count
           end
-          ```
-
-          ### Why this is better
-
-          - The class names tell you exactly what to expect.
-          - Tests for `Invoice` no longer need a PDF library.
-          - You can run `InvoiceRenderer` against any object that
-            responds to `total`, `line_items`, etc. — that's the seed of
-            a *duck type* (you'll meet that idea later).
-
-          ### A working example to refactor
-
-          The next activity gives you a `Notifier` that formats AND
-          delivers. You'll extract the formatting into its own class so
-          either responsibility can change without dragging the other
-          along.
-
-        activities:
-          - title: Split Notifier
-            kind: code
-            difficulty: 2
-            prompt: |
-              `Notifier` formats a message AND sends it. Split it so
-              `Notifier#deliver` formats the body via a separate
-              `Formatter` class. Keep `Notifier`'s public API as
-              `deliver(name)`. Pass a `Formatter` in at construction
-              time with a default.
-            starter_code: |
-              class Notifier
-                def initialize(sink)
-                  @sink = sink
-                end
-
-                def deliver(name)
-                  body = "hi, #{name.upcase}!"
-                  @sink << body
-                  body
-                end
-              end
-
-              # write the Formatter class here
-            solution: |
-              class Formatter
-                def call(name)
-                  "hi, #{name.upcase}!"
-                end
-              end
-
-              class Notifier
-                def initialize(sink, formatter: Formatter.new)
-                  @sink, @formatter = sink, formatter
-                end
-
-                def deliver(name)
-                  body = @formatter.call(name)
-                  @sink << body
-                  body
-                end
-              end
-            spec_code: |
-              sink = []
-              n = Notifier.new(sink)
-              raise unless n.deliver("alice") == "hi, ALICE!"
-              raise unless sink == ["hi, ALICE!"]
-              raise unless defined?(Formatter)
-
-          - title: Why extract?
-            kind: choice
-            difficulty: 2
-            prompt: |
-              You extracted `InvoiceRenderer` out of `Invoice`. Which
-              statement is the strongest benefit?
-            choices:
-              a: 'You can now subclass `Invoice` to add PDF support.'
-              b: 'PDF changes no longer risk breaking total calculation, and the renderer can be reused for any object that exposes the same data.'
-              c: 'PDFs are now generated faster.'
-              d: 'Ruby requires it for invoices over $100.'
-            correct_choice: b
-
-          - title: Swap the formatter
-            kind: code
-            difficulty: 3
-            prompt: |
-              Given the `Notifier` from the previous activity, write a
-              `LoudFormatter` whose `call(name)` returns
-              `"HI, NAME!!!"` (uppercase name, three exclamation
-              points). Then verify that `Notifier.new(sink, formatter:
-              LoudFormatter.new).deliver("alice")` returns
-              `"HI, ALICE!!!"`.
-            starter_code: |
-              class Formatter
-                def call(name); "hi, #{name.upcase}!"; end
-              end
-
-              class Notifier
-                def initialize(sink, formatter: Formatter.new)
-                  @sink, @formatter = sink, formatter
-                end
-
-                def deliver(name)
-                  body = @formatter.call(name)
-                  @sink << body
-                  body
-                end
-              end
-
-              # write LoudFormatter here
-            solution: |
-              class Formatter
-                def call(name); "hi, #{name.upcase}!"; end
-              end
-
-              class Notifier
-                def initialize(sink, formatter: Formatter.new)
-                  @sink, @formatter = sink, formatter
-                end
-
-                def deliver(name)
-                  body = @formatter.call(name)
-                  @sink << body
-                  body
-                end
-              end
-
-              class LoudFormatter
-                def call(name)
-                  "HI, #{name.upcase}!!!"
-                end
-              end
-            spec_code: |
-              sink = []
-              n = Notifier.new(sink, formatter: LoudFormatter.new)
-              raise unless n.deliver("alice") == "HI, ALICE!!!"
-              raise unless sink == ["HI, ALICE!!!"]
-
-  - slug: dependencies
-    name: Managing Dependencies
-    overview: |
-      Objects depend on class names, message names, argument orders, and
-      argument types. Each dependency is a risk. Reduce dependencies so
-      objects only know what they need.
-    lessons:
-      - slug: dependency-injection
-        title: Inject collaborators
-        body: |
-          ## Dependency injection
-
-          ### What's a dependency, anyway?
-
-          A class **depends on** another whenever it knows *something
-          specific* about it. There are four common kinds of dependency:
-
-          1. **The other class's name** — `Sms.new` mentions `Sms`.
-          2. **The other class's message names** — calling `send_to`
-             means you depend on that method existing.
-          3. **The argument order** — `send_to(phone, body)` ties
-             callers to that order.
-          4. **The argument types** — `send_to(Phone.new(...), ...)`
-             ties callers to the `Phone` class.
-
-          Each dependency is a *risk*: if anything about the other
-          class changes, your class might break.
-
-          ### A tightly coupled example
-
-          ```ruby
-          class OrderConfirmation
-            def deliver(order)
-              Sms.new.send_to(order.phone, "order #{order.id} confirmed")
-            end
+        end
+      spec_code: |
+        c = Counter.new
+        raise unless c.count == 0
+        c.tick; c.tick; c.tick
+        raise unless c.count == 3
+        d = Counter.new
+        raise unless d.count == 0  # independent state
+    - title: What does `new` call?
+      kind: choice
+      difficulty: 1
+      prompt: When you write `Account.new(100)`, which method runs in your class?
+      choices:
+        a: "`new`"
+        b: "`create`"
+        c: "`initialize`"
+        d: "`call`"
+      correct_choice: c
+    - title: A Wallet that withdraws
+      kind: code
+      difficulty: 2
+      prompt: Define `Wallet` with an initial `@balance`. Implement `withdraw(amount)`
+        that subtracts from the balance (any amount, no validation here) and returns
+        the new balance.
+      starter_code: |
+        class Wallet
+          # TODO
+        end
+      solution: |
+        class Wallet
+          def initialize(balance)
+            @balance = balance
           end
-          ```
 
-          Count the dependencies on the `Sms` class alone:
-
-          - Knows the **name** `Sms`.
-          - Knows it responds to `new` with no arguments.
-          - Knows it responds to `send_to(phone, body)`.
-          - Knows the argument **order**.
-
-          If anyone renames `Sms`, changes its constructor, or reorders
-          the arguments — this class breaks.
-
-          ### The fix: pass it in
-
-          Instead of constructing the collaborator inside, **accept it
-          as an argument** (usually through `initialize`):
-
-          ```ruby
-          class OrderConfirmation
-            def initialize(channel: Sms.new)
-              @channel = channel
-            end
-
-            def deliver(order)
-              @channel.send_to(order.phone, "order #{order.id} confirmed")
-            end
+          def withdraw(amount)
+            @balance -= amount
           end
-          ```
 
-          Now `OrderConfirmation` only knows it has *something that
-          responds to `send_to(phone, body)`*. The `Sms` class name
-          appears in the **default**, not in the body of the method —
-          so callers can swap in any other channel without touching this
-          class:
+          def balance
+            @balance
+          end
+        end
+      spec_code: |
+        w = Wallet.new(100)
+        raise unless w.balance == 100
+        raise unless w.withdraw(30) == 70
+        raise unless w.balance == 70
+        raise unless w.withdraw(70) == 0
+  position: 0
+- slug: single-responsibility
+  name: Single Responsibility
+  overview: |
+    A class should have one reason to change. Try to describe what it
+    does in a single sentence — if you have to say "and" or "or", it's
+    probably doing too much.
+  lessons:
+  - slug: srp-violation
+    title: Spotting an SRP violation
+    body: |
+      ## Single Responsibility Principle (SRP)
 
-          ```ruby
-          OrderConfirmation.new(channel: Email.new)
-          OrderConfirmation.new(channel: PushNotification.new)
-          OrderConfirmation.new(channel: FakeChannel.new)   # for tests
-          ```
+      ### What's a class for?
 
-          ### Why this matters
+      A class bundles **data** and **behavior** that belong
+      together. The longer it lives, the more pressure it feels to
+      grow. New requirements arrive. People add methods. Before you
+      know it, a single class does five unrelated things.
 
-          - Tests get easier — pass a fake `channel` that just records
-            calls. No SMTP, no network.
-          - You can add new channels (push, slack, webhook) without
-            opening `OrderConfirmation`.
-          - The single test of "deliver builds the right message body"
-            doesn't care which transport runs underneath.
+      The Single Responsibility Principle is a check against that
+      growth: **a class should have one reason to change**. Said
+      another way — if you can describe what the class does in one
+      sentence without using "and" or "or", you're probably fine. If
+      you need conjunctions, the class is doing too much.
 
-          ### Rule of thumb
+      ### A class that does too much
 
-          When you find yourself writing `SomeClass.new(...)` inside
-          another class, ask: **could the caller decide which class to
-          use?** If yes, inject it.
+      Look at this `Invoice`:
 
-        activities:
-          - title: Why injection?
-            kind: choice
-            difficulty: 2
-            prompt: |
-              What's the main benefit of injecting `@channel` instead of
-              constructing it inside `OrderConfirmation`?
-            choices:
-              a: 'The code runs faster.'
-              b: 'OrderConfirmation no longer depends on a specific class name — any object that responds to `send_to` works.'
-              c: 'It removes the need for `def initialize`.'
-              d: 'Ruby requires it for keyword arguments.'
-            correct_choice: b
+      ```ruby
+      class Invoice
+        def initialize(customer, lines)
+          @customer = customer
+          @lines    = lines
+        end
 
-          - title: Inject the clock
-            kind: code
-            difficulty: 2
-            prompt: |
-              `Greeter#hello` currently calls `Time.now` directly, which
-              makes testing time-dependent behavior hard. Refactor
-              `Greeter` so it accepts a `clock` collaborator at
-              construction time (default `Time`). Then `#hello` should
-              call `@clock.now.hour` instead of `Time.now.hour`.
-            starter_code: |
-              class Greeter
-                def hello
-                  Time.now.hour < 12 ? "good morning" : "good afternoon"
-                end
-              end
-            solution: |
-              class Greeter
-                def initialize(clock: Time)
-                  @clock = clock
-                end
+        def total
+          @lines.sum { |l| l[:qty] * l[:price] }
+        end
 
-                def hello
-                  @clock.now.hour < 12 ? "good morning" : "good afternoon"
-                end
-              end
-            spec_code: |
-              # A fake clock fixed at 9 a.m.
-              fake = Object.new
-              def fake.now
-                t = Object.new
-                def t.hour; 9; end
-                t
-              end
-              raise unless Greeter.new(clock: fake).hello == "good morning"
+        def to_pdf
+          # render headers, draw the table, embed the company logo,
+          # ship the bytes to a file
+        end
 
-              # And one fixed at 3 p.m.
-              fake_pm = Object.new
-              def fake_pm.now
-                t = Object.new
-                def t.hour; 15; end
-                t
-              end
-              raise unless Greeter.new(clock: fake_pm).hello == "good afternoon"
+        def email_to_customer
+          # build an HTML body, attach the PDF, open an SMTP socket,
+          # talk to the mail server
+        end
+      end
+      ```
 
-          - title: Spot the hard-coded dependency
-            kind: choice
-            difficulty: 2
-            prompt: |
-              Look at this method. Which line is the *strongest* source
-              of coupling?
-              ```ruby
-              class Report
-                def render(rows)
-                  data = JSON.generate(rows)
-                  HTTP::POST.new("/upload", data).call
-                end
-              end
-              ```
-            choices:
-              a: '`JSON.generate(rows)` — JSON is a hard dependency.'
-              b: '`HTTP::POST.new("/upload", ...)` — this hard-codes both the class and the URL.'
-              c: '`def render(rows)` — the method name is too generic.'
-              d: '`Report` shouldn''t exist at all.'
-            correct_choice: b
+      What does it do? It **calculates totals AND renders PDFs AND
+      sends mail**. Three jobs, three reasons to change:
 
-          - title: Inject the storage
-            kind: code
-            difficulty: 3
-            prompt: |
-              `Saver` writes to a hard-coded `Disk.write`. Refactor so
-              it accepts a `store` collaborator at construction time
-              (default `Disk`). `#save(key, value)` should call
-              `@store.write(key, value)` and return whatever the store
-              returns.
-            starter_code: |
-              module Disk
-                def self.write(key, value)
-                  "wrote #{key}=#{value} to disk"
-                end
-              end
+      1. The pricing rules change (tax law, discounts).
+      2. The marketing team wants a new PDF style.
+      3. Operations switches SMTP providers.
 
-              class Saver
-                def save(key, value)
-                  Disk.write(key, value)
-                end
-              end
-            solution: |
-              module Disk
-                def self.write(key, value)
-                  "wrote #{key}=#{value} to disk"
-                end
-              end
+      Worse, those reasons share **no logic**. Touching the PDF
+      renderer to add a logo shouldn't risk breaking the total. But
+      here they all live in the same class — so they share tests,
+      they share dependencies, and they often share state.
 
-              class Saver
-                def initialize(store: Disk)
-                  @store = store
-                end
+      ### Why this matters
 
-                def save(key, value)
-                  @store.write(key, value)
-                end
-              end
-            spec_code: |
-              raise unless Saver.new.save("k", "v") == "wrote k=v to disk"
+      - **Hard to test**: to test `total`, you might end up loading
+        PDF libraries or stubbing the mailer.
+      - **Hard to reuse**: you can't ask `Invoice` to render a PDF
+        without also pulling in mail logic.
+      - **Hard to change**: a small change to one responsibility
+        risks the others — code review is slower because reviewers
+        have to think about all three.
 
-              # Swap in an in-memory store for tests
-              class MemStore
-                attr_reader :written
-                def initialize; @written = {}; end
-                def write(key, value); @written[key] = value; "ok"; end
-              end
-              mem = MemStore.new
-              raise unless Saver.new(store: mem).save("k", 1) == "ok"
-              raise unless mem.written == { "k" => 1 }
+      ### The fix (preview)
 
-      - slug: hash-arguments
-        title: Hash arguments remove order coupling
-        body: |
-          ## From positional to keyword arguments
+      Split each job into its own class. `Invoice` keeps the money.
+      A separate `InvoiceRenderer` does PDFs. A separate
+      `InvoiceMailer` does delivery. The next lesson walks through
+      that refactor.
+    activities:
+    - title: One-sentence test
+      kind: choice
+      difficulty: 2
+      prompt: |
+        Why does the `Invoice` class above fail the one-sentence
+        test?
+      choices:
+        a: It uses `sum` instead of a manual loop.
+        b: It calculates totals, renders PDFs, and sends mail — three responsibilities.
+        c: It uses `@` instance variables instead of accessors.
+        d: It doesn't define an initializer.
+      correct_choice: b
+    - title: Reasons to change
+      kind: choice
+      difficulty: 2
+      prompt: |
+        Which scenario should NOT require touching `Invoice` in
+        a well-factored design?
+      choices:
+        a: The company changes pricing rules.
+        b: The PDF style gets redesigned.
+        c: A new currency is added.
+        d: The line-total formula changes.
+      correct_choice: b
+    - title: Find the verbs
+      kind: choice
+      difficulty: 2
+      prompt: |
+        A class called `UserOnboarding` exposes these methods:
+        `create_user`, `send_welcome_email`, `bill_first_month`,
+        `notify_slack`. How many responsibilities is this?
+      choices:
+        a: One — it onboards users.
+        b: At least four — each verb is a different concern.
+        c: Two — creation and notification.
+        d: None — these are just methods.
+      correct_choice: b
+    - title: One-line role
+      kind: code
+      difficulty: 2
+      prompt: |
+        The class below mixes two jobs. Write a description that
+        summarizes ONLY its first job (computing the total). Your
+        method `role` should return the string
+        `"computes the invoice total"`.
+      starter_code: |
+        class TwoJobInvoice
+          def initialize(lines); @lines = lines; end
 
-          When you write a method like this:
+          def total
+            @lines.sum { |l| l[:qty] * l[:price] }
+          end
 
-          ```ruby
+          def to_pdf
+            "PDF bytes"
+          end
+        end
+
+        def role
+          # TODO: return the single-sentence description
+          # of just the money-computing responsibility
+        end
+      solution: |
+        class TwoJobInvoice
+          def initialize(lines); @lines = lines; end
+          def total
+            @lines.sum { |l| l[:qty] * l[:price] }
+          end
+          def to_pdf
+            "PDF bytes"
+          end
+        end
+
+        def role
+          "computes the invoice total"
+        end
+      spec_code: 'raise unless role == "computes the invoice total"
+
+'
+  - slug: extract-collaborator
+    title: Extract a collaborator
+    body: |
+      ## Pulling responsibilities apart
+
+      So `Invoice` does too much. How do you fix it?
+
+      The refactor pattern is: **extract a class** for each extra
+      responsibility, then have the original class **delegate** to
+      it (or to its caller, if neither object should own the new
+      one).
+
+      ### Step 1: Identify the seams
+
+      From the previous lesson, the three jobs were: money, PDFs,
+      mail. So you'll have three classes. `Invoice` keeps the money.
+      A new `InvoiceRenderer` owns PDFs. A new `InvoiceMailer` owns
+      delivery.
+
+      ### Step 2: Name them by responsibility
+
+      A useful tactic is to pick a noun for each new class that
+      describes its **single job**:
+
+      ```ruby
+      class InvoiceRenderer
+        def initialize(invoice)
+          @invoice = invoice
+        end
+
+        def to_pdf
+          # render the PDF using @invoice's data
+        end
+      end
+
+      class InvoiceMailer
+        def initialize(invoice, transport: SMTP)
+          @invoice, @transport = invoice, transport
+        end
+
+        def deliver_to(customer)
+          # build, attach PDF, send via @transport
+        end
+      end
+      ```
+
+      Each new class holds the original invoice as a collaborator
+      and asks it for the data it needs (the `total`, the line
+      items). Notice neither of them mutates `Invoice` — they only
+      *read* it.
+
+      ### Step 3: Slim down the original
+
+      With the extracts in place, `Invoice` shrinks back to just its
+      job:
+
+      ```ruby
+      class Invoice
+        def initialize(customer, lines)
+          @customer = customer
+          @lines    = lines
+        end
+
+        def total
+          @lines.sum { |l| l[:qty] * l[:price] }
+        end
+      end
+      ```
+
+      ### Why this is better
+
+      - The class names tell you exactly what to expect.
+      - Tests for `Invoice` no longer need a PDF library.
+      - You can run `InvoiceRenderer` against any object that
+        responds to `total`, `line_items`, etc. — that's the seed of
+        a *duck type* (you'll meet that idea later).
+
+      ### A working example to refactor
+
+      The next activity gives you a `Notifier` that formats AND
+      delivers. You'll extract the formatting into its own class so
+      either responsibility can change without dragging the other
+      along.
+    activities:
+    - title: Split Notifier
+      kind: code
+      difficulty: 2
+      prompt: |
+        `Notifier` formats a message AND sends it. Split it so
+        `Notifier#deliver` formats the body via a separate
+        `Formatter` class. Keep `Notifier`'s public API as
+        `deliver(name)`. Pass a `Formatter` in at construction
+        time with a default.
+      starter_code: |
+        class Notifier
+          def initialize(sink)
+            @sink = sink
+          end
+
+          def deliver(name)
+            body = "hi, #{name.upcase}!"
+            @sink << body
+            body
+          end
+        end
+
+        # write the Formatter class here
+      solution: |
+        class Formatter
+          def call(name)
+            "hi, #{name.upcase}!"
+          end
+        end
+
+        class Notifier
+          def initialize(sink, formatter: Formatter.new)
+            @sink, @formatter = sink, formatter
+          end
+
+          def deliver(name)
+            body = @formatter.call(name)
+            @sink << body
+            body
+          end
+        end
+      spec_code: |
+        sink = []
+        n = Notifier.new(sink)
+        raise unless n.deliver("alice") == "hi, ALICE!"
+        raise unless sink == ["hi, ALICE!"]
+        raise unless defined?(Formatter)
+    - title: Why extract?
+      kind: choice
+      difficulty: 2
+      prompt: |
+        You extracted `InvoiceRenderer` out of `Invoice`. Which
+        statement is the strongest benefit?
+      choices:
+        a: You can now subclass `Invoice` to add PDF support.
+        b: PDF changes no longer risk breaking total calculation, and the renderer
+          can be reused for any object that exposes the same data.
+        c: PDFs are now generated faster.
+        d: Ruby requires it for invoices over $100.
+      correct_choice: b
+    - title: Swap the formatter
+      kind: code
+      difficulty: 3
+      prompt: |
+        Given the `Notifier` from the previous activity, write a
+        `LoudFormatter` whose `call(name)` returns
+        `"HI, NAME!!!"` (uppercase name, three exclamation
+        points). Then verify that `Notifier.new(sink, formatter:
+        LoudFormatter.new).deliver("alice")` returns
+        `"HI, ALICE!!!"`.
+      starter_code: |
+        class Formatter
+          def call(name); "hi, #{name.upcase}!"; end
+        end
+
+        class Notifier
+          def initialize(sink, formatter: Formatter.new)
+            @sink, @formatter = sink, formatter
+          end
+
+          def deliver(name)
+            body = @formatter.call(name)
+            @sink << body
+            body
+          end
+        end
+
+        # write LoudFormatter here
+      solution: |
+        class Formatter
+          def call(name); "hi, #{name.upcase}!"; end
+        end
+
+        class Notifier
+          def initialize(sink, formatter: Formatter.new)
+            @sink, @formatter = sink, formatter
+          end
+
+          def deliver(name)
+            body = @formatter.call(name)
+            @sink << body
+            body
+          end
+        end
+
+        class LoudFormatter
+          def call(name)
+            "HI, #{name.upcase}!!!"
+          end
+        end
+      spec_code: |
+        sink = []
+        n = Notifier.new(sink, formatter: LoudFormatter.new)
+        raise unless n.deliver("alice") == "HI, ALICE!!!"
+        raise unless sink == ["HI, ALICE!!!"]
+  position: 1
+- slug: dependencies
+  name: Managing Dependencies
+  overview: |
+    Objects depend on class names, message names, argument orders, and
+    argument types. Each dependency is a risk. Reduce dependencies so
+    objects only know what they need.
+  lessons:
+  - slug: dependency-injection
+    title: Inject collaborators
+    body: |
+      ## Dependency injection
+
+      ### What's a dependency, anyway?
+
+      A class **depends on** another whenever it knows *something
+      specific* about it. There are four common kinds of dependency:
+
+      1. **The other class's name** — `Sms.new` mentions `Sms`.
+      2. **The other class's message names** — calling `send_to`
+         means you depend on that method existing.
+      3. **The argument order** — `send_to(phone, body)` ties
+         callers to that order.
+      4. **The argument types** — `send_to(Phone.new(...), ...)`
+         ties callers to the `Phone` class.
+
+      Each dependency is a *risk*: if anything about the other
+      class changes, your class might break.
+
+      ### A tightly coupled example
+
+      ```ruby
+      class OrderConfirmation
+        def deliver(order)
+          Sms.new.send_to(order.phone, "order #{order.id} confirmed")
+        end
+      end
+      ```
+
+      Count the dependencies on the `Sms` class alone:
+
+      - Knows the **name** `Sms`.
+      - Knows it responds to `new` with no arguments.
+      - Knows it responds to `send_to(phone, body)`.
+      - Knows the argument **order**.
+
+      If anyone renames `Sms`, changes its constructor, or reorders
+      the arguments — this class breaks.
+
+      ### The fix: pass it in
+
+      Instead of constructing the collaborator inside, **accept it
+      as an argument** (usually through `initialize`):
+
+      ```ruby
+      class OrderConfirmation
+        def initialize(channel: Sms.new)
+          @channel = channel
+        end
+
+        def deliver(order)
+          @channel.send_to(order.phone, "order #{order.id} confirmed")
+        end
+      end
+      ```
+
+      Now `OrderConfirmation` only knows it has *something that
+      responds to `send_to(phone, body)`*. The `Sms` class name
+      appears in the **default**, not in the body of the method —
+      so callers can swap in any other channel without touching this
+      class:
+
+      ```ruby
+      OrderConfirmation.new(channel: Email.new)
+      OrderConfirmation.new(channel: PushNotification.new)
+      OrderConfirmation.new(channel: FakeChannel.new)   # for tests
+      ```
+
+      ### Why this matters
+
+      - Tests get easier — pass a fake `channel` that just records
+        calls. No SMTP, no network.
+      - You can add new channels (push, slack, webhook) without
+        opening `OrderConfirmation`.
+      - The single test of "deliver builds the right message body"
+        doesn't care which transport runs underneath.
+
+      ### Rule of thumb
+
+      When you find yourself writing `SomeClass.new(...)` inside
+      another class, ask: **could the caller decide which class to
+      use?** If yes, inject it.
+    activities:
+    - title: Why injection?
+      kind: choice
+      difficulty: 2
+      prompt: |
+        What's the main benefit of injecting `@channel` instead of
+        constructing it inside `OrderConfirmation`?
+      choices:
+        a: The code runs faster.
+        b: OrderConfirmation no longer depends on a specific class name — any object
+          that responds to `send_to` works.
+        c: It removes the need for `def initialize`.
+        d: Ruby requires it for keyword arguments.
+      correct_choice: b
+    - title: Inject the clock
+      kind: code
+      difficulty: 2
+      prompt: |
+        `Greeter#hello` currently calls `Time.now` directly, which
+        makes testing time-dependent behavior hard. Refactor
+        `Greeter` so it accepts a `clock` collaborator at
+        construction time (default `Time`). Then `#hello` should
+        call `@clock.now.hour` instead of `Time.now.hour`.
+      starter_code: |
+        class Greeter
+          def hello
+            Time.now.hour < 12 ? "good morning" : "good afternoon"
+          end
+        end
+      solution: |
+        class Greeter
+          def initialize(clock: Time)
+            @clock = clock
+          end
+
+          def hello
+            @clock.now.hour < 12 ? "good morning" : "good afternoon"
+          end
+        end
+      spec_code: |
+        # A fake clock fixed at 9 a.m.
+        fake = Object.new
+        def fake.now
+          t = Object.new
+          def t.hour; 9; end
+          t
+        end
+        raise unless Greeter.new(clock: fake).hello == "good morning"
+
+        # And one fixed at 3 p.m.
+        fake_pm = Object.new
+        def fake_pm.now
+          t = Object.new
+          def t.hour; 15; end
+          t
+        end
+        raise unless Greeter.new(clock: fake_pm).hello == "good afternoon"
+    - title: Spot the hard-coded dependency
+      kind: choice
+      difficulty: 2
+      prompt: |
+        Look at this method. Which line is the *strongest* source
+        of coupling?
+        ```ruby
+        class Report
+          def render(rows)
+            data = JSON.generate(rows)
+            HTTP::POST.new("/upload", data).call
+          end
+        end
+        ```
+      choices:
+        a: "`JSON.generate(rows)` — JSON is a hard dependency."
+        b: '`HTTP::POST.new("/upload", ...)` — this hard-codes both the class and
+          the URL.'
+        c: "`def render(rows)` — the method name is too generic."
+        d: "`Report` shouldn't exist at all."
+      correct_choice: b
+    - title: Inject the storage
+      kind: code
+      difficulty: 3
+      prompt: |
+        `Saver` writes to a hard-coded `Disk.write`. Refactor so
+        it accepts a `store` collaborator at construction time
+        (default `Disk`). `#save(key, value)` should call
+        `@store.write(key, value)` and return whatever the store
+        returns.
+      starter_code: |
+        module Disk
+          def self.write(key, value)
+            "wrote #{key}=#{value} to disk"
+          end
+        end
+
+        class Saver
+          def save(key, value)
+            Disk.write(key, value)
+          end
+        end
+      solution: |
+        module Disk
+          def self.write(key, value)
+            "wrote #{key}=#{value} to disk"
+          end
+        end
+
+        class Saver
+          def initialize(store: Disk)
+            @store = store
+          end
+
+          def save(key, value)
+            @store.write(key, value)
+          end
+        end
+      spec_code: |
+        raise unless Saver.new.save("k", "v") == "wrote k=v to disk"
+
+        # Swap in an in-memory store for tests
+        class MemStore
+          attr_reader :written
+          def initialize; @written = {}; end
+          def write(key, value); @written[key] = value; "ok"; end
+        end
+        mem = MemStore.new
+        raise unless Saver.new(store: mem).save("k", 1) == "ok"
+        raise unless mem.written == { "k" => 1 }
+  - slug: hash-arguments
+    title: Hash arguments remove order coupling
+    body: |
+      ## From positional to keyword arguments
+
+      When you write a method like this:
+
+      ```ruby
+      def initialize(name, age, role)
+        @name, @age, @role = name, age, role
+      end
+      ```
+
+      …every caller must know the **exact order** of arguments:
+
+      ```ruby
+      Member.new("alice", 30, :admin)
+      ```
+
+      If next week you decide `role` belongs earlier, or you want to
+      add a new field, every call site has to change. That's *order
+      coupling*.
+
+      ### Keyword arguments
+
+      Keyword args name each value at the call site:
+
+      ```ruby
+      def initialize(name:, age:, role:)
+        @name, @age, @role = name, age, role
+      end
+
+      Member.new(name: "alice", age: 30, role: :admin)
+      ```
+
+      Two things become easier:
+
+      - **Callers don't care about order.** They can write `role:`
+        first, or in any order — the names disambiguate.
+      - **You can add new fields without breaking existing callers**
+        (give them defaults). Want to add `team:`? Existing call
+        sites continue to work.
+
+      ### When positional is fine
+
+      For methods with **one** argument (or one obvious argument),
+      positional is fine: `square(4)`, `greet("alice")`,
+      `Wallet.new(100)`.
+
+      The cost-benefit tilts toward keyword args around 3+ arguments
+      or when the meaning of any argument isn't obvious from its
+      value at the call site.
+
+      ### Required vs. optional
+
+      Add a trailing colon to make a keyword **required** (Ruby
+      raises `ArgumentError` if missing):
+
+      ```ruby
+      def shift(point, by:)              # by is required
+        point + by
+      end
+      ```
+
+      Add a default value to make it **optional**:
+
+      ```ruby
+      def shift(point, by: 1)            # by is optional
+        point + by
+      end
+      ```
+    activities:
+    - title: Convert to keyword args
+      kind: code
+      difficulty: 2
+      prompt: |
+        Rewrite `Member#initialize` to use *required* keyword args
+        for `name`, `age`, and `role`. The accessors stay the
+        same.
+      starter_code: |
+        class Member
+          attr_reader :name, :age, :role
           def initialize(name, age, role)
             @name, @age, @role = name, age, role
           end
-          ```
-
-          …every caller must know the **exact order** of arguments:
-
-          ```ruby
-          Member.new("alice", 30, :admin)
-          ```
-
-          If next week you decide `role` belongs earlier, or you want to
-          add a new field, every call site has to change. That's *order
-          coupling*.
-
-          ### Keyword arguments
-
-          Keyword args name each value at the call site:
-
-          ```ruby
+        end
+      solution: |
+        class Member
+          attr_reader :name, :age, :role
           def initialize(name:, age:, role:)
             @name, @age, @role = name, age, role
           end
+        end
+      spec_code: |
+        m = Member.new(name: "alice", age: 30, role: :admin)
+        raise unless m.name == "alice"
+        raise unless m.age  == 30
+        raise unless m.role == :admin
+        n = Member.new(role: :admin, name: "alice", age: 30)
+        raise unless n.name == "alice"
+    - title: Order coupling
+      kind: choice
+      difficulty: 1
+      prompt: |
+        You change `def initialize(name, age, role)` to
+        `def initialize(name, role, age)` — only the order of
+        `role` and `age` changed. What happens?
+      choices:
+        a: Nothing — Ruby figures it out by name.
+        b: All existing callers now silently swap age and role values, producing wrong
+          data.
+        c: Ruby raises an ArgumentError everywhere.
+        d: Only new callers are affected.
+      correct_choice: b
+    - title: Mixed signature
+      kind: code
+      difficulty: 3
+      prompt: |
+        Write `register(email, name:, admin: false)` that returns
+        a hash with `:email`, `:name`, `:admin` keys filled from
+        the arguments. `email` is positional, the other two are
+        keyword args; `admin` defaults to `false`.
+      starter_code: |
+        def register(email, name:, admin: false)
+          # TODO
+        end
+      solution: |
+        def register(email, name:, admin: false)
+          { email: email, name: name, admin: admin }
+        end
+      spec_code: |
+        raise unless register("a@x", name: "alice")               == { email: "a@x", name: "alice", admin: false }
+        raise unless register("b@x", name: "bob", admin: true)    == { email: "b@x", name: "bob",   admin: true  }
+  position: 2
+- slug: interfaces
+  name: Interfaces
+  overview: |
+    The public interface is the contract — what other objects can ask
+    this object to do. Keep it small, intentional, and stable. Hide
+    internals so you can change them without breaking callers.
+  lessons:
+  - slug: tell-dont-ask
+    title: Tell, don't ask
+    body: |
+      ## Tell, don't ask
 
-          Member.new(name: "alice", age: 30, role: :admin)
-          ```
+      When you see code like this, your design alarm should go off:
 
-          Two things become easier:
+      ```ruby
+      if account.balance >= amount
+        account.balance -= amount
+      else
+        raise InsufficientFunds
+      end
+      ```
 
-          - **Callers don't care about order.** They can write `role:`
-            first, or in any order — the names disambiguate.
-          - **You can add new fields without breaking existing callers**
-            (give them defaults). Want to add `team:`? Existing call
-            sites continue to work.
+      The caller is **asking** the account for state, **making a
+      decision**, then **mutating** the account. That's three things
+      happening at one level above the data — and any other place
+      that wants to withdraw money has to re-implement the same
+      dance.
 
-          ### When positional is fine
+      ### What "tell, don't ask" means
 
-          For methods with **one** argument (or one obvious argument),
-          positional is fine: `square(4)`, `greet("alice")`,
-          `Wallet.new(100)`.
+      Instead of asking for state and acting on it, **tell the
+      object what you want**. Let it decide:
 
-          The cost-benefit tilts toward keyword args around 3+ arguments
-          or when the meaning of any argument isn't obvious from its
-          value at the call site.
+      ```ruby
+      account.withdraw(amount)   # raises if not enough
+      ```
 
-          ### Required vs. optional
+      Now the rule about insufficient funds lives **next to the
+      balance**. Other code calling `withdraw` doesn't need to know
+      the rule.
 
-          Add a trailing colon to make a keyword **required** (Ruby
-          raises `ArgumentError` if missing):
+      ### Why this matters
 
-          ```ruby
-          def shift(point, by:)              # by is required
-            point + by
+      - **Encapsulation**: `account` is the only place that touches
+        its balance. If you want to add an overdraft fee or audit
+        log, you change it in one place.
+      - **Smaller callers**: every "I want to spend money" site
+        becomes one line.
+      - **Easier to reason about**: when you read `account.withdraw`
+        you don't need to wonder *what* the caller might have done
+        differently — there's one withdrawal path.
+
+      ### When asking is OK
+
+      "Tell, don't ask" isn't an absolute rule. There are legitimate
+      reasons to read state — display, search, validation that
+      spans multiple objects. The rule is more useful as a **smell
+      detector** than as a law:
+
+      > If your caller reads a value, branches on it, then writes
+      > back to the same object — the logic probably belongs in the
+      > object, not the caller.
+
+      ### Demeter — a related rule of thumb
+
+      A related principle says: **talk only to your immediate
+      neighbors**. If you find yourself writing
+      `customer.profile.address.city.country.code`, you're reaching
+      past several objects. Each `.` is a dependency on the structure
+      of the object before it. A small change anywhere in that chain
+      breaks the caller. Prefer a method on `customer` (like
+      `country_code`) that hides the structure.
+    activities:
+    - title: Refactor to tell, don't ask
+      kind: code
+      difficulty: 3
+      prompt: |
+        Replace the body of `pay` so it tells the wallet to
+        `charge` `amount`, instead of inspecting `wallet.balance`
+        and mutating it. `Wallet#charge` already exists and raises
+        `RuntimeError` when the balance is too low.
+      starter_code: |
+        class Wallet
+          attr_reader :balance
+          def initialize(balance); @balance = balance; end
+
+          def charge(amount)
+            raise "insufficient" if amount > @balance
+            @balance -= amount
+            amount
           end
-          ```
+        end
 
-          Add a default value to make it **optional**:
-
-          ```ruby
-          def shift(point, by: 1)            # by is optional
-            point + by
-          end
-          ```
-
-        activities:
-          - title: Convert to keyword args
-            kind: code
-            difficulty: 2
-            prompt: |
-              Rewrite `Member#initialize` to use *required* keyword args
-              for `name`, `age`, and `role`. The accessors stay the
-              same.
-            starter_code: |
-              class Member
-                attr_reader :name, :age, :role
-                def initialize(name, age, role)
-                  @name, @age, @role = name, age, role
-                end
-              end
-            solution: |
-              class Member
-                attr_reader :name, :age, :role
-                def initialize(name:, age:, role:)
-                  @name, @age, @role = name, age, role
-                end
-              end
-            spec_code: |
-              m = Member.new(name: "alice", age: 30, role: :admin)
-              raise unless m.name == "alice"
-              raise unless m.age  == 30
-              raise unless m.role == :admin
-              n = Member.new(role: :admin, name: "alice", age: 30)
-              raise unless n.name == "alice"
-
-          - title: Order coupling
-            kind: choice
-            difficulty: 1
-            prompt: |
-              You change `def initialize(name, age, role)` to
-              `def initialize(name, role, age)` — only the order of
-              `role` and `age` changed. What happens?
-            choices:
-              a: 'Nothing — Ruby figures it out by name.'
-              b: 'All existing callers now silently swap age and role values, producing wrong data.'
-              c: 'Ruby raises an ArgumentError everywhere.'
-              d: 'Only new callers are affected.'
-            correct_choice: b
-
-          - title: Mixed signature
-            kind: code
-            difficulty: 3
-            prompt: |
-              Write `register(email, name:, admin: false)` that returns
-              a hash with `:email`, `:name`, `:admin` keys filled from
-              the arguments. `email` is positional, the other two are
-              keyword args; `admin` defaults to `false`.
-            starter_code: |
-              def register(email, name:, admin: false)
-                # TODO
-              end
-            solution: |
-              def register(email, name:, admin: false)
-                { email: email, name: name, admin: admin }
-              end
-            spec_code: |
-              raise unless register("a@x", name: "alice")               == { email: "a@x", name: "alice", admin: false }
-              raise unless register("b@x", name: "bob", admin: true)    == { email: "b@x", name: "bob",   admin: true  }
-
-  - slug: interfaces
-    name: Interfaces
-    overview: |
-      The public interface is the contract — what other objects can ask
-      this object to do. Keep it small, intentional, and stable. Hide
-      internals so you can change them without breaking callers.
-    lessons:
-      - slug: tell-dont-ask
-        title: Tell, don't ask
-        body: |
-          ## Tell, don't ask
-
-          When you see code like this, your design alarm should go off:
-
-          ```ruby
-          if account.balance >= amount
-            account.balance -= amount
+        def pay(wallet, amount)
+          if wallet.balance >= amount
+            amount
           else
-            raise InsufficientFunds
+            raise "insufficient"
           end
-          ```
+        end
+      solution: |
+        class Wallet
+          attr_reader :balance
+          def initialize(balance); @balance = balance; end
 
-          The caller is **asking** the account for state, **making a
-          decision**, then **mutating** the account. That's three things
-          happening at one level above the data — and any other place
-          that wants to withdraw money has to re-implement the same
-          dance.
+          def charge(amount)
+            raise "insufficient" if amount > @balance
+            @balance -= amount
+            amount
+          end
+        end
 
-          ### What "tell, don't ask" means
+        def pay(wallet, amount)
+          wallet.charge(amount)
+        end
+      spec_code: |
+        w = Wallet.new(100)
+        raise unless pay(w, 30) == 30
+        raise unless w.balance == 70
+        begin
+          pay(w, 500)
+          raise "should have raised"
+        rescue RuntimeError
+          :ok
+        end
+    - title: Demeter smell
+      kind: choice
+      difficulty: 2
+      prompt: |
+        Which of these expressions most strongly violates the Law
+        of Demeter ("talk only to your neighbors")?
+      choices:
+        a: order.customer.address.country.code
+        b: order.total
+        c: order.line_items.length
+        d: order.confirm!
+      correct_choice: a
+    - title: Move the rule
+      kind: code
+      difficulty: 3
+      prompt: |
+        `apply_discount` currently reads `cart.subtotal` and
+        branches outside the cart. Add a `Cart#apply_discount`
+        method that subtracts 10% if subtotal ≥ 100, otherwise
+        leaves it alone. The method should return the final
+        total. Then `apply_discount(cart)` becomes a one-liner.
+      starter_code: |
+        class Cart
+          attr_accessor :subtotal
+          def initialize(subtotal); @subtotal = subtotal; end
+        end
 
-          Instead of asking for state and acting on it, **tell the
-          object what you want**. Let it decide:
+        def apply_discount(cart)
+          if cart.subtotal >= 100
+            cart.subtotal = cart.subtotal * 0.9
+          end
+          cart.subtotal
+        end
+      solution: |
+        class Cart
+          attr_accessor :subtotal
+          def initialize(subtotal); @subtotal = subtotal; end
 
-          ```ruby
-          account.withdraw(amount)   # raises if not enough
-          ```
+          def apply_discount
+            @subtotal = @subtotal * 0.9 if @subtotal >= 100
+            @subtotal
+          end
+        end
 
-          Now the rule about insufficient funds lives **next to the
-          balance**. Other code calling `withdraw` doesn't need to know
-          the rule.
+        def apply_discount(cart)
+          cart.apply_discount
+        end
+      spec_code: |
+        c = Cart.new(200)
+        raise unless apply_discount(c) == 180.0
+        raise unless c.subtotal == 180.0
 
-          ### Why this matters
+        c2 = Cart.new(50)
+        raise unless apply_discount(c2) == 50
+        raise unless c2.subtotal == 50
+  position: 3
+- slug: duck-typing
+  name: Duck Typing
+  overview: |
+    Don't ask "what class is this?" — ask "what messages does it
+    respond to?". If many classes share a method, that method is a
+    duck type waiting to be named.
+  lessons:
+  - slug: spot-the-duck
+    title: Find the duck
+    body: |
+      ## Duck typing
 
-          - **Encapsulation**: `account` is the only place that touches
-            its balance. If you want to add an overdraft fee or audit
-            log, you change it in one place.
-          - **Smaller callers**: every "I want to spend money" site
-            becomes one line.
-          - **Easier to reason about**: when you read `account.withdraw`
-            you don't need to wonder *what* the caller might have done
-            differently — there's one withdrawal path.
+      ### The dictionary definition
 
-          ### When asking is OK
+      > If it walks like a duck and quacks like a duck, it's a duck.
 
-          "Tell, don't ask" isn't an absolute rule. There are legitimate
-          reasons to read state — display, search, validation that
-          spans multiple objects. The rule is more useful as a **smell
-          detector** than as a law:
+      In static languages, you declare types — `String`, `Integer`,
+      `Customer`. In Ruby, what matters at runtime is **what messages
+      an object responds to**, not what class it belongs to. Any
+      object that responds to `each` can be iterated; any object
+      that responds to `to_s` can be printed. That's duck typing.
 
-          > If your caller reads a value, branches on it, then writes
-          > back to the same object — the logic probably belongs in the
-          > object, not the caller.
+      ### What it looks like
 
-          ### Demeter — a related rule of thumb
+      Compare two ways of writing the same code.
 
-          A related principle says: **talk only to your immediate
-          neighbors**. If you find yourself writing
-          `customer.profile.address.city.country.code`, you're reaching
-          past several objects. Each `.` is a dependency on the structure
-          of the object before it. A small change anywhere in that chain
-          breaks the caller. Prefer a method on `customer` (like
-          `country_code`) that hides the structure.
+      **Without duck typing**, you switch on class:
 
-        activities:
-          - title: Refactor to tell, don't ask
-            kind: code
-            difficulty: 3
-            prompt: |
-              Replace the body of `pay` so it tells the wallet to
-              `charge` `amount`, instead of inspecting `wallet.balance`
-              and mutating it. `Wallet#charge` already exists and raises
-              `RuntimeError` when the balance is too low.
-            starter_code: |
-              class Wallet
-                attr_reader :balance
-                def initialize(balance); @balance = balance; end
+      ```ruby
+      def render(report)
+        case report
+        when DailyReport   then DailyRenderer.new.render(report)
+        when WeeklyReport  then WeeklyRenderer.new.render(report)
+        when MonthlyReport then MonthlyRenderer.new.render(report)
+        end
+      end
+      ```
 
-                def charge(amount)
-                  raise "insufficient" if amount > @balance
-                  @balance -= amount
-                  amount
-                end
-              end
+      Every new report type means editing `render`.
 
-              def pay(wallet, amount)
-                if wallet.balance >= amount
-                  amount
-                else
-                  raise "insufficient"
-                end
-              end
-            solution: |
-              class Wallet
-                attr_reader :balance
-                def initialize(balance); @balance = balance; end
+      **With duck typing**, ask each report to render itself:
 
-                def charge(amount)
-                  raise "insufficient" if amount > @balance
-                  @balance -= amount
-                  amount
-                end
-              end
+      ```ruby
+      def render(report)
+        report.render
+      end
+      ```
 
-              def pay(wallet, amount)
-                wallet.charge(amount)
-              end
-            spec_code: |
-              w = Wallet.new(100)
-              raise unless pay(w, 30) == 30
-              raise unless w.balance == 70
-              begin
-                pay(w, 500)
-                raise "should have raised"
-              rescue RuntimeError
-                :ok
-              end
+      Now `DailyReport`, `WeeklyReport`, `MonthlyReport` each
+      implement `#render` differently. Adding a new report type
+      means adding a new class with a `#render` method — no edits
+      to the caller.
 
-          - title: Demeter smell
-            kind: choice
-            difficulty: 2
-            prompt: |
-              Which of these expressions most strongly violates the Law
-              of Demeter ("talk only to your neighbors")?
-            choices:
-              a: 'order.customer.address.country.code'
-              b: 'order.total'
-              c: 'order.line_items.length'
-              d: 'order.confirm!'
-            correct_choice: a
+      ### Smell: `case … when SomeClass`
 
-          - title: Move the rule
-            kind: code
-            difficulty: 3
-            prompt: |
-              `apply_discount` currently reads `cart.subtotal` and
-              branches outside the cart. Add a `Cart#apply_discount`
-              method that subtracts 10% if subtotal ≥ 100, otherwise
-              leaves it alone. The method should return the final
-              total. Then `apply_discount(cart)` becomes a one-liner.
-            starter_code: |
-              class Cart
-                attr_accessor :subtotal
-                def initialize(subtotal); @subtotal = subtotal; end
-              end
+      A `case` (or `if`) that switches on `is_a?` or class names is
+      almost always a duck type waiting to be extracted. Each branch
+      can become a method on the object itself.
 
-              def apply_discount(cart)
-                if cart.subtotal >= 100
-                  cart.subtotal = cart.subtotal * 0.9
-                end
-                cart.subtotal
-              end
-            solution: |
-              class Cart
-                attr_accessor :subtotal
-                def initialize(subtotal); @subtotal = subtotal; end
+      ### Recognizing ducks
 
-                def apply_discount
-                  @subtotal = @subtotal * 0.9 if @subtotal >= 100
-                  @subtotal
-                end
-              end
+      Look for clusters where:
 
-              def apply_discount(cart)
-                cart.apply_discount
-              end
-            spec_code: |
-              c = Cart.new(200)
-              raise unless apply_discount(c) == 180.0
-              raise unless c.subtotal == 180.0
+      - Multiple classes implement the **same method** with the same
+        shape (`#render`, `#price`, `#deliver`).
+      - Callers have to **branch** based on which class came in.
+      - You feel the urge to add an `if` to support a new type.
 
-              c2 = Cart.new(50)
-              raise unless apply_discount(c2) == 50
-              raise unless c2.subtotal == 50
+      Each cluster is a duck type. Name it (e.g. "Printable") and
+      let polymorphism do the work.
+    activities:
+    - title: case-when-class smell
+      kind: choice
+      difficulty: 2
+      prompt: 'You see `case x when SomeClass`. It usually signals…
 
-  - slug: duck-typing
-    name: Duck Typing
-    overview: |
-      Don't ask "what class is this?" — ask "what messages does it
-      respond to?". If many classes share a method, that method is a
-      duck type waiting to be named.
-    lessons:
-      - slug: spot-the-duck
-        title: Find the duck
-        body: |
-          ## Duck typing
+'
+      choices:
+        a: A missing private method.
+        b: A duck type — every branch can become a method on the object.
+        c: A circular require.
+        d: Ruby being slow.
+      correct_choice: b
+    - title: Find a duck name
+      kind: choice
+      difficulty: 2
+      prompt: |
+        Three classes — `Email`, `Sms`, `PushNotification` — each
+        implement `#deliver(message)`. What's the *role* (duck
+        type) they share?
+      choices:
+        a: Message
+        b: Channel — anything that knows how to deliver a message.
+        c: EmailLike
+        d: Sender
+      correct_choice: b
+    - title: Replace the case
+      kind: code
+      difficulty: 3
+      prompt: |
+        `total(items)` switches on class to compute prices.
+        Refactor each item class to define its own `price` method,
+        then `total(items)` should just `sum(&:price)`.
+      starter_code: |
+        class Apple
+          def initialize(weight); @weight = weight; end
+          attr_reader :weight
+        end
 
-          ### The dictionary definition
+        class Book
+          def initialize(price); @price = price; end
+          attr_reader :price
+        end
 
-          > If it walks like a duck and quacks like a duck, it's a duck.
-
-          In static languages, you declare types — `String`, `Integer`,
-          `Customer`. In Ruby, what matters at runtime is **what messages
-          an object responds to**, not what class it belongs to. Any
-          object that responds to `each` can be iterated; any object
-          that responds to `to_s` can be printed. That's duck typing.
-
-          ### What it looks like
-
-          Compare two ways of writing the same code.
-
-          **Without duck typing**, you switch on class:
-
-          ```ruby
-          def render(report)
-            case report
-            when DailyReport   then DailyRenderer.new.render(report)
-            when WeeklyReport  then WeeklyRenderer.new.render(report)
-            when MonthlyReport then MonthlyRenderer.new.render(report)
+        def total(items)
+          items.sum do |item|
+            case item
+            when Apple then item.weight * 2
+            when Book  then item.price
             end
           end
-          ```
+        end
+      solution: |
+        class Apple
+          def initialize(weight); @weight = weight; end
+          def price; @weight * 2; end
+        end
 
-          Every new report type means editing `render`.
+        class Book
+          def initialize(price); @price = price; end
+          attr_reader :price
+        end
 
-          **With duck typing**, ask each report to render itself:
+        def total(items)
+          items.sum(&:price)
+        end
+      spec_code: |
+        items = [Apple.new(3), Book.new(10), Apple.new(2)]
+        raise unless total(items) == 3 * 2 + 10 + 2 * 2
+  position: 4
+- slug: inheritance
+  name: Inheritance
+  overview: |
+    Classical inheritance models IS-A relationships. The parent
+    describes the algorithm; subclasses specialize the parts that
+    differ.
+  lessons:
+  - slug: template-method
+    title: Template method
+    body: |
+      ## Template method
 
-          ```ruby
-          def render(report)
-            report.render
+      ### The idea
+
+      Inheritance is most useful when a family of classes shares the
+      **shape** of an algorithm, but differs in one or two specific
+      steps.
+
+      The Template Method pattern captures this: the parent defines
+      the algorithm and reserves "slots" — methods that subclasses
+      must implement. The parent guarantees the structure; the
+      subclass fills in the details.
+
+      ### Concrete example
+
+      ```ruby
+      class Report
+        def render
+          "#{header}\n#{body}\n#{footer}"
+        end
+
+        def header; "REPORT"; end
+        def footer; "-- end --"; end
+
+        def body
+          raise NotImplementedError, "#{self.class} must implement #body"
+        end
+      end
+      ```
+
+      Notice three things:
+
+      1. `render` defines the **algorithm**: header, body, footer.
+      2. `header` and `footer` have **safe defaults** that
+         subclasses can keep or override.
+      3. `body` is **unimplemented** — it raises. This is the
+         "contract": "I, the parent, won't render unless my child
+         tells me what the body is."
+
+      ### A subclass
+
+      ```ruby
+      class SalesReport < Report
+        def body
+          "sales were up 12%"
+        end
+      end
+
+      SalesReport.new.render
+      # => "REPORT\nsales were up 12%\n-- end --"
+      ```
+
+      The subclass only had to provide `body`. It inherited the
+      algorithm structure plus the default header/footer for free.
+
+      ### Why `raise NotImplementedError`?
+
+      Without the raise, a subclass that forgot to implement `body`
+      would silently return `nil`, and your report would render
+      weirdly with a blank line in the middle. With the raise, the
+      mistake is caught loudly: "you forgot to implement body".
+
+      ### When to reach for inheritance
+
+      Use inheritance only when the relationship is genuinely
+      "*is-a*": `SalesReport` *is a* `Report`. If you're using it
+      just to share code, prefer composition (next module) or a
+      module (later).
+
+      ### Naming heuristic
+
+      You can usually spot template-method opportunities by
+      looking at a method that has three to five small steps and
+      one or two of those steps vary by use case. Pull the
+      framework into a parent, hand the variable steps to
+      subclasses.
+    activities:
+    - title: Implement a subclass
+      kind: code
+      difficulty: 2
+      prompt: |
+        Given the `Report` parent below, write a `SalesReport`
+        subclass that returns `"sales were up 12%"` from `#body`.
+        `Report#render` should already produce the full string.
+      starter_code: |
+        class Report
+          def render
+            "#{header}\n#{body}\n#{footer}"
           end
-          ```
-
-          Now `DailyReport`, `WeeklyReport`, `MonthlyReport` each
-          implement `#render` differently. Adding a new report type
-          means adding a new class with a `#render` method — no edits
-          to the caller.
-
-          ### Smell: `case … when SomeClass`
-
-          A `case` (or `if`) that switches on `is_a?` or class names is
-          almost always a duck type waiting to be extracted. Each branch
-          can become a method on the object itself.
-
-          ### Recognizing ducks
-
-          Look for clusters where:
-
-          - Multiple classes implement the **same method** with the same
-            shape (`#render`, `#price`, `#deliver`).
-          - Callers have to **branch** based on which class came in.
-          - You feel the urge to add an `if` to support a new type.
-
-          Each cluster is a duck type. Name it (e.g. "Printable") and
-          let polymorphism do the work.
-
-        activities:
-          - title: case-when-class smell
-            kind: choice
-            difficulty: 2
-            prompt: |
-              You see `case x when SomeClass`. It usually signals…
-            choices:
-              a: 'A missing private method.'
-              b: 'A duck type — every branch can become a method on the object.'
-              c: 'A circular require.'
-              d: 'Ruby being slow.'
-            correct_choice: b
-
-          - title: Find a duck name
-            kind: choice
-            difficulty: 2
-            prompt: |
-              Three classes — `Email`, `Sms`, `PushNotification` — each
-              implement `#deliver(message)`. What's the *role* (duck
-              type) they share?
-            choices:
-              a: 'Message'
-              b: 'Channel — anything that knows how to deliver a message.'
-              c: 'EmailLike'
-              d: 'Sender'
-            correct_choice: b
-
-          - title: Replace the case
-            kind: code
-            difficulty: 3
-            prompt: |
-              `total(items)` switches on class to compute prices.
-              Refactor each item class to define its own `price` method,
-              then `total(items)` should just `sum(&:price)`.
-            starter_code: |
-              class Apple
-                def initialize(weight); @weight = weight; end
-                attr_reader :weight
-              end
-
-              class Book
-                def initialize(price); @price = price; end
-                attr_reader :price
-              end
-
-              def total(items)
-                items.sum do |item|
-                  case item
-                  when Apple then item.weight * 2
-                  when Book  then item.price
-                  end
-                end
-              end
-            solution: |
-              class Apple
-                def initialize(weight); @weight = weight; end
-                def price; @weight * 2; end
-              end
-
-              class Book
-                def initialize(price); @price = price; end
-                attr_reader :price
-              end
-
-              def total(items)
-                items.sum(&:price)
-              end
-            spec_code: |
-              items = [Apple.new(3), Book.new(10), Apple.new(2)]
-              raise unless total(items) == 3 * 2 + 10 + 2 * 2
-
-  - slug: inheritance
-    name: Inheritance
-    overview: |
-      Classical inheritance models IS-A relationships. The parent
-      describes the algorithm; subclasses specialize the parts that
-      differ.
-    lessons:
-      - slug: template-method
-        title: Template method
-        body: |
-          ## Template method
-
-          ### The idea
-
-          Inheritance is most useful when a family of classes shares the
-          **shape** of an algorithm, but differs in one or two specific
-          steps.
-
-          The Template Method pattern captures this: the parent defines
-          the algorithm and reserves "slots" — methods that subclasses
-          must implement. The parent guarantees the structure; the
-          subclass fills in the details.
-
-          ### Concrete example
-
-          ```ruby
-          class Report
-            def render
-              "#{header}\n#{body}\n#{footer}"
-            end
-
-            def header; "REPORT"; end
-            def footer; "-- end --"; end
-
-            def body
-              raise NotImplementedError, "#{self.class} must implement #body"
-            end
+          def header; "REPORT"; end
+          def footer; "-- end --"; end
+          def body
+            raise NotImplementedError
           end
-          ```
+        end
 
-          Notice three things:
-
-          1. `render` defines the **algorithm**: header, body, footer.
-          2. `header` and `footer` have **safe defaults** that
-             subclasses can keep or override.
-          3. `body` is **unimplemented** — it raises. This is the
-             "contract": "I, the parent, won't render unless my child
-             tells me what the body is."
-
-          ### A subclass
-
-          ```ruby
-          class SalesReport < Report
-            def body
-              "sales were up 12%"
-            end
+        # write SalesReport here
+      solution: |
+        class Report
+          def render
+            "#{header}\n#{body}\n#{footer}"
           end
+          def header; "REPORT"; end
+          def footer; "-- end --"; end
+          def body
+            raise NotImplementedError
+          end
+        end
 
-          SalesReport.new.render
-          # => "REPORT\nsales were up 12%\n-- end --"
-          ```
+        class SalesReport < Report
+          def body; "sales were up 12%"; end
+        end
+      spec_code: |
+        r = SalesReport.new
+        raise unless r.body == "sales were up 12%"
+        raise unless r.render == "REPORT\nsales were up 12%\n-- end --"
+    - title: Override the header
+      kind: code
+      difficulty: 3
+      prompt: |
+        Write `MarketingReport < Report` whose `#header` returns
+        `"MARKETING"` and `#body` returns `"signups doubled"`. The
+        full `#render` should produce
+        `"MARKETING\nsignups doubled\n-- end --"`.
+      starter_code: |
+        class Report
+          def render
+            "#{header}\n#{body}\n#{footer}"
+          end
+          def header; "REPORT"; end
+          def footer; "-- end --"; end
+          def body
+            raise NotImplementedError
+          end
+        end
 
-          The subclass only had to provide `body`. It inherited the
-          algorithm structure plus the default header/footer for free.
+        # write MarketingReport here
+      solution: |
+        class Report
+          def render
+            "#{header}\n#{body}\n#{footer}"
+          end
+          def header; "REPORT"; end
+          def footer; "-- end --"; end
+          def body
+            raise NotImplementedError
+          end
+        end
 
-          ### Why `raise NotImplementedError`?
+        class MarketingReport < Report
+          def header; "MARKETING"; end
+          def body;   "signups doubled"; end
+        end
+      spec_code: 'raise unless MarketingReport.new.render == "MARKETING\nsignups doubled\n--
+        end --"
 
-          Without the raise, a subclass that forgot to implement `body`
-          would silently return `nil`, and your report would render
-          weirdly with a blank line in the middle. With the raise, the
-          mistake is caught loudly: "you forgot to implement body".
+'
+    - title: The contract method
+      kind: choice
+      difficulty: 2
+      prompt: |
+        In a template-method parent class, why does the
+        unimplemented method `raise NotImplementedError` instead
+        of returning `nil`?
+      choices:
+        a: It runs faster.
+        b: It documents the contract — and makes a forgotten subclass implementation
+          fail loudly instead of silently.
+        c: Ruby requires it.
+        d: It triggers garbage collection.
+      correct_choice: b
+  position: 5
+- slug: composition
+  name: Composition
+  overview: |
+    Composition models HAS-A. Objects collaborate by holding references
+    to other objects. Prefer composition unless there's a true IS-A
+    relationship.
+  lessons:
+  - slug: composition-over-inheritance
+    title: Composition over inheritance
+    body: |
+      ## Composition over inheritance
 
-          ### When to reach for inheritance
+      ### Two ways to share behavior
 
-          Use inheritance only when the relationship is genuinely
-          "*is-a*": `SalesReport` *is a* `Report`. If you're using it
-          just to share code, prefer composition (next module) or a
-          module (later).
+      Suppose you're building a checkout flow with several pricing
+      strategies — fixed price, taxed, volume-discounted. There are
+      two common ways to share behavior:
 
-          ### Naming heuristic
+      **Inheritance**: `TaxedOrder < Order`. Every taxed order *is*
+      an order, with tax behavior added.
 
-          You can usually spot template-method opportunities by
-          looking at a method that has three to five small steps and
-          one or two of those steps vary by use case. Pull the
-          framework into a parent, hand the variable steps to
-          subclasses.
+      **Composition**: `Order` holds a *pricer*. The pricer
+      calculates the total. Swap the pricer and the calculation
+      changes; the Order doesn't.
 
-        activities:
-          - title: Implement a subclass
-            kind: code
-            difficulty: 2
-            prompt: |
-              Given the `Report` parent below, write a `SalesReport`
-              subclass that returns `"sales were up 12%"` from `#body`.
-              `Report#render` should already produce the full string.
-            starter_code: |
-              class Report
-                def render
-                  "#{header}\n#{body}\n#{footer}"
-                end
-                def header; "REPORT"; end
-                def footer; "-- end --"; end
-                def body
-                  raise NotImplementedError
-                end
-              end
+      Both work for small examples. Composition tends to scale
+      better.
 
-              # write SalesReport here
-            solution: |
-              class Report
-                def render
-                  "#{header}\n#{body}\n#{footer}"
-                end
-                def header; "REPORT"; end
-                def footer; "-- end --"; end
-                def body
-                  raise NotImplementedError
-                end
-              end
+      ### Why composition usually wins
 
-              class SalesReport < Report
-                def body; "sales were up 12%"; end
-              end
-            spec_code: |
-              r = SalesReport.new
-              raise unless r.body == "sales were up 12%"
-              raise unless r.render == "REPORT\nsales were up 12%\n-- end --"
+      Inheritance is rigid: an object is either a `TaxedOrder` or
+      not, forever. If next month you need "taxed AND
+      volume-discounted", you're stuck building a combinatorial
+      tower of subclasses (`TaxedDiscountedOrder`,
+      `TaxedDiscountedPrimeOrder`, …).
 
-          - title: Override the header
-            kind: code
-            difficulty: 3
-            prompt: |
-              Write `MarketingReport < Report` whose `#header` returns
-              `"MARKETING"` and `#body` returns `"signups doubled"`. The
-              full `#render` should produce
-              `"MARKETING\nsignups doubled\n-- end --"`.
-            starter_code: |
-              class Report
-                def render
-                  "#{header}\n#{body}\n#{footer}"
-                end
-                def header; "REPORT"; end
-                def footer; "-- end --"; end
-                def body
-                  raise NotImplementedError
-                end
-              end
+      Composition is flexible: an `Order` can hold *any* pricer —
+      fixed, taxed, discounted, or one you write today that combines
+      two others. The structure of `Order` doesn't change.
 
-              # write MarketingReport here
-            solution: |
-              class Report
-                def render
-                  "#{header}\n#{body}\n#{footer}"
-                end
-                def header; "REPORT"; end
-                def footer; "-- end --"; end
-                def body
-                  raise NotImplementedError
-                end
-              end
+      ### A concrete example
 
-              class MarketingReport < Report
-                def header; "MARKETING"; end
-                def body;   "signups doubled"; end
-              end
-            spec_code: |
-              raise unless MarketingReport.new.render == "MARKETING\nsignups doubled\n-- end --"
+      ```ruby
+      class Order
+        def initialize(items:, pricer:)
+          @items, @pricer = items, pricer
+        end
 
-          - title: The contract method
-            kind: choice
-            difficulty: 2
-            prompt: |
-              In a template-method parent class, why does the
-              unimplemented method `raise NotImplementedError` instead
-              of returning `nil`?
-            choices:
-              a: 'It runs faster.'
-              b: 'It documents the contract — and makes a forgotten subclass implementation fail loudly instead of silently.'
-              c: 'Ruby requires it.'
-              d: 'It triggers garbage collection.'
-            correct_choice: b
+        def total
+          @pricer.total(@items)
+        end
+      end
 
-  - slug: composition
-    name: Composition
-    overview: |
-      Composition models HAS-A. Objects collaborate by holding references
-      to other objects. Prefer composition unless there's a true IS-A
-      relationship.
-    lessons:
-      - slug: composition-over-inheritance
-        title: Composition over inheritance
-        body: |
-          ## Composition over inheritance
+      class FixedPricer
+        def total(items)
+          items.sum { |i| i[:price] }
+        end
+      end
 
-          ### Two ways to share behavior
+      class TaxedPricer
+        def initialize(rate); @rate = rate; end
+        def total(items)
+          items.sum { |i| i[:price] } * (1 + @rate)
+        end
+      end
+      ```
 
-          Suppose you're building a checkout flow with several pricing
-          strategies — fixed price, taxed, volume-discounted. There are
-          two common ways to share behavior:
+      `Order` only knows it has *a pricer* — anything that responds
+      to `total(items)`. The pricer can be as simple or as smart as
+      you like. You can also compose pricers (e.g. a
+      `DiscountedPricer` that wraps another pricer).
 
-          **Inheritance**: `TaxedOrder < Order`. Every taxed order *is*
-          an order, with tax behavior added.
+      ### Has-a vs is-a
 
-          **Composition**: `Order` holds a *pricer*. The pricer
-          calculates the total. Swap the pricer and the calculation
-          changes; the Order doesn't.
+      The shorthand test: ask "is this new class a more specific
+      version of the parent, or does it just *have* one of those?".
 
-          Both work for small examples. Composition tends to scale
-          better.
+      - `Cat` *is a* `Animal`. → inheritance is fine.
+      - `Order` *has a* pricer. → composition.
+      - `Car` *has an* engine. → composition.
+      - `RoadBike` *is a* `Bicycle`. → either could work; composition
+        often wins long-term because it stays flexible.
 
-          ### Why composition usually wins
+      ### When to still reach for inheritance
 
-          Inheritance is rigid: an object is either a `TaxedOrder` or
-          not, forever. If next month you need "taxed AND
-          volume-discounted", you're stuck building a combinatorial
-          tower of subclasses (`TaxedDiscountedOrder`,
-          `TaxedDiscountedPrimeOrder`, …).
+      Inheritance is great when you have:
 
-          Composition is flexible: an `Order` can hold *any* pricer —
-          fixed, taxed, discounted, or one you write today that combines
-          two others. The structure of `Order` doesn't change.
+      - A real **is-a** relationship.
+      - A small (2-4) **closed** set of subclasses that won't
+        multiply.
+      - A clear template method or shared algorithm.
 
-          ### A concrete example
-
-          ```ruby
-          class Order
-            def initialize(items:, pricer:)
-              @items, @pricer = items, pricer
-            end
-
-            def total
-              @pricer.total(@items)
-            end
+      Outside those cases, composition usually keeps your design
+      friendlier to change.
+    activities:
+    - title: HAS-A vs IS-A
+      kind: choice
+      difficulty: 2
+      prompt: |
+        A `Car`, a `Truck`, and a `Bus` all have an engine and a
+        gearbox, but those parts differ. How should you model the
+        engine?
+      choices:
+        a: Superclass — Car IS-AN engine.
+        b: Composed object — Car HAS-AN engine. Inject the engine into Car.
+        c: Module mixed into every vehicle.
+        d: Singleton method on each instance.
+      correct_choice: b
+    - title: Swap the pricer
+      kind: code
+      difficulty: 3
+      prompt: |
+        Given the `Order` class below (which already takes a
+        pricer), write a `DiscountPricer.new(rate)` whose `#total`
+        applies a `(1 - rate)` discount to the sum of item
+        prices.
+      starter_code: |
+        class Order
+          def initialize(items:, pricer:)
+            @items, @pricer = items, pricer
           end
 
-          class FixedPricer
-            def total(items)
-              items.sum { |i| i[:price] }
-            end
+          def total
+            @pricer.total(@items)
+          end
+        end
+
+        class FixedPricer
+          def total(items); items.sum { |i| i[:price] }; end
+        end
+
+        # write DiscountPricer here
+      solution: |
+        class Order
+          def initialize(items:, pricer:)
+            @items, @pricer = items, pricer
           end
 
-          class TaxedPricer
-            def initialize(rate); @rate = rate; end
-            def total(items)
-              items.sum { |i| i[:price] } * (1 + @rate)
-            end
+          def total
+            @pricer.total(@items)
           end
-          ```
+        end
 
-          `Order` only knows it has *a pricer* — anything that responds
-          to `total(items)`. The pricer can be as simple or as smart as
-          you like. You can also compose pricers (e.g. a
-          `DiscountedPricer` that wraps another pricer).
+        class FixedPricer
+          def total(items); items.sum { |i| i[:price] }; end
+        end
 
-          ### Has-a vs is-a
-
-          The shorthand test: ask "is this new class a more specific
-          version of the parent, or does it just *have* one of those?".
-
-          - `Cat` *is a* `Animal`. → inheritance is fine.
-          - `Order` *has a* pricer. → composition.
-          - `Car` *has an* engine. → composition.
-          - `RoadBike` *is a* `Bicycle`. → either could work; composition
-            often wins long-term because it stays flexible.
-
-          ### When to still reach for inheritance
-
-          Inheritance is great when you have:
-
-          - A real **is-a** relationship.
-          - A small (2-4) **closed** set of subclasses that won't
-            multiply.
-          - A clear template method or shared algorithm.
-
-          Outside those cases, composition usually keeps your design
-          friendlier to change.
-
-        activities:
-          - title: HAS-A vs IS-A
-            kind: choice
-            difficulty: 2
-            prompt: |
-              A `Car`, a `Truck`, and a `Bus` all have an engine and a
-              gearbox, but those parts differ. How should you model the
-              engine?
-            choices:
-              a: 'Superclass — Car IS-AN engine.'
-              b: 'Composed object — Car HAS-AN engine. Inject the engine into Car.'
-              c: 'Module mixed into every vehicle.'
-              d: 'Singleton method on each instance.'
-            correct_choice: b
-
-          - title: Swap the pricer
-            kind: code
-            difficulty: 3
-            prompt: |
-              Given the `Order` class below (which already takes a
-              pricer), write a `DiscountPricer.new(rate)` whose `#total`
-              applies a `(1 - rate)` discount to the sum of item
-              prices.
-            starter_code: |
-              class Order
-                def initialize(items:, pricer:)
-                  @items, @pricer = items, pricer
-                end
-
-                def total
-                  @pricer.total(@items)
-                end
-              end
-
-              class FixedPricer
-                def total(items); items.sum { |i| i[:price] }; end
-              end
-
-              # write DiscountPricer here
-            solution: |
-              class Order
-                def initialize(items:, pricer:)
-                  @items, @pricer = items, pricer
-                end
-
-                def total
-                  @pricer.total(@items)
-                end
-              end
-
-              class FixedPricer
-                def total(items); items.sum { |i| i[:price] }; end
-              end
-
-              class DiscountPricer
-                def initialize(rate); @rate = rate; end
-                def total(items)
-                  items.sum { |i| i[:price] } * (1 - @rate)
-                end
-              end
-            spec_code: |
-              items = [{ price: 100 }, { price: 50 }]
-              raise unless Order.new(items: items, pricer: FixedPricer.new).total           == 150
-              raise unless Order.new(items: items, pricer: DiscountPricer.new(0.1)).total   == 135.0
-              raise unless Order.new(items: items, pricer: DiscountPricer.new(0.5)).total   == 75.0
-
-          - title: When inheritance still fits
-            kind: choice
-            difficulty: 3
-            prompt: |
-              Which of these is the strongest candidate for inheritance
-              rather than composition?
-            choices:
-              a: 'Three vehicle classes that each have a different engine.'
-              b: 'Four report formats that all follow the same render-header-body-footer algorithm with one varying body step.'
-              c: 'A checkout that needs to plug in a dozen pricing strategies over time.'
-              d: 'An audit log that should be optional on some entities.'
-            correct_choice: b
+        class DiscountPricer
+          def initialize(rate); @rate = rate; end
+          def total(items)
+            items.sum { |i| i[:price] } * (1 - @rate)
+          end
+        end
+      spec_code: |
+        items = [{ price: 100 }, { price: 50 }]
+        raise unless Order.new(items: items, pricer: FixedPricer.new).total           == 150
+        raise unless Order.new(items: items, pricer: DiscountPricer.new(0.1)).total   == 135.0
+        raise unless Order.new(items: items, pricer: DiscountPricer.new(0.5)).total   == 75.0
+    - title: When inheritance still fits
+      kind: choice
+      difficulty: 3
+      prompt: |
+        Which of these is the strongest candidate for inheritance
+        rather than composition?
+      choices:
+        a: Three vehicle classes that each have a different engine.
+        b: Four report formats that all follow the same render-header-body-footer
+          algorithm with one varying body step.
+        c: A checkout that needs to plug in a dozen pricing strategies over time.
+        d: An audit log that should be optional on some entities.
+      correct_choice: b
+  position: 6
