@@ -44,6 +44,8 @@
   description: Design rules that survive the next change — principles from Sandi Metz's
     POODR, taught with original examples.
   lessons:
+  - slug: defining-classes
+    title: Defining classes
   - slug: srp-violation
     title: Spotting an SRP violation
   - slug: extract-collaborator

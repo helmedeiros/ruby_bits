@@ -1,0 +1,157 @@
+---
+layout: "lesson"
+title: "oo-design/defining-classes"
+permalink: "/tracks/oo-design/defining-classes/"
+track: "oo-design"
+lesson_slug: "defining-classes"
+---
+{% assign track = site.data.tracks | where: "slug", "oo-design" | first %}
+<article class="lesson">
+  <nav class="crumbs"><a href="{{ site.baseurl }}/">RubyBits</a> / <a href="{{ site.baseurl }}/tracks/{{ track.slug }}/">{{ track.name }}</a> / <span>Defining classes</span></nav>
+  <h1>Defining classes</h1>
+  <div class="body markdown">
+{% capture lesson_body %}
+## Defining classes
+
+A **class** in Ruby groups data (instance variables) and behavior
+(methods) under one name. Every class you write follows the same
+shape.
+
+### Skeleton
+
+```ruby
+class Account
+  def initialize(balance)
+    @balance = balance
+  end
+
+  def deposit(amount)
+    @balance += amount
+  end
+
+  def balance
+    @balance
+  end
+end
+```
+
+Three things to notice:
+
+1. **`class Name`** opens a class definition. `Name` must start with
+   an uppercase letter — it's a constant.
+2. **`initialize`** is the special method Ruby calls when you write
+   `Account.new(...)`. Whatever args you pass to `new` get forwarded
+   to `initialize`.
+3. **`@balance`** is an instance variable — each `Account.new`
+   creates a fresh `@balance` on that object.
+
+### Creating and using instances
+
+```ruby
+acc = Account.new(100)   # calls initialize(100)
+acc.deposit(50)
+acc.balance              # => 150
+```
+
+`acc.deposit(50)` is Ruby's way of saying "send the `deposit`
+message to `acc` with the argument `50`."
+
+### Each instance has its own state
+
+```ruby
+a = Account.new(100)
+b = Account.new(0)
+a.deposit(50)
+a.balance    # => 150
+b.balance    # =>   0    (untouched)
+```
+
+Two instances of the same class hold independent `@balance` values.
+This is the whole point of OO: bundle data with the behavior that
+operates on it, and let each object hold its own data.
+
+### `attr_reader`, `attr_writer`, `attr_accessor`
+
+Writing `def balance; @balance; end` for every variable is tedious.
+The next lesson covers the shorthand.
+
+### Pitfall: typos in `@names`
+
+A misspelled `@balanace` doesn't raise — it just creates a new
+(always `nil`) instance variable. Watch for typos.
+{% endcapture %}
+{{ lesson_body | markdownify }}
+  </div>
+  <hr>
+  <h2>activities</h2>
+  <section class="activity activity-code" id="a-oo-design-defining-classes-1">
+    <header class="activity-head"><span class="badge">[ACTIVITY]</span> <h3>Build a Counter</h3></header>
+    <div class="prompt-block">
+{% capture p_oo_design_defining_classes_1 %}
+Define `Counter` with an `initialize` that starts at 0, a `tick` method that increments, and a `count` method that returns the current value.
+{% endcapture %}
+{{ p_oo_design_defining_classes_1 | markdownify }}
+    </div>
+    <form class="activity-form" data-kind="code" data-spec="c = Counter.new
+raise unless c.count == 0
+c.tick; c.tick; c.tick
+raise unless c.count == 3
+d = Counter.new
+raise unless d.count == 0  # independent state
+">
+      <textarea class="code-editor" rows="10">class Counter
+  # TODO
+end
+</textarea>
+      <div class="actions">
+        <button type="submit" class="btn run">» run</button>
+        <button type="button" class="btn reset">reset</button>
+      </div>
+      <div class="result" data-role="result"></div>
+    </form>
+  </section>
+  <section class="activity activity-choice" id="a-oo-design-defining-classes-2">
+    <header class="activity-head"><span class="badge">[ACTIVITY]</span> <h3>What does `new` call?</h3></header>
+    <div class="prompt-block">
+{% capture p_oo_design_defining_classes_2 %}
+When you write `Account.new(100)`, which method runs in your class?
+{% endcapture %}
+{{ p_oo_design_defining_classes_2 | markdownify }}
+    </div>
+    <form class="activity-form" data-kind="choice" data-correct="c">
+      <ul class="choices">
+        <li><label><input type="radio" name="choice-oo-design-defining-classes-2" value="a"> <span class="key">[a]</span> `new`</label></li>
+        <li><label><input type="radio" name="choice-oo-design-defining-classes-2" value="b"> <span class="key">[b]</span> `create`</label></li>
+        <li><label><input type="radio" name="choice-oo-design-defining-classes-2" value="c"> <span class="key">[c]</span> `initialize`</label></li>
+        <li><label><input type="radio" name="choice-oo-design-defining-classes-2" value="d"> <span class="key">[d]</span> `call`</label></li>
+      </ul>
+      <button type="submit" class="btn">» submit</button>
+      <div class="result" data-role="result"></div>
+    </form>
+  </section>
+  <section class="activity activity-code" id="a-oo-design-defining-classes-3">
+    <header class="activity-head"><span class="badge">[ACTIVITY]</span> <h3>A Wallet that withdraws</h3></header>
+    <div class="prompt-block">
+{% capture p_oo_design_defining_classes_3 %}
+Define `Wallet` with an initial `@balance`. Implement `withdraw(amount)` that subtracts from the balance (any amount, no validation here) and returns the new balance.
+{% endcapture %}
+{{ p_oo_design_defining_classes_3 | markdownify }}
+    </div>
+    <form class="activity-form" data-kind="code" data-spec="w = Wallet.new(100)
+raise unless w.balance == 100
+raise unless w.withdraw(30) == 70
+raise unless w.balance == 70
+raise unless w.withdraw(70) == 0
+">
+      <textarea class="code-editor" rows="10">class Wallet
+  # TODO
+end
+</textarea>
+      <div class="actions">
+        <button type="submit" class="btn run">» run</button>
+        <button type="button" class="btn reset">reset</button>
+      </div>
+      <div class="result" data-role="result"></div>
+    </form>
+  </section>
+</article>
