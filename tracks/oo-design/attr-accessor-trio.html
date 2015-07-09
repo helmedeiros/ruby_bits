@@ -1,0 +1,183 @@
+---
+layout: "lesson"
+title: "oo-design/attr-accessor-trio"
+permalink: "/tracks/oo-design/attr-accessor-trio/"
+track: "oo-design"
+lesson_slug: "attr-accessor-trio"
+---
+{% assign track = site.data.tracks | where: "slug", "oo-design" | first %}
+<article class="lesson">
+  <nav class="crumbs"><a href="{{ site.baseurl }}/">RubyBits</a> / <a href="{{ site.baseurl }}/tracks/{{ track.slug }}/">{{ track.name }}</a> / <span>attr_reader, attr_writer, attr_accessor</span></nav>
+  <h1>attr_reader, attr_writer, attr_accessor</h1>
+  <div class="body markdown">
+{% capture lesson_body %}
+## attr_accessor, attr_reader, attr_writer
+
+Writing `def balance; @balance; end` (and the matching `=` writer) for
+every instance variable gets tedious fast. Ruby gives you three
+shorthands that generate these methods for you.
+
+### `attr_reader` — read-only
+
+Generates a getter:
+
+```ruby
+class Account
+  attr_reader :balance
+
+  def initialize(balance)
+    @balance = balance
+  end
+end
+
+a = Account.new(100)
+a.balance        # => 100
+a.balance = 50   # NoMethodError — no setter
+```
+
+Use this when callers should be able to *see* the value but not
+change it directly. Mutation should happen through deliberate methods
+(`deposit`, `withdraw`), not by overwriting state.
+
+### `attr_writer` — write-only
+
+Generates a setter:
+
+```ruby
+class Logger
+  attr_writer :level
+end
+
+l = Logger.new
+l.level = :debug    # works
+l.level             # NoMethodError — no getter
+```
+
+Used much less often than `attr_reader`.
+
+### `attr_accessor` — both
+
+Both getter and setter:
+
+```ruby
+class User
+  attr_accessor :name
+end
+
+u = User.new
+u.name = "alice"
+u.name              # => "alice"
+```
+
+### Use the strictest one that works
+
+If callers should only *read*, use `attr_reader`. If they need to
+*write*, use `attr_accessor`. Don't reach for `attr_accessor`
+reflexively — it gives callers permission to change state, which
+spreads responsibility.
+
+### Multiple at once
+
+All three accept several symbols:
+
+```ruby
+attr_reader :name, :email, :role
+attr_accessor :active, :verified
+```
+
+### Pitfall: inside the class, prefer the accessor
+
+Once you have `attr_reader :balance`, code inside the class can call
+`balance` instead of `@balance`. The advantage: if you later change
+how `balance` is computed (e.g. add caching, or compute from other
+fields), you only change the `balance` method — every internal user
+follows along.
+{% endcapture %}
+{{ lesson_body | markdownify }}
+  </div>
+  <hr>
+  <h2>activities</h2>
+  <section class="activity activity-code" id="a-oo-design-attr-accessor-trio-1">
+    <header class="activity-head"><span class="badge">[ACTIVITY]</span> <h3>Read-only balance</h3></header>
+    <div class="prompt-block">
+{% capture p_oo_design_attr_accessor_trio_1 %}
+Define `Account` with a read-only `balance` (set via initialize) and a `deposit(amount)` method that adds to the internal balance. Trying to call `account.balance = 0` from outside should raise NoMethodError.
+{% endcapture %}
+{{ p_oo_design_attr_accessor_trio_1 | markdownify }}
+    </div>
+    <form class="activity-form" data-kind="code" data-spec="a = Account.new(100)
+raise unless a.balance == 100
+a.deposit(50)
+raise unless a.balance == 150
+begin
+  a.balance = 0
+  raise &quot;setter should not exist&quot;
+rescue NoMethodError
+  :ok
+end
+">
+      <textarea class="code-editor" rows="10">class Account
+  # TODO
+  def initialize(balance)
+    @balance = balance
+  end
+
+  def deposit(amount)
+    @balance += amount
+  end
+end
+</textarea>
+      <div class="actions">
+        <button type="submit" class="btn run">» run</button>
+        <button type="button" class="btn reset">reset</button>
+      </div>
+      <div class="result" data-role="result"></div>
+    </form>
+  </section>
+  <section class="activity activity-choice" id="a-oo-design-attr-accessor-trio-2">
+    <header class="activity-head"><span class="badge">[ACTIVITY]</span> <h3>Pick the strictest</h3></header>
+    <div class="prompt-block">
+{% capture p_oo_design_attr_accessor_trio_2 %}
+You need callers to *read* a value but never overwrite it directly. Which is the right choice?
+{% endcapture %}
+{{ p_oo_design_attr_accessor_trio_2 | markdownify }}
+    </div>
+    <form class="activity-form" data-kind="choice" data-correct="b">
+      <ul class="choices">
+        <li><label><input type="radio" name="choice-oo-design-attr-accessor-trio-2" value="a"> <span class="key">[a]</span> attr_writer</label></li>
+        <li><label><input type="radio" name="choice-oo-design-attr-accessor-trio-2" value="b"> <span class="key">[b]</span> attr_reader</label></li>
+        <li><label><input type="radio" name="choice-oo-design-attr-accessor-trio-2" value="c"> <span class="key">[c]</span> attr_accessor</label></li>
+        <li><label><input type="radio" name="choice-oo-design-attr-accessor-trio-2" value="d"> <span class="key">[d]</span> No accessor — keep it as a bare @ivar</label></li>
+      </ul>
+      <button type="submit" class="btn">» submit</button>
+      <div class="result" data-role="result"></div>
+    </form>
+  </section>
+  <section class="activity activity-code" id="a-oo-design-attr-accessor-trio-3">
+    <header class="activity-head"><span class="badge">[ACTIVITY]</span> <h3>Editable User</h3></header>
+    <div class="prompt-block">
+{% capture p_oo_design_attr_accessor_trio_3 %}
+Define `User` with `attr_accessor` for both `name` and `email`. Initialize them via keyword args.
+{% endcapture %}
+{{ p_oo_design_attr_accessor_trio_3 | markdownify }}
+    </div>
+    <form class="activity-form" data-kind="code" data-spec="u = User.new(name: &quot;alice&quot;, email: &quot;a@x&quot;)
+raise unless u.name == &quot;alice&quot;
+raise unless u.email == &quot;a@x&quot;
+u.name = &quot;bob&quot;
+u.email = &quot;b@y&quot;
+raise unless u.name == &quot;bob&quot;
+raise unless u.email == &quot;b@y&quot;
+">
+      <textarea class="code-editor" rows="10">class User
+  # TODO
+end
+</textarea>
+      <div class="actions">
+        <button type="submit" class="btn run">» run</button>
+        <button type="button" class="btn reset">reset</button>
+      </div>
+      <div class="result" data-role="result"></div>
+    </form>
+  </section>
+</article>

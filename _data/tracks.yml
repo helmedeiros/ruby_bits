@@ -46,6 +46,8 @@
   lessons:
   - slug: defining-classes
     title: Defining classes
+  - slug: attr-accessor-trio
+    title: attr_reader, attr_writer, attr_accessor
   - slug: srp-violation
     title: Spotting an SRP violation
   - slug: extract-collaborator
