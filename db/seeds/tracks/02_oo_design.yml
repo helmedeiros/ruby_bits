@@ -154,6 +154,167 @@ modules:
         raise unless w.withdraw(30) == 70
         raise unless w.balance == 70
         raise unless w.withdraw(70) == 0
+  - slug: attr-accessor-trio
+    title: attr_reader, attr_writer, attr_accessor
+    body: |
+      ## attr_accessor, attr_reader, attr_writer
+
+      Writing `def balance; @balance; end` (and the matching `=` writer) for
+      every instance variable gets tedious fast. Ruby gives you three
+      shorthands that generate these methods for you.
+
+      ### `attr_reader` — read-only
+
+      Generates a getter:
+
+      ```ruby
+      class Account
+        attr_reader :balance
+
+        def initialize(balance)
+          @balance = balance
+        end
+      end
+
+      a = Account.new(100)
+      a.balance        # => 100
+      a.balance = 50   # NoMethodError — no setter
+      ```
+
+      Use this when callers should be able to *see* the value but not
+      change it directly. Mutation should happen through deliberate methods
+      (`deposit`, `withdraw`), not by overwriting state.
+
+      ### `attr_writer` — write-only
+
+      Generates a setter:
+
+      ```ruby
+      class Logger
+        attr_writer :level
+      end
+
+      l = Logger.new
+      l.level = :debug    # works
+      l.level             # NoMethodError — no getter
+      ```
+
+      Used much less often than `attr_reader`.
+
+      ### `attr_accessor` — both
+
+      Both getter and setter:
+
+      ```ruby
+      class User
+        attr_accessor :name
+      end
+
+      u = User.new
+      u.name = "alice"
+      u.name              # => "alice"
+      ```
+
+      ### Use the strictest one that works
+
+      If callers should only *read*, use `attr_reader`. If they need to
+      *write*, use `attr_accessor`. Don't reach for `attr_accessor`
+      reflexively — it gives callers permission to change state, which
+      spreads responsibility.
+
+      ### Multiple at once
+
+      All three accept several symbols:
+
+      ```ruby
+      attr_reader :name, :email, :role
+      attr_accessor :active, :verified
+      ```
+
+      ### Pitfall: inside the class, prefer the accessor
+
+      Once you have `attr_reader :balance`, code inside the class can call
+      `balance` instead of `@balance`. The advantage: if you later change
+      how `balance` is computed (e.g. add caching, or compute from other
+      fields), you only change the `balance` method — every internal user
+      follows along.
+    activities:
+    - title: Read-only balance
+      kind: code
+      difficulty: 1
+      prompt: Define `Account` with a read-only `balance` (set via initialize) and
+        a `deposit(amount)` method that adds to the internal balance. Trying to call
+        `account.balance = 0` from outside should raise NoMethodError.
+      starter_code: |
+        class Account
+          # TODO
+          def initialize(balance)
+            @balance = balance
+          end
+
+          def deposit(amount)
+            @balance += amount
+          end
+        end
+      solution: |
+        class Account
+          attr_reader :balance
+
+          def initialize(balance)
+            @balance = balance
+          end
+
+          def deposit(amount)
+            @balance += amount
+          end
+        end
+      spec_code: |
+        a = Account.new(100)
+        raise unless a.balance == 100
+        a.deposit(50)
+        raise unless a.balance == 150
+        begin
+          a.balance = 0
+          raise "setter should not exist"
+        rescue NoMethodError
+          :ok
+        end
+    - title: Pick the strictest
+      kind: choice
+      difficulty: 2
+      prompt: You need callers to *read* a value but never overwrite it directly.
+        Which is the right choice?
+      choices:
+        a: attr_writer
+        b: attr_reader
+        c: attr_accessor
+        d: No accessor — keep it as a bare @ivar
+      correct_choice: b
+    - title: Editable User
+      kind: code
+      difficulty: 2
+      prompt: Define `User` with `attr_accessor` for both `name` and `email`. Initialize
+        them via keyword args.
+      starter_code: |
+        class User
+          # TODO
+        end
+      solution: |
+        class User
+          attr_accessor :name, :email
+
+          def initialize(name:, email:)
+            @name, @email = name, email
+          end
+        end
+      spec_code: |
+        u = User.new(name: "alice", email: "a@x")
+        raise unless u.name == "alice"
+        raise unless u.email == "a@x"
+        u.name = "bob"
+        u.email = "b@y"
+        raise unless u.name == "bob"
+        raise unless u.email == "b@y"
   position: 0
 - slug: single-responsibility
   name: Single Responsibility
