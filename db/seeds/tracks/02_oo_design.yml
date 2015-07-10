@@ -315,6 +315,161 @@ modules:
         u.email = "b@y"
         raise unless u.name == "bob"
         raise unless u.email == "b@y"
+  - slug: instance-vs-class-methods
+    title: Instance vs class methods
+    body: |
+      ## Instance methods vs class methods
+
+      ### Two kinds of methods
+
+      A class can define two kinds of method:
+
+      - **Instance methods** — called on an *instance* of the class.
+      - **Class methods** — called on the *class itself*.
+
+      ```ruby
+      class Account
+        def deposit(amount)   # instance method
+          @balance += amount
+        end
+
+        def self.zero         # class method — note the `self.`
+          Account.new(0)
+        end
+      end
+
+      a = Account.zero        # class method on the class
+      a.deposit(50)           # instance method on the instance
+      ```
+
+      ### Why two kinds?
+
+      - **Instance methods** operate on the state of *one specific
+        object*. They use `@balance`, `@email`, etc.
+      - **Class methods** don't depend on a specific instance. They build
+        new objects, look up things by attribute, or expose data about the
+        class as a whole.
+
+      Common class-method patterns:
+
+      ```ruby
+      Order.find(42)              # look up by id — returns an Order
+      Order.pending               # all pending orders
+      Order.from_csv(line)        # factory: build from raw data
+      ```
+
+      ### Syntax choices
+
+      Three ways to write class methods — pick one and be consistent:
+
+      ```ruby
+      class Foo
+        def self.greet; "hi"; end          # most common
+      end
+
+      class Foo
+        def Foo.greet; "hi"; end           # rare — repeats the class name
+      end
+
+      class Foo
+        class << self
+          def greet; "hi"; end             # for many class methods at once
+        end
+      end
+      ```
+
+      ### Pitfall: `self` inside a class method
+
+      Inside a class method, `self` IS the class — so `self.new` builds an
+      instance:
+
+      ```ruby
+      class Account
+        def self.zero
+          self.new(0)   # or just `new(0)`
+        end
+      end
+      ```
+
+      This is what makes class methods inheritable: subclasses get the
+      same factory behavior automatically.
+    activities:
+    - title: Factory method
+      kind: code
+      difficulty: 2
+      prompt: Define `Counter` with `attr_reader :count` and a class method `Counter.starting_at(n)`
+        that returns a new Counter whose `count` is `n`.
+      starter_code: |
+        class Counter
+          attr_reader :count
+
+          def initialize(count = 0)
+            @count = count
+          end
+
+          # TODO: define the class method
+        end
+      solution: |
+        class Counter
+          attr_reader :count
+
+          def initialize(count = 0)
+            @count = count
+          end
+
+          def self.starting_at(n)
+            new(n)
+          end
+        end
+      spec_code: |
+        c = Counter.starting_at(7)
+        raise unless c.count == 7
+        raise unless c.is_a?(Counter)
+        d = Counter.starting_at(0)
+        raise unless d.count == 0
+    - title: Class method or instance method?
+      kind: choice
+      difficulty: 1
+      prompt: Which call goes on the *class*, not an *instance*?
+      choices:
+        a: order.confirm!
+        b: order.total
+        c: Order.find(42)
+        d: order.shipped?
+      correct_choice: c
+    - title: Per-instance state
+      kind: code
+      difficulty: 2
+      prompt: Define `Wallet` with a class method `Wallet.empty` (returns a Wallet
+        with balance 0) and an instance method `deposit(amount)` adding to `@balance`.
+        Two wallets must not share state.
+      starter_code: |
+        class Wallet
+          attr_reader :balance
+          # TODO
+        end
+      solution: |
+        class Wallet
+          attr_reader :balance
+
+          def initialize(balance = 0)
+            @balance = balance
+          end
+
+          def self.empty
+            new(0)
+          end
+
+          def deposit(amount)
+            @balance += amount
+          end
+        end
+      spec_code: |
+        a = Wallet.empty
+        b = Wallet.empty
+        a.deposit(100)
+        raise unless a.balance == 100
+        raise unless b.balance == 0   # independent
   position: 0
 - slug: single-responsibility
   name: Single Responsibility
