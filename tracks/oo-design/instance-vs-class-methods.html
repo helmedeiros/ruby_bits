@@ -1,0 +1,170 @@
+---
+layout: "lesson"
+title: "oo-design/instance-vs-class-methods"
+permalink: "/tracks/oo-design/instance-vs-class-methods/"
+track: "oo-design"
+lesson_slug: "instance-vs-class-methods"
+---
+{% assign track = site.data.tracks | where: "slug", "oo-design" | first %}
+<article class="lesson">
+  <nav class="crumbs"><a href="{{ site.baseurl }}/">RubyBits</a> / <a href="{{ site.baseurl }}/tracks/{{ track.slug }}/">{{ track.name }}</a> / <span>Instance vs class methods</span></nav>
+  <h1>Instance vs class methods</h1>
+  <div class="body markdown">
+{% capture lesson_body %}
+## Instance methods vs class methods
+
+### Two kinds of methods
+
+A class can define two kinds of method:
+
+- **Instance methods** — called on an *instance* of the class.
+- **Class methods** — called on the *class itself*.
+
+```ruby
+class Account
+  def deposit(amount)   # instance method
+    @balance += amount
+  end
+
+  def self.zero         # class method — note the `self.`
+    Account.new(0)
+  end
+end
+
+a = Account.zero        # class method on the class
+a.deposit(50)           # instance method on the instance
+```
+
+### Why two kinds?
+
+- **Instance methods** operate on the state of *one specific
+  object*. They use `@balance`, `@email`, etc.
+- **Class methods** don't depend on a specific instance. They build
+  new objects, look up things by attribute, or expose data about the
+  class as a whole.
+
+Common class-method patterns:
+
+```ruby
+Order.find(42)              # look up by id — returns an Order
+Order.pending               # all pending orders
+Order.from_csv(line)        # factory: build from raw data
+```
+
+### Syntax choices
+
+Three ways to write class methods — pick one and be consistent:
+
+```ruby
+class Foo
+  def self.greet; "hi"; end          # most common
+end
+
+class Foo
+  def Foo.greet; "hi"; end           # rare — repeats the class name
+end
+
+class Foo
+  class << self
+    def greet; "hi"; end             # for many class methods at once
+  end
+end
+```
+
+### Pitfall: `self` inside a class method
+
+Inside a class method, `self` IS the class — so `self.new` builds an
+instance:
+
+```ruby
+class Account
+  def self.zero
+    self.new(0)   # or just `new(0)`
+  end
+end
+```
+
+This is what makes class methods inheritable: subclasses get the
+same factory behavior automatically.
+{% endcapture %}
+{{ lesson_body | markdownify }}
+  </div>
+  <hr>
+  <h2>activities</h2>
+  <section class="activity activity-code" id="a-oo-design-instance-vs-class-methods-1">
+    <header class="activity-head"><span class="badge">[ACTIVITY]</span> <h3>Factory method</h3></header>
+    <div class="prompt-block">
+{% capture p_oo_design_instance_vs_class_methods_1 %}
+Define `Counter` with `attr_reader :count` and a class method `Counter.starting_at(n)` that returns a new Counter whose `count` is `n`.
+{% endcapture %}
+{{ p_oo_design_instance_vs_class_methods_1 | markdownify }}
+    </div>
+    <form class="activity-form" data-kind="code" data-spec="c = Counter.starting_at(7)
+raise unless c.count == 7
+raise unless c.is_a?(Counter)
+d = Counter.starting_at(0)
+raise unless d.count == 0
+">
+      <textarea class="code-editor" rows="10">class Counter
+  attr_reader :count
+
+  def initialize(count = 0)
+    @count = count
+  end
+
+  # TODO: define the class method
+end
+</textarea>
+      <div class="actions">
+        <button type="submit" class="btn run">» run</button>
+        <button type="button" class="btn reset">reset</button>
+      </div>
+      <div class="result" data-role="result"></div>
+    </form>
+  </section>
+  <section class="activity activity-choice" id="a-oo-design-instance-vs-class-methods-2">
+    <header class="activity-head"><span class="badge">[ACTIVITY]</span> <h3>Class method or instance method?</h3></header>
+    <div class="prompt-block">
+{% capture p_oo_design_instance_vs_class_methods_2 %}
+Which call goes on the *class*, not an *instance*?
+{% endcapture %}
+{{ p_oo_design_instance_vs_class_methods_2 | markdownify }}
+    </div>
+    <form class="activity-form" data-kind="choice" data-correct="c">
+      <ul class="choices">
+        <li><label><input type="radio" name="choice-oo-design-instance-vs-class-methods-2" value="a"> <span class="key">[a]</span> order.confirm!</label></li>
+        <li><label><input type="radio" name="choice-oo-design-instance-vs-class-methods-2" value="b"> <span class="key">[b]</span> order.total</label></li>
+        <li><label><input type="radio" name="choice-oo-design-instance-vs-class-methods-2" value="c"> <span class="key">[c]</span> Order.find(42)</label></li>
+        <li><label><input type="radio" name="choice-oo-design-instance-vs-class-methods-2" value="d"> <span class="key">[d]</span> order.shipped?</label></li>
+      </ul>
+      <button type="submit" class="btn">» submit</button>
+      <div class="result" data-role="result"></div>
+    </form>
+  </section>
+  <section class="activity activity-code" id="a-oo-design-instance-vs-class-methods-3">
+    <header class="activity-head"><span class="badge">[ACTIVITY]</span> <h3>Per-instance state</h3></header>
+    <div class="prompt-block">
+{% capture p_oo_design_instance_vs_class_methods_3 %}
+Define `Wallet` with a class method `Wallet.empty` (returns a Wallet with balance 0) and an instance method `deposit(amount)` adding to `@balance`. Two wallets must not share state.
+{% endcapture %}
+{{ p_oo_design_instance_vs_class_methods_3 | markdownify }}
+    </div>
+    <form class="activity-form" data-kind="code" data-spec="a = Wallet.empty
+b = Wallet.empty
+a.deposit(100)
+raise unless a.balance == 100
+raise unless b.balance == 0   # independent
+">
+      <textarea class="code-editor" rows="10">class Wallet
+  attr_reader :balance
+  # TODO
+end
+</textarea>
+      <div class="actions">
+        <button type="submit" class="btn run">» run</button>
+        <button type="button" class="btn reset">reset</button>
+      </div>
+      <div class="result" data-role="result"></div>
+    </form>
+  </section>
+</article>
