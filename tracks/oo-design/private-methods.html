@@ -1,0 +1,178 @@
+---
+layout: "lesson"
+title: "oo-design/private-methods"
+permalink: "/tracks/oo-design/private-methods/"
+track: "oo-design"
+lesson_slug: "private-methods"
+---
+{% assign track = site.data.tracks | where: "slug", "oo-design" | first %}
+<article class="lesson">
+  <nav class="crumbs"><a href="{{ site.baseurl }}/">RubyBits</a> / <a href="{{ site.baseurl }}/tracks/{{ track.slug }}/">{{ track.name }}</a> / <span>Private methods</span></nav>
+  <h1>Private methods</h1>
+  <div class="body markdown">
+{% capture lesson_body %}
+## Private methods
+
+By default, every method you define in a Ruby class is **public** —
+any code with a reference to the object can call it. That's a lot of
+surface. The `private` keyword shrinks the public interface to just
+what you want callers to use.
+
+### Marking methods private
+
+Place `private` on its own line; everything defined after it (until
+another visibility keyword) is private:
+
+```ruby
+class Order
+  def confirm!
+    return false unless valid?
+    mark_confirmed
+    true
+  end
+
+  private
+
+  def valid?
+    !total.zero? && customer
+  end
+
+  def mark_confirmed
+    @confirmed_at = Time.now
+  end
+end
+```
+
+Now `order.confirm!` works from outside, but
+`order.mark_confirmed` raises `NoMethodError`. Internal helpers stay
+internal.
+
+### Why bother?
+
+- **Smaller public surface** = fewer ways callers can misuse the
+  object.
+- **Freedom to refactor**: you can rename or delete a private method
+  confidently — no external code can depend on it.
+- **Clearer reading**: the public methods at the top tell you what
+  the object *does*; the private ones below show *how*.
+
+### `protected` (rare)
+
+Ruby also has `protected`. It allows calls between instances of the
+same class but blocks external callers. Useful when objects compare
+themselves to siblings (`<=>`, `==`). For everyday code, `private`
+is what you reach for.
+
+### Pitfall: `self.method` inside the class
+
+You **cannot** call a private method with an explicit `self.` (with
+one exception for `self.attr=` setters in Ruby 2.7+). Inside the
+class, just call the method without a receiver.
+
+```ruby
+private
+def valid?; true; end
+
+# in another method of the same class:
+valid?         # works
+self.valid?    # NoMethodError: private method
+```
+{% endcapture %}
+{{ lesson_body | markdownify }}
+  </div>
+  <hr>
+  <h2>activities</h2>
+  <section class="activity activity-code" id="a-oo-design-private-methods-1">
+    <header class="activity-head"><span class="badge">[ACTIVITY]</span> <h3>Hide a helper</h3></header>
+    <div class="prompt-block">
+{% capture p_oo_design_private_methods_1 %}
+Define `Greeter` with a public `greet(name)` that returns "hi, NAME" with the name capitalized via a `private` helper called `format(name)`. Calling `Greeter.new.format("alice")` from outside must raise NoMethodError.
+{% endcapture %}
+{{ p_oo_design_private_methods_1 | markdownify }}
+    </div>
+    <form class="activity-form" data-kind="code" data-spec="g = Greeter.new
+raise unless g.greet(&quot;alice&quot;) == &quot;hi, Alice&quot;
+begin
+  g.format(&quot;alice&quot;)
+  raise &quot;format should be private&quot;
+rescue NoMethodError
+  :ok
+end
+">
+      <textarea class="code-editor" rows="10">class Greeter
+  def greet(name)
+    # TODO
+  end
+
+  # define a private format helper
+end
+</textarea>
+      <div class="actions">
+        <button type="submit" class="btn run">» run</button>
+        <button type="button" class="btn reset">reset</button>
+      </div>
+      <div class="result" data-role="result"></div>
+    </form>
+  </section>
+  <section class="activity activity-choice" id="a-oo-design-private-methods-2">
+    <header class="activity-head"><span class="badge">[ACTIVITY]</span> <h3>Calling private from inside</h3></header>
+    <div class="prompt-block">
+{% capture p_oo_design_private_methods_2 %}
+Inside another method of the same class, how do you call a private method `format`?
+{% endcapture %}
+{{ p_oo_design_private_methods_2 | markdownify }}
+    </div>
+    <form class="activity-form" data-kind="choice" data-correct="b">
+      <ul class="choices">
+        <li><label><input type="radio" name="choice-oo-design-private-methods-2" value="a"> <span class="key">[a]</span> self.format(...)</label></li>
+        <li><label><input type="radio" name="choice-oo-design-private-methods-2" value="b"> <span class="key">[b]</span> format(...)</label></li>
+        <li><label><input type="radio" name="choice-oo-design-private-methods-2" value="c"> <span class="key">[c]</span> private.format(...)</label></li>
+        <li><label><input type="radio" name="choice-oo-design-private-methods-2" value="d"> <span class="key">[d]</span> instance_method(:format).call(...)</label></li>
+      </ul>
+      <button type="submit" class="btn">» submit</button>
+      <div class="result" data-role="result"></div>
+    </form>
+  </section>
+  <section class="activity activity-code" id="a-oo-design-private-methods-3">
+    <header class="activity-head"><span class="badge">[ACTIVITY]</span> <h3>Public surface</h3></header>
+    <div class="prompt-block">
+{% capture p_oo_design_private_methods_3 %}
+Define `Cart` with public `add(item)` (appends to `@items`) and public `total` (sum of item prices). The item-price logic must live in a `private` method `price_of(item)` which returns `item[:price]`.
+{% endcapture %}
+{{ p_oo_design_private_methods_3 | markdownify }}
+    </div>
+    <form class="activity-form" data-kind="code" data-spec="c = Cart.new
+c.add(price: 5)
+c.add(price: 10)
+raise unless c.total == 15
+begin
+  c.price_of(price: 1)
+  raise &quot;price_of should be private&quot;
+rescue NoMethodError
+  :ok
+end
+">
+      <textarea class="code-editor" rows="10">class Cart
+  def initialize
+    @items = []
+  end
+
+  def add(item)
+    # TODO
+  end
+
+  def total
+    # TODO
+  end
+
+  # define a private price_of helper
+end
+</textarea>
+      <div class="actions">
+        <button type="submit" class="btn run">» run</button>
+        <button type="button" class="btn reset">reset</button>
+      </div>
+      <div class="result" data-role="result"></div>
+    </form>
+  </section>
+</article>
