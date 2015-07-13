@@ -470,6 +470,175 @@ modules:
         a.deposit(100)
         raise unless a.balance == 100
         raise unless b.balance == 0   # independent
+  - slug: private-methods
+    title: Private methods
+    body: |
+      ## Private methods
+
+      By default, every method you define in a Ruby class is **public** —
+      any code with a reference to the object can call it. That's a lot of
+      surface. The `private` keyword shrinks the public interface to just
+      what you want callers to use.
+
+      ### Marking methods private
+
+      Place `private` on its own line; everything defined after it (until
+      another visibility keyword) is private:
+
+      ```ruby
+      class Order
+        def confirm!
+          return false unless valid?
+          mark_confirmed
+          true
+        end
+
+        private
+
+        def valid?
+          !total.zero? && customer
+        end
+
+        def mark_confirmed
+          @confirmed_at = Time.now
+        end
+      end
+      ```
+
+      Now `order.confirm!` works from outside, but
+      `order.mark_confirmed` raises `NoMethodError`. Internal helpers stay
+      internal.
+
+      ### Why bother?
+
+      - **Smaller public surface** = fewer ways callers can misuse the
+        object.
+      - **Freedom to refactor**: you can rename or delete a private method
+        confidently — no external code can depend on it.
+      - **Clearer reading**: the public methods at the top tell you what
+        the object *does*; the private ones below show *how*.
+
+      ### `protected` (rare)
+
+      Ruby also has `protected`. It allows calls between instances of the
+      same class but blocks external callers. Useful when objects compare
+      themselves to siblings (`<=>`, `==`). For everyday code, `private`
+      is what you reach for.
+
+      ### Pitfall: `self.method` inside the class
+
+      You **cannot** call a private method with an explicit `self.` (with
+      one exception for `self.attr=` setters in Ruby 2.7+). Inside the
+      class, just call the method without a receiver.
+
+      ```ruby
+      private
+      def valid?; true; end
+
+      # in another method of the same class:
+      valid?         # works
+      self.valid?    # NoMethodError: private method
+      ```
+    activities:
+    - title: Hide a helper
+      kind: code
+      difficulty: 2
+      prompt: Define `Greeter` with a public `greet(name)` that returns "hi, NAME"
+        with the name capitalized via a `private` helper called `format(name)`. Calling
+        `Greeter.new.format("alice")` from outside must raise NoMethodError.
+      starter_code: |
+        class Greeter
+          def greet(name)
+            # TODO
+          end
+
+          # define a private format helper
+        end
+      solution: |
+        class Greeter
+          def greet(name)
+            "hi, " + format(name)
+          end
+
+          private
+
+          def format(name)
+            name.capitalize
+          end
+        end
+      spec_code: |
+        g = Greeter.new
+        raise unless g.greet("alice") == "hi, Alice"
+        begin
+          g.format("alice")
+          raise "format should be private"
+        rescue NoMethodError
+          :ok
+        end
+    - title: Calling private from inside
+      kind: choice
+      difficulty: 2
+      prompt: Inside another method of the same class, how do you call a private method
+        `format`?
+      choices:
+        a: self.format(...)
+        b: format(...)
+        c: private.format(...)
+        d: instance_method(:format).call(...)
+      correct_choice: b
+    - title: Public surface
+      kind: code
+      difficulty: 3
+      prompt: Define `Cart` with public `add(item)` (appends to `@items`) and public
+        `total` (sum of item prices). The item-price logic must live in a `private`
+        method `price_of(item)` which returns `item[:price]`.
+      starter_code: |
+        class Cart
+          def initialize
+            @items = []
+          end
+
+          def add(item)
+            # TODO
+          end
+
+          def total
+            # TODO
+          end
+
+          # define a private price_of helper
+        end
+      solution: |
+        class Cart
+          def initialize
+            @items = []
+          end
+
+          def add(item)
+            @items << item
+          end
+
+          def total
+            @items.sum { |i| price_of(i) }
+          end
+
+          private
+
+          def price_of(item)
+            item[:price]
+          end
+        end
+      spec_code: |
+        c = Cart.new
+        c.add(price: 5)
+        c.add(price: 10)
+        raise unless c.total == 15
+        begin
+          c.price_of(price: 1)
+          raise "price_of should be private"
+        rescue NoMethodError
+          :ok
+        end
   position: 0
 - slug: single-responsibility
   name: Single Responsibility
