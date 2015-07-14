@@ -64,6 +64,8 @@
     title: Tell, don't ask
   - slug: spot-the-duck
     title: Find the duck
+  - slug: inheritance-basics
+    title: Inheritance basics
   - slug: template-method
     title: Template method
   - slug: composition-over-inheritance

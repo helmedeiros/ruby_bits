@@ -1,0 +1,154 @@
+---
+layout: "lesson"
+title: "oo-design/inheritance-basics"
+permalink: "/tracks/oo-design/inheritance-basics/"
+track: "oo-design"
+lesson_slug: "inheritance-basics"
+---
+{% assign track = site.data.tracks | where: "slug", "oo-design" | first %}
+<article class="lesson">
+  <nav class="crumbs"><a href="{{ site.baseurl }}/">RubyBits</a> / <a href="{{ site.baseurl }}/tracks/{{ track.slug }}/">{{ track.name }}</a> / <span>Inheritance basics</span></nav>
+  <h1>Inheritance basics</h1>
+  <div class="body markdown">
+{% capture lesson_body %}
+## Inheritance basics
+
+Inheritance lets one class **build on** another. The child class
+starts with everything the parent has, then adds or overrides what
+needs to differ.
+
+### Syntax
+
+```ruby
+class Animal
+  def initialize(name)
+    @name = name
+  end
+
+  def name
+    @name
+  end
+
+  def speak
+    "some sound"
+  end
+end
+
+class Dog < Animal           # Dog inherits from Animal
+  def speak
+    "woof"                   # overrides parent's speak
+  end
+end
+
+d = Dog.new("rex")
+d.name        # => "rex"     (inherited)
+d.speak       # => "woof"    (overridden)
+```
+
+Use `<` between child and parent. Every Ruby class inherits from
+something — by default, from `Object`.
+
+### Override what differs, inherit what doesn't
+
+In the example above, `Dog` didn't redefine `initialize` or `name`
+— it gets them for free. Only `speak` changed.
+
+### When inheritance fits
+
+Use inheritance when there's a real "is-a" relationship:
+
+- `Dog` *is an* `Animal`. ✓
+- `SavingsAccount` *is an* `Account`. ✓
+- `Cart` *has* `Items`, not "is an" item. ✗ Use composition.
+
+If you're tempted to use inheritance just to share code, ask whether
+composition (an object holding another object) would fit better.
+
+### Pitfall: deep hierarchies
+
+Inheritance is rigid. Each layer adds coupling. Two or three levels
+is usually plenty. If you find yourself building a 5-level deep
+tower, redesign with composition or modules.
+
+### What's `super`?
+
+When you override a method, you sometimes want to **also** call the
+parent's version. That's `super` — the next lesson covers it.
+{% endcapture %}
+{{ lesson_body | markdownify }}
+  </div>
+  <hr>
+  <h2>activities</h2>
+  <section class="activity activity-code" id="a-oo-design-inheritance-basics-1">
+    <header class="activity-head"><span class="badge">[ACTIVITY]</span> <h3>Inherit a method</h3></header>
+    <div class="prompt-block">
+{% capture p_oo_design_inheritance_basics_1 %}
+Define `Animal` with a `name` method that returns `@name` (set in initialize). Then define `Cat < Animal` that overrides `speak` to return `"meow"` while inheriting `name`.
+{% endcapture %}
+{{ p_oo_design_inheritance_basics_1 | markdownify }}
+    </div>
+    <form class="activity-form" data-kind="code" data-spec="c = Cat.new(&quot;whiskers&quot;)
+raise unless c.name  == &quot;whiskers&quot;
+raise unless c.speak == &quot;meow&quot;
+raise unless c.is_a?(Animal)
+">
+      <textarea class="code-editor" rows="10">class Animal
+  def initialize(name); @name = name; end
+  def name; @name; end
+  def speak; "some sound"; end
+end
+
+# write Cat here
+</textarea>
+      <div class="actions">
+        <button type="submit" class="btn run">» run</button>
+        <button type="button" class="btn reset">reset</button>
+      </div>
+      <div class="result" data-role="result"></div>
+    </form>
+  </section>
+  <section class="activity activity-choice" id="a-oo-design-inheritance-basics-2">
+    <header class="activity-head"><span class="badge">[ACTIVITY]</span> <h3>Is-a relationship</h3></header>
+    <div class="prompt-block">
+{% capture p_oo_design_inheritance_basics_2 %}
+Which pair is the strongest candidate for inheritance?
+{% endcapture %}
+{{ p_oo_design_inheritance_basics_2 | markdownify }}
+    </div>
+    <form class="activity-form" data-kind="choice" data-correct="b">
+      <ul class="choices">
+        <li><label><input type="radio" name="choice-oo-design-inheritance-basics-2" value="a"> <span class="key">[a]</span> Cart and Item — a cart holds items</label></li>
+        <li><label><input type="radio" name="choice-oo-design-inheritance-basics-2" value="b"> <span class="key">[b]</span> SavingsAccount and Account — a savings account is an account</label></li>
+        <li><label><input type="radio" name="choice-oo-design-inheritance-basics-2" value="c"> <span class="key">[c]</span> Order and Mailer — orders send mail</label></li>
+        <li><label><input type="radio" name="choice-oo-design-inheritance-basics-2" value="d"> <span class="key">[d]</span> User and Hash — both hold key/value data</label></li>
+      </ul>
+      <button type="submit" class="btn">» submit</button>
+      <div class="result" data-role="result"></div>
+    </form>
+  </section>
+  <section class="activity activity-code" id="a-oo-design-inheritance-basics-3">
+    <header class="activity-head"><span class="badge">[ACTIVITY]</span> <h3>Override only what differs</h3></header>
+    <div class="prompt-block">
+{% capture p_oo_design_inheritance_basics_3 %}
+Define `Vehicle` with `wheels` returning 4. Then define `Motorcycle < Vehicle` overriding `wheels` to return 2. Both should respond to `wheels` correctly.
+{% endcapture %}
+{{ p_oo_design_inheritance_basics_3 | markdownify }}
+    </div>
+    <form class="activity-form" data-kind="code" data-spec="raise unless Vehicle.new.wheels    == 4
+raise unless Motorcycle.new.wheels == 2
+raise unless Motorcycle.new.is_a?(Vehicle)
+">
+      <textarea class="code-editor" rows="10">class Vehicle
+  def wheels; 4; end
+end
+
+# write Motorcycle here
+</textarea>
+      <div class="actions">
+        <button type="submit" class="btn run">» run</button>
+        <button type="button" class="btn reset">reset</button>
+      </div>
+      <div class="result" data-role="result"></div>
+    </form>
+  </section>
+</article>
