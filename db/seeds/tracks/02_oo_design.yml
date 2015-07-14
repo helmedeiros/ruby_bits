@@ -1680,6 +1680,138 @@ modules:
     describes the algorithm; subclasses specialize the parts that
     differ.
   lessons:
+  - slug: inheritance-basics
+    title: Inheritance basics
+    body: |
+      ## Inheritance basics
+
+      Inheritance lets one class **build on** another. The child class
+      starts with everything the parent has, then adds or overrides what
+      needs to differ.
+
+      ### Syntax
+
+      ```ruby
+      class Animal
+        def initialize(name)
+          @name = name
+        end
+
+        def name
+          @name
+        end
+
+        def speak
+          "some sound"
+        end
+      end
+
+      class Dog < Animal           # Dog inherits from Animal
+        def speak
+          "woof"                   # overrides parent's speak
+        end
+      end
+
+      d = Dog.new("rex")
+      d.name        # => "rex"     (inherited)
+      d.speak       # => "woof"    (overridden)
+      ```
+
+      Use `<` between child and parent. Every Ruby class inherits from
+      something — by default, from `Object`.
+
+      ### Override what differs, inherit what doesn't
+
+      In the example above, `Dog` didn't redefine `initialize` or `name`
+      — it gets them for free. Only `speak` changed.
+
+      ### When inheritance fits
+
+      Use inheritance when there's a real "is-a" relationship:
+
+      - `Dog` *is an* `Animal`. ✓
+      - `SavingsAccount` *is an* `Account`. ✓
+      - `Cart` *has* `Items`, not "is an" item. ✗ Use composition.
+
+      If you're tempted to use inheritance just to share code, ask whether
+      composition (an object holding another object) would fit better.
+
+      ### Pitfall: deep hierarchies
+
+      Inheritance is rigid. Each layer adds coupling. Two or three levels
+      is usually plenty. If you find yourself building a 5-level deep
+      tower, redesign with composition or modules.
+
+      ### What's `super`?
+
+      When you override a method, you sometimes want to **also** call the
+      parent's version. That's `super` — the next lesson covers it.
+    activities:
+    - title: Inherit a method
+      kind: code
+      difficulty: 1
+      prompt: Define `Animal` with a `name` method that returns `@name` (set in initialize).
+        Then define `Cat < Animal` that overrides `speak` to return `"meow"` while
+        inheriting `name`.
+      starter_code: |
+        class Animal
+          def initialize(name); @name = name; end
+          def name; @name; end
+          def speak; "some sound"; end
+        end
+
+        # write Cat here
+      solution: |
+        class Animal
+          def initialize(name); @name = name; end
+          def name; @name; end
+          def speak; "some sound"; end
+        end
+
+        class Cat < Animal
+          def speak
+            "meow"
+          end
+        end
+      spec_code: |
+        c = Cat.new("whiskers")
+        raise unless c.name  == "whiskers"
+        raise unless c.speak == "meow"
+        raise unless c.is_a?(Animal)
+    - title: Is-a relationship
+      kind: choice
+      difficulty: 2
+      prompt: Which pair is the strongest candidate for inheritance?
+      choices:
+        a: Cart and Item — a cart holds items
+        b: SavingsAccount and Account — a savings account is an account
+        c: Order and Mailer — orders send mail
+        d: User and Hash — both hold key/value data
+      correct_choice: b
+    - title: Override only what differs
+      kind: code
+      difficulty: 2
+      prompt: Define `Vehicle` with `wheels` returning 4. Then define `Motorcycle
+        < Vehicle` overriding `wheels` to return 2. Both should respond to `wheels`
+        correctly.
+      starter_code: |
+        class Vehicle
+          def wheels; 4; end
+        end
+
+        # write Motorcycle here
+      solution: |
+        class Vehicle
+          def wheels; 4; end
+        end
+
+        class Motorcycle < Vehicle
+          def wheels; 2; end
+        end
+      spec_code: |
+        raise unless Vehicle.new.wheels    == 4
+        raise unless Motorcycle.new.wheels == 2
+        raise unless Motorcycle.new.is_a?(Vehicle)
   - slug: template-method
     title: Template method
     body: |
