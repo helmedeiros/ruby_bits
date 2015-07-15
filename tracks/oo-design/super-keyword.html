@@ -1,0 +1,159 @@
+---
+layout: "lesson"
+title: "oo-design/super-keyword"
+permalink: "/tracks/oo-design/super-keyword/"
+track: "oo-design"
+lesson_slug: "super-keyword"
+---
+{% assign track = site.data.tracks | where: "slug", "oo-design" | first %}
+<article class="lesson">
+  <nav class="crumbs"><a href="{{ site.baseurl }}/">RubyBits</a> / <a href="{{ site.baseurl }}/tracks/{{ track.slug }}/">{{ track.name }}</a> / <span>The super keyword</span></nav>
+  <h1>The super keyword</h1>
+  <div class="body markdown">
+{% capture lesson_body %}
+## The `super` keyword
+
+When you override a method in a subclass, you sometimes still want
+the parent's version to run too. `super` is how you call it.
+
+### Basic use
+
+```ruby
+class Animal
+  def speak
+    "some sound"
+  end
+end
+
+class Dog < Animal
+  def speak
+    parent_sound = super       # calls Animal#speak
+    "#{parent_sound} and woof"
+  end
+end
+
+Dog.new.speak    # => "some sound and woof"
+```
+
+Bare `super` passes the **same arguments** the current method
+received. `super()` with empty parens passes **no** arguments.
+`super(x, y)` passes specific ones.
+
+### Common pattern: extend `initialize`
+
+Subclasses often need their own state on top of the parent's. Call
+`super` to let the parent set up its fields:
+
+```ruby
+class Vehicle
+  def initialize(wheels)
+    @wheels = wheels
+  end
+end
+
+class Car < Vehicle
+  def initialize(wheels, color)
+    super(wheels)        # parent sets @wheels
+    @color = color       # we set @color
+  end
+end
+```
+
+### Where does `super` look?
+
+Ruby walks the **ancestor chain** — the parent class, then *its*
+parent, then included modules. The first matching method is the one
+`super` calls.
+
+```ruby
+Dog.ancestors
+# => [Dog, Animal, Object, Kernel, BasicObject]
+```
+
+### Pitfall: bare `super` with no args
+
+Bare `super` (no parens) **passes through** the current method's
+arguments. If you want to call the parent without arguments, write
+`super()`.
+
+```ruby
+def initialize(name)
+  super        # passes `name` — usually what you want
+  super()      # passes NOTHING
+end
+```
+{% endcapture %}
+{{ lesson_body | markdownify }}
+  </div>
+  <hr>
+  <h2>activities</h2>
+  <section class="activity activity-code" id="a-oo-design-super-keyword-1">
+    <header class="activity-head"><span class="badge">[ACTIVITY]</span> <h3>Extend a behavior</h3></header>
+    <div class="prompt-block">
+{% capture p_oo_design_super_keyword_1 %}
+Define `Greeter` with `greet` returning "hi". Then define `LoudGreeter < Greeter` whose `greet` returns the parent's greeting upcased plus "!". `LoudGreeter.new.greet` should return "HI!".
+{% endcapture %}
+{{ p_oo_design_super_keyword_1 | markdownify }}
+    </div>
+    <form class="activity-form" data-kind="code" data-spec="raise unless LoudGreeter.new.greet == &quot;HI!&quot;
+raise unless Greeter.new.greet     == &quot;hi&quot;
+">
+      <textarea class="code-editor" rows="10">class Greeter
+  def greet; "hi"; end
+end
+
+# write LoudGreeter
+</textarea>
+      <div class="actions">
+        <button type="submit" class="btn run">» run</button>
+        <button type="button" class="btn reset">reset</button>
+      </div>
+      <div class="result" data-role="result"></div>
+    </form>
+  </section>
+  <section class="activity activity-choice" id="a-oo-design-super-keyword-2">
+    <header class="activity-head"><span class="badge">[ACTIVITY]</span> <h3>Bare super behavior</h3></header>
+    <div class="prompt-block">
+{% capture p_oo_design_super_keyword_2 %}
+Inside a method `def initialize(name)`, what does bare `super` (no parens) do?
+{% endcapture %}
+{{ p_oo_design_super_keyword_2 | markdownify }}
+    </div>
+    <form class="activity-form" data-kind="choice" data-correct="b">
+      <ul class="choices">
+        <li><label><input type="radio" name="choice-oo-design-super-keyword-2" value="a"> <span class="key">[a]</span> Calls parent initialize with no arguments</label></li>
+        <li><label><input type="radio" name="choice-oo-design-super-keyword-2" value="b"> <span class="key">[b]</span> Calls parent initialize with the same `name` argument</label></li>
+        <li><label><input type="radio" name="choice-oo-design-super-keyword-2" value="c"> <span class="key">[c]</span> Calls parent initialize with nil</label></li>
+        <li><label><input type="radio" name="choice-oo-design-super-keyword-2" value="d"> <span class="key">[d]</span> Raises ArgumentError</label></li>
+      </ul>
+      <button type="submit" class="btn">» submit</button>
+      <div class="result" data-role="result"></div>
+    </form>
+  </section>
+  <section class="activity activity-code" id="a-oo-design-super-keyword-3">
+    <header class="activity-head"><span class="badge">[ACTIVITY]</span> <h3>Extend initialize</h3></header>
+    <div class="prompt-block">
+{% capture p_oo_design_super_keyword_3 %}
+Given `Animal` with `attr_reader :name` set in `initialize(name)`, write `Dog < Animal` whose `initialize(name, breed)` calls `super(name)` to set the parent's state and then stores `@breed`. `Dog` should expose `breed` via `attr_reader`.
+{% endcapture %}
+{{ p_oo_design_super_keyword_3 | markdownify }}
+    </div>
+    <form class="activity-form" data-kind="code" data-spec="d = Dog.new(&quot;rex&quot;, &quot;poodle&quot;)
+raise unless d.name  == &quot;rex&quot;
+raise unless d.breed == &quot;poodle&quot;
+">
+      <textarea class="code-editor" rows="10">class Animal
+  attr_reader :name
+  def initialize(name); @name = name; end
+end
+
+# write Dog
+</textarea>
+      <div class="actions">
+        <button type="submit" class="btn run">» run</button>
+        <button type="button" class="btn reset">reset</button>
+      </div>
+      <div class="result" data-role="result"></div>
+    </form>
+  </section>
+</article>

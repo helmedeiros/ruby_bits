@@ -66,6 +66,8 @@
     title: Find the duck
   - slug: inheritance-basics
     title: Inheritance basics
+  - slug: super-keyword
+    title: The super keyword
   - slug: template-method
     title: Template method
   - slug: composition-over-inheritance
