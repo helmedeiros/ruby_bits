@@ -1812,6 +1812,148 @@ modules:
         raise unless Vehicle.new.wheels    == 4
         raise unless Motorcycle.new.wheels == 2
         raise unless Motorcycle.new.is_a?(Vehicle)
+  - slug: super-keyword
+    title: The super keyword
+    body: |
+      ## The `super` keyword
+
+      When you override a method in a subclass, you sometimes still want
+      the parent's version to run too. `super` is how you call it.
+
+      ### Basic use
+
+      ```ruby
+      class Animal
+        def speak
+          "some sound"
+        end
+      end
+
+      class Dog < Animal
+        def speak
+          parent_sound = super       # calls Animal#speak
+          "#{parent_sound} and woof"
+        end
+      end
+
+      Dog.new.speak    # => "some sound and woof"
+      ```
+
+      Bare `super` passes the **same arguments** the current method
+      received. `super()` with empty parens passes **no** arguments.
+      `super(x, y)` passes specific ones.
+
+      ### Common pattern: extend `initialize`
+
+      Subclasses often need their own state on top of the parent's. Call
+      `super` to let the parent set up its fields:
+
+      ```ruby
+      class Vehicle
+        def initialize(wheels)
+          @wheels = wheels
+        end
+      end
+
+      class Car < Vehicle
+        def initialize(wheels, color)
+          super(wheels)        # parent sets @wheels
+          @color = color       # we set @color
+        end
+      end
+      ```
+
+      ### Where does `super` look?
+
+      Ruby walks the **ancestor chain** — the parent class, then *its*
+      parent, then included modules. The first matching method is the one
+      `super` calls.
+
+      ```ruby
+      Dog.ancestors
+      # => [Dog, Animal, Object, Kernel, BasicObject]
+      ```
+
+      ### Pitfall: bare `super` with no args
+
+      Bare `super` (no parens) **passes through** the current method's
+      arguments. If you want to call the parent without arguments, write
+      `super()`.
+
+      ```ruby
+      def initialize(name)
+        super        # passes `name` — usually what you want
+        super()      # passes NOTHING
+      end
+      ```
+    activities:
+    - title: Extend a behavior
+      kind: code
+      difficulty: 2
+      prompt: Define `Greeter` with `greet` returning "hi". Then define `LoudGreeter
+        < Greeter` whose `greet` returns the parent's greeting upcased plus "!". `LoudGreeter.new.greet`
+        should return "HI!".
+      starter_code: |
+        class Greeter
+          def greet; "hi"; end
+        end
+
+        # write LoudGreeter
+      solution: |
+        class Greeter
+          def greet; "hi"; end
+        end
+
+        class LoudGreeter < Greeter
+          def greet
+            super.upcase + "!"
+          end
+        end
+      spec_code: |
+        raise unless LoudGreeter.new.greet == "HI!"
+        raise unless Greeter.new.greet     == "hi"
+    - title: Bare super behavior
+      kind: choice
+      difficulty: 2
+      prompt: Inside a method `def initialize(name)`, what does bare `super` (no parens)
+        do?
+      choices:
+        a: Calls parent initialize with no arguments
+        b: Calls parent initialize with the same `name` argument
+        c: Calls parent initialize with nil
+        d: Raises ArgumentError
+      correct_choice: b
+    - title: Extend initialize
+      kind: code
+      difficulty: 3
+      prompt: Given `Animal` with `attr_reader :name` set in `initialize(name)`, write
+        `Dog < Animal` whose `initialize(name, breed)` calls `super(name)` to set
+        the parent's state and then stores `@breed`. `Dog` should expose `breed` via
+        `attr_reader`.
+      starter_code: |
+        class Animal
+          attr_reader :name
+          def initialize(name); @name = name; end
+        end
+
+        # write Dog
+      solution: |
+        class Animal
+          attr_reader :name
+          def initialize(name); @name = name; end
+        end
+
+        class Dog < Animal
+          attr_reader :breed
+          def initialize(name, breed)
+            super(name)
+            @breed = breed
+          end
+        end
+      spec_code: |
+        d = Dog.new("rex", "poodle")
+        raise unless d.name  == "rex"
+        raise unless d.breed == "poodle"
   - slug: template-method
     title: Template method
     body: |
