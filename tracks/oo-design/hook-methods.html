@@ -1,0 +1,156 @@
+---
+layout: "lesson"
+title: "oo-design/hook-methods"
+permalink: "/tracks/oo-design/hook-methods/"
+track: "oo-design"
+lesson_slug: "hook-methods"
+---
+{% assign track = site.data.tracks | where: "slug", "oo-design" | first %}
+<article class="lesson">
+  <nav class="crumbs"><a href="{{ site.baseurl }}/">RubyBits</a> / <a href="{{ site.baseurl }}/tracks/{{ track.slug }}/">{{ track.name }}</a> / <span>Hook methods</span></nav>
+  <h1>Hook methods</h1>
+  <div class="body markdown">
+{% capture lesson_body %}
+## Hook methods
+
+Ruby gives a class a chance to **react** when something happens in
+its lifecycle — when it's inherited, when a module gets included,
+when an object is created. These reactions are called **hook
+methods**.
+
+### `inherited` — runs when a subclass appears
+
+```ruby
+class Plugin
+  def self.inherited(subclass)
+    puts "registering #{subclass}"
+    @subclasses ||= []
+    @subclasses << subclass
+  end
+
+  def self.subclasses
+    @subclasses ||= []
+  end
+end
+
+class Logger < Plugin; end       # prints "registering Logger"
+class Notifier < Plugin; end     # prints "registering Notifier"
+
+Plugin.subclasses
+# => [Logger, Notifier]
+```
+
+Useful for registries, factory tables, or any "auto-discover all
+subclasses" pattern.
+
+### `included` and `extended` — runs when a module is mixed in
+
+```ruby
+module Trackable
+  def self.included(base)
+    puts "#{base} now Trackable"
+  end
+end
+
+class User
+  include Trackable    # prints "User now Trackable"
+end
+```
+
+This is the bedrock under `ActiveSupport::Concern` — when you
+include the module, hook code runs in the *including* class's
+context. Common use: also `extend` a `ClassMethods` submodule so
+the host class gains class-level helpers.
+
+### Why hooks help
+
+Hooks let a parent (or module) react *automatically* to being used.
+No subclass has to remember to "register itself". The wiring happens
+by definition, not by call.
+
+### Pitfall: surprise side effects
+
+Hooks make magic look easy, but the magic is invisible at the call
+site. Someone reading `class Logger < Plugin` sees no registration
+code — yet `Logger` now appears in a global list. Use hooks
+sparingly and document them in the parent.
+{% endcapture %}
+{{ lesson_body | markdownify }}
+  </div>
+  <hr>
+  <h2>activities</h2>
+  <section class="activity activity-code" id="a-oo-design-hook-methods-1">
+    <header class="activity-head"><span class="badge">[ACTIVITY]</span> <h3>Auto-register subclasses</h3></header>
+    <div class="prompt-block">
+{% capture p_oo_design_hook_methods_1 %}
+Define `Plugin` with a class method `subclasses` returning the array of all registered subclasses. Use `self.inherited` to append each new subclass to a class-level array.
+{% endcapture %}
+{{ p_oo_design_hook_methods_1 | markdownify }}
+    </div>
+    <form class="activity-form" data-kind="code" data-spec="raise unless Plugin.subclasses == [Foo, Bar]
+class Baz &lt; Plugin; end
+raise unless Plugin.subclasses == [Foo, Bar, Baz]
+">
+      <textarea class="code-editor" rows="10">class Plugin
+  # TODO
+end
+
+class Foo &lt; Plugin; end
+class Bar &lt; Plugin; end
+</textarea>
+      <div class="actions">
+        <button type="submit" class="btn run">» run</button>
+        <button type="button" class="btn reset">reset</button>
+      </div>
+      <div class="result" data-role="result"></div>
+    </form>
+  </section>
+  <section class="activity activity-choice" id="a-oo-design-hook-methods-2">
+    <header class="activity-head"><span class="badge">[ACTIVITY]</span> <h3>Hook for include</h3></header>
+    <div class="prompt-block">
+{% capture p_oo_design_hook_methods_2 %}
+Which hook method runs when a module is `include`d in a class?
+{% endcapture %}
+{{ p_oo_design_hook_methods_2 | markdownify }}
+    </div>
+    <form class="activity-form" data-kind="choice" data-correct="b">
+      <ul class="choices">
+        <li><label><input type="radio" name="choice-oo-design-hook-methods-2" value="a"> <span class="key">[a]</span> self.inherited(base)</label></li>
+        <li><label><input type="radio" name="choice-oo-design-hook-methods-2" value="b"> <span class="key">[b]</span> self.included(base)</label></li>
+        <li><label><input type="radio" name="choice-oo-design-hook-methods-2" value="c"> <span class="key">[c]</span> self.extended(base)</label></li>
+        <li><label><input type="radio" name="choice-oo-design-hook-methods-2" value="d"> <span class="key">[d]</span> self.mixed_in(base)</label></li>
+      </ul>
+      <button type="submit" class="btn">» submit</button>
+      <div class="result" data-role="result"></div>
+    </form>
+  </section>
+  <section class="activity activity-code" id="a-oo-design-hook-methods-3">
+    <header class="activity-head"><span class="badge">[ACTIVITY]</span> <h3>React when included</h3></header>
+    <div class="prompt-block">
+{% capture p_oo_design_hook_methods_3 %}
+Define a module `Trackable` whose `self.included(base)` adds the including class to `Trackable.classes`. The module should expose a class-level `classes` reader returning the registered classes.
+{% endcapture %}
+{{ p_oo_design_hook_methods_3 | markdownify }}
+    </div>
+    <form class="activity-form" data-kind="code" data-spec="raise unless Trackable.classes == [User, Order]
+">
+      <textarea class="code-editor" rows="10">module Trackable
+  # TODO
+end
+
+class User
+  include Trackable
+end
+
+class Order
+  include Trackable
+end
+</textarea>
+      <div class="actions">
+        <button type="submit" class="btn run">» run</button>
+        <button type="button" class="btn reset">reset</button>
+      </div>
+      <div class="result" data-role="result"></div>
+    </form>
+  </section>
+</article>

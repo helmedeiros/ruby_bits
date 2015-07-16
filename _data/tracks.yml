@@ -70,5 +70,7 @@
     title: The super keyword
   - slug: template-method
     title: Template method
+  - slug: hook-methods
+    title: Hook methods
   - slug: composition-over-inheritance
     title: Composition over inheritance
