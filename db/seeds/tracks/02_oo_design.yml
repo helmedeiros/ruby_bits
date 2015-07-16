@@ -2128,6 +2128,154 @@ modules:
         c: Ruby requires it.
         d: It triggers garbage collection.
       correct_choice: b
+  - slug: hook-methods
+    title: Hook methods
+    body: |
+      ## Hook methods
+
+      Ruby gives a class a chance to **react** when something happens in
+      its lifecycle — when it's inherited, when a module gets included,
+      when an object is created. These reactions are called **hook
+      methods**.
+
+      ### `inherited` — runs when a subclass appears
+
+      ```ruby
+      class Plugin
+        def self.inherited(subclass)
+          puts "registering #{subclass}"
+          @subclasses ||= []
+          @subclasses << subclass
+        end
+
+        def self.subclasses
+          @subclasses ||= []
+        end
+      end
+
+      class Logger < Plugin; end       # prints "registering Logger"
+      class Notifier < Plugin; end     # prints "registering Notifier"
+
+      Plugin.subclasses
+      # => [Logger, Notifier]
+      ```
+
+      Useful for registries, factory tables, or any "auto-discover all
+      subclasses" pattern.
+
+      ### `included` and `extended` — runs when a module is mixed in
+
+      ```ruby
+      module Trackable
+        def self.included(base)
+          puts "#{base} now Trackable"
+        end
+      end
+
+      class User
+        include Trackable    # prints "User now Trackable"
+      end
+      ```
+
+      This is the bedrock under `ActiveSupport::Concern` — when you
+      include the module, hook code runs in the *including* class's
+      context. Common use: also `extend` a `ClassMethods` submodule so
+      the host class gains class-level helpers.
+
+      ### Why hooks help
+
+      Hooks let a parent (or module) react *automatically* to being used.
+      No subclass has to remember to "register itself". The wiring happens
+      by definition, not by call.
+
+      ### Pitfall: surprise side effects
+
+      Hooks make magic look easy, but the magic is invisible at the call
+      site. Someone reading `class Logger < Plugin` sees no registration
+      code — yet `Logger` now appears in a global list. Use hooks
+      sparingly and document them in the parent.
+    activities:
+    - title: Auto-register subclasses
+      kind: code
+      difficulty: 3
+      prompt: Define `Plugin` with a class method `subclasses` returning the array
+        of all registered subclasses. Use `self.inherited` to append each new subclass
+        to a class-level array.
+      starter_code: |
+        class Plugin
+          # TODO
+        end
+
+        class Foo < Plugin; end
+        class Bar < Plugin; end
+      solution: |
+        class Plugin
+          def self.inherited(subclass)
+            @subclasses ||= []
+            @subclasses << subclass
+          end
+
+          def self.subclasses
+            @subclasses ||= []
+          end
+        end
+
+        class Foo < Plugin; end
+        class Bar < Plugin; end
+      spec_code: |
+        raise unless Plugin.subclasses == [Foo, Bar]
+        class Baz < Plugin; end
+        raise unless Plugin.subclasses == [Foo, Bar, Baz]
+    - title: Hook for include
+      kind: choice
+      difficulty: 2
+      prompt: Which hook method runs when a module is `include`d in a class?
+      choices:
+        a: self.inherited(base)
+        b: self.included(base)
+        c: self.extended(base)
+        d: self.mixed_in(base)
+      correct_choice: b
+    - title: React when included
+      kind: code
+      difficulty: 3
+      prompt: Define a module `Trackable` whose `self.included(base)` adds the including
+        class to `Trackable.classes`. The module should expose a class-level `classes`
+        reader returning the registered classes.
+      starter_code: |
+        module Trackable
+          # TODO
+        end
+
+        class User
+          include Trackable
+        end
+
+        class Order
+          include Trackable
+        end
+      solution: |
+        module Trackable
+          def self.included(base)
+            @classes ||= []
+            @classes << base
+          end
+
+          def self.classes
+            @classes ||= []
+          end
+        end
+
+        class User
+          include Trackable
+        end
+
+        class Order
+          include Trackable
+        end
+      spec_code: 'raise unless Trackable.classes == [User, Order]
+
+'
   position: 5
 - slug: composition
   name: Composition
