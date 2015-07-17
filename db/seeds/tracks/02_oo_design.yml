@@ -2277,6 +2277,145 @@ modules:
 
 '
   position: 5
+- slug: modules-and-mixins
+  name: Modules and mixins
+  overview: |
+    Modules have two distinct roles: namespacing related code, and
+    mixing shared behavior into classes. The next few lessons walk
+    through both.
+  lessons:
+  - slug: namespaces-with-modules
+    title: Namespaces with modules
+    body: |
+      ## Namespaces with modules
+
+      A Ruby **module** has two distinct uses: grouping related things
+      under a namespace, or mixing behavior into classes. This lesson
+      covers the first.
+
+      ### What's a namespace?
+
+      When two libraries define a class called `Logger`, you have a name
+      collision — whichever is loaded last wins, silently overwriting the
+      other. Wrapping each in a module gives them distinct, qualified
+      names:
+
+      ```ruby
+      module Payments
+        class Logger
+          def log(msg); "[payments] #{msg}"; end
+        end
+      end
+
+      module Shipping
+        class Logger
+          def log(msg); "[shipping] #{msg}"; end
+        end
+      end
+
+      Payments::Logger.new.log("ok")    # "[payments] ok"
+      Shipping::Logger.new.log("ok")    # "[shipping] ok"
+      ```
+
+      `Payments::Logger` reads "the Logger inside the Payments
+      namespace." `::` is how you walk into a namespace.
+
+      ### Nesting
+
+      Modules can nest as deep as you need:
+
+      ```ruby
+      module Acme
+        module Billing
+          class Invoice; end
+        end
+      end
+
+      Acme::Billing::Invoice.new
+      ```
+
+      ### Why use them?
+
+      - **Avoid collisions.** Two libraries can both define `User` without
+        fighting.
+      - **Group related code.** Everything billing-related lives under
+        `Acme::Billing`.
+      - **Convey intent.** Reading `Payments::Logger.new` tells the reader
+        immediately what kind of logger this is.
+
+      ### Constants live in modules too
+
+      Constants — including class names — defined inside a module are
+      scoped to that module:
+
+      ```ruby
+      module Auth
+        DEFAULT_REALM = "users"
+      end
+
+      Auth::DEFAULT_REALM    # => "users"
+      DEFAULT_REALM          # NameError
+      ```
+
+      ### Modules are objects
+
+      In Ruby, a module is a regular object (an instance of `Module`).
+      That means you can pass it around, ask its name, and so on:
+
+      ```ruby
+      Payments.name          # => "Payments"
+      ```
+    activities:
+    - title: Build a namespace
+      kind: code
+      difficulty: 2
+      prompt: Define `Payments::Logger` so `Payments::Logger.new.log("hi")` returns
+        `"[payments] hi"`.
+      starter_code: |
+        module Payments
+          # TODO: Logger class here
+        end
+      solution: |
+        module Payments
+          class Logger
+            def log(msg)
+              "[payments] #{msg}"
+            end
+          end
+        end
+      spec_code: |
+        raise unless Payments::Logger.new.log("hi") == "[payments] hi"
+        raise unless Payments::Logger.new.log("x")  == "[payments] x"
+    - title: Why namespace?
+      kind: choice
+      difficulty: 1
+      prompt: Two libraries each define a class `Client`. What's the cleanest fix?
+      choices:
+        a: Rename one of them in source
+        b: Wrap each library's class in its own module — Stripe::Client and Github::Client
+        c: Define both as private
+        d: Convert one to a Proc
+      correct_choice: b
+    - title: Reach into a namespace
+      kind: code
+      difficulty: 2
+      prompt: Define `Acme::Billing::Invoice` with `attr_reader :total` set in initialize.
+        Then create one with total 99 and access it via the fully qualified name.
+      starter_code: "# build Acme::Billing::Invoice here\n"
+      solution: |
+        module Acme
+          module Billing
+            class Invoice
+              attr_reader :total
+              def initialize(total); @total = total; end
+            end
+          end
+        end
+      spec_code: |
+        i = Acme::Billing::Invoice.new(99)
+        raise unless i.total == 99
+        raise unless i.is_a?(Acme::Billing::Invoice)
+  position: 6
 - slug: composition
   name: Composition
   overview: |
@@ -2448,4 +2587,4 @@ modules:
         c: A checkout that needs to plug in a dozen pricing strategies over time.
         d: An audit log that should be optional on some entities.
       correct_choice: b
-  position: 6
+  position: 7
