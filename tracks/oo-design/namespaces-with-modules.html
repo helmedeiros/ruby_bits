@@ -1,0 +1,159 @@
+---
+layout: "lesson"
+title: "oo-design/namespaces-with-modules"
+permalink: "/tracks/oo-design/namespaces-with-modules/"
+track: "oo-design"
+lesson_slug: "namespaces-with-modules"
+---
+{% assign track = site.data.tracks | where: "slug", "oo-design" | first %}
+<article class="lesson">
+  <nav class="crumbs"><a href="{{ site.baseurl }}/">RubyBits</a> / <a href="{{ site.baseurl }}/tracks/{{ track.slug }}/">{{ track.name }}</a> / <span>Namespaces with modules</span></nav>
+  <h1>Namespaces with modules</h1>
+  <div class="body markdown">
+{% capture lesson_body %}
+## Namespaces with modules
+
+A Ruby **module** has two distinct uses: grouping related things
+under a namespace, or mixing behavior into classes. This lesson
+covers the first.
+
+### What's a namespace?
+
+When two libraries define a class called `Logger`, you have a name
+collision — whichever is loaded last wins, silently overwriting the
+other. Wrapping each in a module gives them distinct, qualified
+names:
+
+```ruby
+module Payments
+  class Logger
+    def log(msg); "[payments] #{msg}"; end
+  end
+end
+
+module Shipping
+  class Logger
+    def log(msg); "[shipping] #{msg}"; end
+  end
+end
+
+Payments::Logger.new.log("ok")    # "[payments] ok"
+Shipping::Logger.new.log("ok")    # "[shipping] ok"
+```
+
+`Payments::Logger` reads "the Logger inside the Payments
+namespace." `::` is how you walk into a namespace.
+
+### Nesting
+
+Modules can nest as deep as you need:
+
+```ruby
+module Acme
+  module Billing
+    class Invoice; end
+  end
+end
+
+Acme::Billing::Invoice.new
+```
+
+### Why use them?
+
+- **Avoid collisions.** Two libraries can both define `User` without
+  fighting.
+- **Group related code.** Everything billing-related lives under
+  `Acme::Billing`.
+- **Convey intent.** Reading `Payments::Logger.new` tells the reader
+  immediately what kind of logger this is.
+
+### Constants live in modules too
+
+Constants — including class names — defined inside a module are
+scoped to that module:
+
+```ruby
+module Auth
+  DEFAULT_REALM = "users"
+end
+
+Auth::DEFAULT_REALM    # => "users"
+DEFAULT_REALM          # NameError
+```
+
+### Modules are objects
+
+In Ruby, a module is a regular object (an instance of `Module`).
+That means you can pass it around, ask its name, and so on:
+
+```ruby
+Payments.name          # => "Payments"
+```
+{% endcapture %}
+{{ lesson_body | markdownify }}
+  </div>
+  <hr>
+  <h2>activities</h2>
+  <section class="activity activity-code" id="a-oo-design-namespaces-with-modules-1">
+    <header class="activity-head"><span class="badge">[ACTIVITY]</span> <h3>Build a namespace</h3></header>
+    <div class="prompt-block">
+{% capture p_oo_design_namespaces_with_modules_1 %}
+Define `Payments::Logger` so `Payments::Logger.new.log("hi")` returns `"[payments] hi"`.
+{% endcapture %}
+{{ p_oo_design_namespaces_with_modules_1 | markdownify }}
+    </div>
+    <form class="activity-form" data-kind="code" data-spec="raise unless Payments::Logger.new.log(&quot;hi&quot;) == &quot;[payments] hi&quot;
+raise unless Payments::Logger.new.log(&quot;x&quot;)  == &quot;[payments] x&quot;
+">
+      <textarea class="code-editor" rows="10">module Payments
+  # TODO: Logger class here
+end
+</textarea>
+      <div class="actions">
+        <button type="submit" class="btn run">» run</button>
+        <button type="button" class="btn reset">reset</button>
+      </div>
+      <div class="result" data-role="result"></div>
+    </form>
+  </section>
+  <section class="activity activity-choice" id="a-oo-design-namespaces-with-modules-2">
+    <header class="activity-head"><span class="badge">[ACTIVITY]</span> <h3>Why namespace?</h3></header>
+    <div class="prompt-block">
+{% capture p_oo_design_namespaces_with_modules_2 %}
+Two libraries each define a class `Client`. What's the cleanest fix?
+{% endcapture %}
+{{ p_oo_design_namespaces_with_modules_2 | markdownify }}
+    </div>
+    <form class="activity-form" data-kind="choice" data-correct="b">
+      <ul class="choices">
+        <li><label><input type="radio" name="choice-oo-design-namespaces-with-modules-2" value="a"> <span class="key">[a]</span> Rename one of them in source</label></li>
+        <li><label><input type="radio" name="choice-oo-design-namespaces-with-modules-2" value="b"> <span class="key">[b]</span> Wrap each library's class in its own module — Stripe::Client and Github::Client</label></li>
+        <li><label><input type="radio" name="choice-oo-design-namespaces-with-modules-2" value="c"> <span class="key">[c]</span> Define both as private</label></li>
+        <li><label><input type="radio" name="choice-oo-design-namespaces-with-modules-2" value="d"> <span class="key">[d]</span> Convert one to a Proc</label></li>
+      </ul>
+      <button type="submit" class="btn">» submit</button>
+      <div class="result" data-role="result"></div>
+    </form>
+  </section>
+  <section class="activity activity-code" id="a-oo-design-namespaces-with-modules-3">
+    <header class="activity-head"><span class="badge">[ACTIVITY]</span> <h3>Reach into a namespace</h3></header>
+    <div class="prompt-block">
+{% capture p_oo_design_namespaces_with_modules_3 %}
+Define `Acme::Billing::Invoice` with `attr_reader :total` set in initialize. Then create one with total 99 and access it via the fully qualified name.
+{% endcapture %}
+{{ p_oo_design_namespaces_with_modules_3 | markdownify }}
+    </div>
+    <form class="activity-form" data-kind="code" data-spec="i = Acme::Billing::Invoice.new(99)
+raise unless i.total == 99
+raise unless i.is_a?(Acme::Billing::Invoice)
+">
+      <textarea class="code-editor" rows="10"># build Acme::Billing::Invoice here
+</textarea>
+      <div class="actions">
+        <button type="submit" class="btn run">» run</button>
+        <button type="button" class="btn reset">reset</button>
+      </div>
+      <div class="result" data-role="result"></div>
+    </form>
+  </section>
+</article>
