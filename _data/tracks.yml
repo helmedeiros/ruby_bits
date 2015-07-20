@@ -74,5 +74,7 @@
     title: Hook methods
   - slug: namespaces-with-modules
     title: Namespaces with modules
+  - slug: mixin-with-include
+    title: Mixin with include
   - slug: composition-over-inheritance
     title: Composition over inheritance
