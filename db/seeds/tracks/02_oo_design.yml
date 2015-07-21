@@ -2570,6 +2570,153 @@ modules:
         raise unless Visitor.new("bob").id_card   == "ID: bob"
         raise unless Employee.ancestors.include?(Identifiable)
         raise unless Visitor.ancestors.include?(Identifiable)
+  - slug: mixin-with-extend
+    title: Mixin with extend
+    body: |
+      ## Mixin with `extend`
+
+      `include` adds module methods as **instance** methods of the host
+      class. `extend` adds them as **class** (singleton) methods.
+
+      ### Side-by-side comparison
+
+      ```ruby
+      module Counter
+        def count; @count ||= 0; end
+        def bump; @count = count + 1; end
+      end
+
+      class WithInclude
+        include Counter    # available on instances
+      end
+
+      class WithExtend
+        extend Counter     # available on the class itself
+      end
+
+      WithInclude.new.bump   # works: instance method
+      WithExtend.bump        # works: class method
+      WithInclude.bump       # NoMethodError
+      WithExtend.new.bump    # NoMethodError
+      ```
+
+      ### When to use each
+
+      - **`include`** — the module describes a *role* of instances:
+        "anything that can be Greetable, Comparable, Enumerable…". This is
+        the common case.
+      - **`extend`** — the module describes class-level helpers: factory
+        methods, registries, configuration DSL.
+
+      ### `extend` on a single object
+
+      You can also `extend` an individual object — adding methods to *that
+      instance only*:
+
+      ```ruby
+      module Yelling
+        def speak; "HEY!"; end
+      end
+
+      obj = Object.new
+      obj.extend(Yelling)
+      obj.speak              # => "HEY!"
+
+      Object.new.speak       # NoMethodError — another instance is untouched
+      ```
+
+      This is rarely needed but handy for test doubles and one-off
+      patches.
+
+      ### `include` + `extend` together (the Concern pattern)
+
+      A common pattern is to use both: `include` adds instance methods,
+      while a nested `ClassMethods` submodule is `extend`ed to add class
+      methods:
+
+      ```ruby
+      module Trackable
+        def self.included(base)
+          base.extend(ClassMethods)
+        end
+
+        def track!; @tracked = true; end          # instance method
+
+        module ClassMethods
+          def tracked_count; @tracked_count ||= 0; end
+        end
+      end
+      ```
+
+      `ActiveSupport::Concern` automates the boilerplate, but this is what
+      it's doing under the hood.
+    activities:
+    - title: extend at class level
+      kind: code
+      difficulty: 2
+      prompt: Define a module `Singleton` with method `instance` returning `@instance
+        ||= new`. Then `extend` it into a class `Logger` so `Logger.instance` returns
+        a single shared instance.
+      starter_code: |
+        module Singleton
+          # TODO
+        end
+
+        class Logger
+          # extend the module here
+        end
+      solution: |
+        module Singleton
+          def instance
+            @instance ||= new
+          end
+        end
+
+        class Logger
+          extend Singleton
+        end
+      spec_code: |
+        raise unless Logger.instance.equal?(Logger.instance)   # same object each call
+        raise unless Logger.instance.is_a?(Logger)
+    - title: include vs extend
+      kind: choice
+      difficulty: 2
+      prompt: You want a module's methods to be callable as `MyClass.foo`, not as
+        `MyClass.new.foo`. Which mixin?
+      choices:
+        a: include
+        b: extend
+        c: prepend
+        d: using
+      correct_choice: b
+    - title: Patch one object
+      kind: code
+      difficulty: 3
+      prompt: Define a module `Polite` with method `greet` returning `"hello, friend"`.
+        Create an `obj = Object.new`, `extend` Polite into just *that* object, and
+        verify only it responds to `greet`.
+      starter_code: |
+        module Polite
+          # TODO
+        end
+
+        obj = Object.new
+        # extend Polite into obj only
+      solution: |
+        module Polite
+          def greet; "hello, friend"; end
+        end
+
+        obj = Object.new
+        obj.extend(Polite)
+      spec_code: |
+        raise unless obj.greet == "hello, friend"
+        begin
+          Object.new.greet
+          raise "other instances should NOT respond"
+        rescue NoMethodError
+          :ok
+        end
   position: 6
 - slug: composition
   name: Composition
