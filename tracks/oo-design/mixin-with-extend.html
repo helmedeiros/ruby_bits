@@ -1,0 +1,171 @@
+---
+layout: "lesson"
+title: "oo-design/mixin-with-extend"
+permalink: "/tracks/oo-design/mixin-with-extend/"
+track: "oo-design"
+lesson_slug: "mixin-with-extend"
+---
+{% assign track = site.data.tracks | where: "slug", "oo-design" | first %}
+<article class="lesson">
+  <nav class="crumbs"><a href="{{ site.baseurl }}/">RubyBits</a> / <a href="{{ site.baseurl }}/tracks/{{ track.slug }}/">{{ track.name }}</a> / <span>Mixin with extend</span></nav>
+  <h1>Mixin with extend</h1>
+  <div class="body markdown">
+{% capture lesson_body %}
+## Mixin with `extend`
+
+`include` adds module methods as **instance** methods of the host
+class. `extend` adds them as **class** (singleton) methods.
+
+### Side-by-side comparison
+
+```ruby
+module Counter
+  def count; @count ||= 0; end
+  def bump; @count = count + 1; end
+end
+
+class WithInclude
+  include Counter    # available on instances
+end
+
+class WithExtend
+  extend Counter     # available on the class itself
+end
+
+WithInclude.new.bump   # works: instance method
+WithExtend.bump        # works: class method
+WithInclude.bump       # NoMethodError
+WithExtend.new.bump    # NoMethodError
+```
+
+### When to use each
+
+- **`include`** — the module describes a *role* of instances:
+  "anything that can be Greetable, Comparable, Enumerable…". This is
+  the common case.
+- **`extend`** — the module describes class-level helpers: factory
+  methods, registries, configuration DSL.
+
+### `extend` on a single object
+
+You can also `extend` an individual object — adding methods to *that
+instance only*:
+
+```ruby
+module Yelling
+  def speak; "HEY!"; end
+end
+
+obj = Object.new
+obj.extend(Yelling)
+obj.speak              # => "HEY!"
+
+Object.new.speak       # NoMethodError — another instance is untouched
+```
+
+This is rarely needed but handy for test doubles and one-off
+patches.
+
+### `include` + `extend` together (the Concern pattern)
+
+A common pattern is to use both: `include` adds instance methods,
+while a nested `ClassMethods` submodule is `extend`ed to add class
+methods:
+
+```ruby
+module Trackable
+  def self.included(base)
+    base.extend(ClassMethods)
+  end
+
+  def track!; @tracked = true; end          # instance method
+
+  module ClassMethods
+    def tracked_count; @tracked_count ||= 0; end
+  end
+end
+```
+
+`ActiveSupport::Concern` automates the boilerplate, but this is what
+it's doing under the hood.
+{% endcapture %}
+{{ lesson_body | markdownify }}
+  </div>
+  <hr>
+  <h2>activities</h2>
+  <section class="activity activity-code" id="a-oo-design-mixin-with-extend-1">
+    <header class="activity-head"><span class="badge">[ACTIVITY]</span> <h3>extend at class level</h3></header>
+    <div class="prompt-block">
+{% capture p_oo_design_mixin_with_extend_1 %}
+Define a module `Singleton` with method `instance` returning `@instance ||= new`. Then `extend` it into a class `Logger` so `Logger.instance` returns a single shared instance.
+{% endcapture %}
+{{ p_oo_design_mixin_with_extend_1 | markdownify }}
+    </div>
+    <form class="activity-form" data-kind="code" data-spec="raise unless Logger.instance.equal?(Logger.instance)   # same object each call
+raise unless Logger.instance.is_a?(Logger)
+">
+      <textarea class="code-editor" rows="10">module Singleton
+  # TODO
+end
+
+class Logger
+  # extend the module here
+end
+</textarea>
+      <div class="actions">
+        <button type="submit" class="btn run">» run</button>
+        <button type="button" class="btn reset">reset</button>
+      </div>
+      <div class="result" data-role="result"></div>
+    </form>
+  </section>
+  <section class="activity activity-choice" id="a-oo-design-mixin-with-extend-2">
+    <header class="activity-head"><span class="badge">[ACTIVITY]</span> <h3>include vs extend</h3></header>
+    <div class="prompt-block">
+{% capture p_oo_design_mixin_with_extend_2 %}
+You want a module's methods to be callable as `MyClass.foo`, not as `MyClass.new.foo`. Which mixin?
+{% endcapture %}
+{{ p_oo_design_mixin_with_extend_2 | markdownify }}
+    </div>
+    <form class="activity-form" data-kind="choice" data-correct="b">
+      <ul class="choices">
+        <li><label><input type="radio" name="choice-oo-design-mixin-with-extend-2" value="a"> <span class="key">[a]</span> include</label></li>
+        <li><label><input type="radio" name="choice-oo-design-mixin-with-extend-2" value="b"> <span class="key">[b]</span> extend</label></li>
+        <li><label><input type="radio" name="choice-oo-design-mixin-with-extend-2" value="c"> <span class="key">[c]</span> prepend</label></li>
+        <li><label><input type="radio" name="choice-oo-design-mixin-with-extend-2" value="d"> <span class="key">[d]</span> using</label></li>
+      </ul>
+      <button type="submit" class="btn">» submit</button>
+      <div class="result" data-role="result"></div>
+    </form>
+  </section>
+  <section class="activity activity-code" id="a-oo-design-mixin-with-extend-3">
+    <header class="activity-head"><span class="badge">[ACTIVITY]</span> <h3>Patch one object</h3></header>
+    <div class="prompt-block">
+{% capture p_oo_design_mixin_with_extend_3 %}
+Define a module `Polite` with method `greet` returning `"hello, friend"`. Create an `obj = Object.new`, `extend` Polite into just *that* object, and verify only it responds to `greet`.
+{% endcapture %}
+{{ p_oo_design_mixin_with_extend_3 | markdownify }}
+    </div>
+    <form class="activity-form" data-kind="code" data-spec="raise unless obj.greet == &quot;hello, friend&quot;
+begin
+  Object.new.greet
+  raise &quot;other instances should NOT respond&quot;
+rescue NoMethodError
+  :ok
+end
+">
+      <textarea class="code-editor" rows="10">module Polite
+  # TODO
+end
+
+obj = Object.new
+# extend Polite into obj only
+</textarea>
+      <div class="actions">
+        <button type="submit" class="btn run">» run</button>
+        <button type="button" class="btn reset">reset</button>
+      </div>
+      <div class="result" data-role="result"></div>
+    </form>
+  </section>
+</article>

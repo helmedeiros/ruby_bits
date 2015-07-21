@@ -76,5 +76,7 @@
     title: Namespaces with modules
   - slug: mixin-with-include
     title: Mixin with include
+  - slug: mixin-with-extend
+    title: Mixin with extend
   - slug: composition-over-inheritance
     title: Composition over inheritance
