@@ -78,5 +78,7 @@
     title: Mixin with include
   - slug: mixin-with-extend
     title: Mixin with extend
+  - slug: comparable-module
+    title: The Comparable module
   - slug: composition-over-inheritance
     title: Composition over inheritance
