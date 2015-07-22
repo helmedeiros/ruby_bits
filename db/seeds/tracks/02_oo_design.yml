@@ -2717,6 +2717,135 @@ modules:
         rescue NoMethodError
           :ok
         end
+  - slug: comparable-module
+    title: The Comparable module
+    body: |
+      ## The Comparable module
+
+      When you have a class whose instances have a natural ordering — by
+      price, by length, by score — Ruby's standard library gives you a way
+      to plug into all the comparison methods at once: include
+      `Comparable` and define `<=>`.
+
+      ### The deal
+
+      You implement **one** method:
+
+      ```ruby
+      def <=>(other)
+        # return -1, 0, or 1
+      end
+      ```
+
+      In return, `Comparable` gives your class **all** of these:
+
+      - `<`, `<=`, `>`, `>=`
+      - `==`
+      - `between?(a, b)`
+      - `clamp(a, b)`
+
+      Plus your objects become sortable with `.sort`.
+
+      ### Concrete example
+
+      ```ruby
+      class Score
+        include Comparable
+        attr_reader :value
+        def initialize(value); @value = value; end
+
+        def <=>(other)
+          value <=> other.value
+        end
+      end
+
+      a = Score.new(80)
+      b = Score.new(95)
+
+      a < b              # => true
+      a.between?(Score.new(50), Score.new(100))   # => true
+      [b, a].sort        # => [a, b]   (sorted ascending)
+      ```
+
+      All eight comparison methods came from one `<=>` definition.
+
+      ### `<=>` should return -1, 0, 1 — or nil
+
+      Return `nil` from `<=>` when the comparison is meaningless (apples
+      and oranges literally). Methods like `<` then return `nil`, and
+      callers get a clear signal that the values aren't comparable.
+
+      ### Why it matters for design
+
+      Including `Comparable` is a way to **buy a lot of behavior cheaply**.
+      Instead of writing seven comparison methods (and forgetting one),
+      you write one and get them all consistently. That's the
+      payoff of including well-designed standard-library modules.
+
+      ### Pitfall: equality and hashing
+
+      If you redefine equality (`==` or `<=>`), think about whether `eql?`
+      and `hash` should also be redefined. Two objects that are `==` should
+      ideally also have the same `hash`, or hash-based collections (`Set`,
+      `Hash` keys) misbehave.
+    activities:
+    - title: Make Score comparable
+      kind: code
+      difficulty: 2
+      prompt: Define `Score` with `attr_reader :value` set in initialize. `include
+        Comparable` and define `<=>` so two Score instances compare by `value`. Verify
+        `<`, `==`, and `sort` all work.
+      starter_code: |
+        class Score
+          # TODO
+        end
+      solution: |
+        class Score
+          include Comparable
+          attr_reader :value
+          def initialize(value); @value = value; end
+          def <=>(other); value <=> other.value; end
+        end
+      spec_code: |
+        a = Score.new(80)
+        b = Score.new(95)
+        c = Score.new(80)
+        raise unless a < b
+        raise unless b > a
+        raise unless a == c
+        raise unless [b, a, c].sort.map(&:value) == [80, 80, 95]
+    - title: What does <=> return?
+      kind: choice
+      difficulty: 1
+      prompt: When `a <=> b` is called, what should it return if `a == b`?
+      choices:
+        a: 'true'
+        b: '0'
+        c: '1'
+        d: nil
+      correct_choice: b
+    - title: Free behavior
+      kind: code
+      difficulty: 3
+      prompt: 'Define `Money` with `attr_reader :cents` and `include Comparable`.
+        Implement `<=>` so two Moneys compare by `cents`. Then verify `between?` works
+        for free: `Money.new(50).between?(Money.new(10), Money.new(100))` should be
+        true.'
+      starter_code: |
+        class Money
+          # TODO
+        end
+      solution: |
+        class Money
+          include Comparable
+          attr_reader :cents
+          def initialize(cents); @cents = cents; end
+          def <=>(other); cents <=> other.cents; end
+        end
+      spec_code: |
+        raise unless Money.new(50).between?(Money.new(10), Money.new(100))
+        raise     if Money.new(5).between?(Money.new(10), Money.new(100))
+        raise unless Money.new(100).clamp(Money.new(0), Money.new(50)).cents == 50
   position: 6
 - slug: composition
   name: Composition
