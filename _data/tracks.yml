@@ -80,5 +80,7 @@
     title: Mixin with extend
   - slug: comparable-module
     title: The Comparable module
+  - slug: enumerable-module
+    title: The Enumerable module
   - slug: composition-over-inheritance
     title: Composition over inheritance
