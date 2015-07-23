@@ -2846,6 +2846,135 @@ modules:
         raise unless Money.new(50).between?(Money.new(10), Money.new(100))
         raise     if Money.new(5).between?(Money.new(10), Money.new(100))
         raise unless Money.new(100).clamp(Money.new(0), Money.new(50)).cents == 50
+  - slug: enumerable-module
+    title: The Enumerable module
+    body: |
+      ## The Enumerable module
+
+      The same trick as `Comparable` — implement **one** method, get a
+      pile of behavior for free — also works for iteration. The module is
+      `Enumerable`, and the contract is `each`.
+
+      ### The deal
+
+      You implement:
+
+      ```ruby
+      def each
+        # yield each element
+      end
+      ```
+
+      In return, `Enumerable` gives your class **all of these**:
+
+      - `map`, `select`, `reject`, `reduce` / `inject`
+      - `find`, `find_index`, `any?`, `all?`, `none?`, `count`
+      - `min`, `max`, `min_by`, `max_by`, `sort`, `sort_by`
+      - `group_by`, `partition`, `chunk_while`, `each_with_index`,
+        `each_with_object`, `to_a`, `first`, `take`, `drop`, …
+
+      Around forty methods, for the price of one.
+
+      ### Concrete example
+
+      Imagine a class for a deck of cards. Once you wire `each`, the deck
+      acts like any Ruby collection:
+
+      ```ruby
+      class Deck
+        include Enumerable
+
+        def initialize(cards)
+          @cards = cards
+        end
+
+        def each(&block)
+          @cards.each(&block)
+        end
+      end
+
+      d = Deck.new(%w[2H 7C JD AS])
+      d.map(&:length)             # => [2, 2, 2, 2]
+      d.select { |c| c[1] == "H" } # => ["2H"]
+      d.count                      # => 4
+      d.sort                       # => ["2H", "7C", "AS", "JD"]
+      ```
+
+      None of those methods are defined on `Deck` — they come from
+      `Enumerable`, which knows how to do them given just `each`.
+
+      ### Why it matters
+
+      - **Cheap to add a collection-like API** to any class.
+      - **Consistent vocabulary**: callers don't need to learn your
+        custom traversal — they already know `map`, `select`, `reduce`.
+      - **Easy to refactor.** Internal storage can change (Array, Set,
+        linked list) — as long as `each` keeps working, the rest of the
+        methods follow along.
+
+      ### Pitfall: `each` must yield, not return
+
+      The contract is "yield each element to the block." If your `each`
+      returns the array directly without yielding, all the inherited
+      methods break. Make sure your `each` calls `yield` or delegates to
+      another `each` via `&block`.
+    activities:
+    - title: Wrap with Enumerable
+      kind: code
+      difficulty: 2
+      prompt: Define `Bag` that takes an array in initialize. `include Enumerable`
+        and implement `each` to yield each element. Verify `map`, `select`, and `count`
+        come for free.
+      starter_code: |
+        class Bag
+          # TODO
+        end
+      solution: |
+        class Bag
+          include Enumerable
+          def initialize(items); @items = items; end
+          def each(&block); @items.each(&block); end
+        end
+      spec_code: |
+        b = Bag.new([1, 2, 3, 4])
+        raise unless b.map { |n| n * 2 } == [2, 4, 6, 8]
+        raise unless b.select(&:even?)   == [2, 4]
+        raise unless b.count == 4
+        raise unless b.min == 1
+        raise unless b.max == 4
+    - title: What does Enumerable need?
+      kind: choice
+      difficulty: 1
+      prompt: To use Enumerable, what single method must your class implement?
+      choices:
+        a: "<=>"
+        b: each
+        c: map
+        d: to_a
+      correct_choice: b
+    - title: Sortable, countable, reducible
+      kind: code
+      difficulty: 3
+      prompt: Define `History` initialized with an array of integer events. `include
+        Enumerable`, implement `each`. Then verify `history.sort` returns sorted,
+        `history.reduce(0, :+)` sums them, and `history.first(2)` takes the first
+        two.
+      starter_code: |
+        class History
+          # TODO
+        end
+      solution: |
+        class History
+          include Enumerable
+          def initialize(events); @events = events; end
+          def each(&block); @events.each(&block); end
+        end
+      spec_code: |
+        h = History.new([5, 3, 9, 1])
+        raise unless h.sort               == [1, 3, 5, 9]
+        raise unless h.reduce(0, :+)      == 18
+        raise unless h.first(2)           == [5, 3]
+        raise unless h.to_a               == [5, 3, 9, 1]
   position: 6
 - slug: composition
   name: Composition
