@@ -1532,6 +1532,148 @@ modules:
         c2 = Cart.new(50)
         raise unless apply_discount(c2) == 50
         raise unless c2.subtotal == 50
+  - slug: open-closed-principle
+    title: Open / Closed
+    body: |
+      ## Open / Closed
+
+      *"Open for extension, closed for modification."*
+
+      A class should be designed so that **new** behavior can be added
+      without **editing** the existing code. You add — you don't reach
+      inside.
+
+      ### The smell
+
+      When every new feature means cracking open the same class and adding
+      another `case`/`if`, the class is failing the Open/Closed test:
+
+      ```ruby
+      class TaxCalculator
+        def tax(item)
+          case item.country
+          when "BR" then item.price * 0.15
+          when "US" then item.price * 0.08
+          when "DE" then item.price * 0.19
+          # next month: add JP, FR, IT, ES, …
+          end
+        end
+      end
+      ```
+
+      Every new country forces a change to `TaxCalculator`. The class has
+      one job (compute tax), but its definition keeps growing.
+
+      ### The cure: extend, don't modify
+
+      Push the country-specific logic *out* of `TaxCalculator` and into
+      small per-country objects. Then `TaxCalculator` only dispatches —
+      it doesn't decide.
+
+      ```ruby
+      class BrazilianTax
+        def for(item); item.price * 0.15; end
+      end
+
+      class UsTax
+        def for(item); item.price * 0.08; end
+      end
+
+      TAX_RULES = {
+        "BR" => BrazilianTax.new,
+        "US" => UsTax.new
+      }
+
+      class TaxCalculator
+        def initialize(rules: TAX_RULES); @rules = rules; end
+        def tax(item); @rules.fetch(item.country).for(item); end
+      end
+      ```
+
+      Adding Japan tomorrow is just a new class + one row in the table —
+      no edits to `TaxCalculator`. The dispatcher is **closed** to
+      modification but the system is **open** to extension.
+
+      ### Tools that help
+
+      - **Polymorphism** — multiple classes responding to the same message.
+      - **Composition + injection** — pass the strategy in.
+      - **Tables / registries** — a hash from key to handler.
+      - **Hook methods** — let parents register child behavior.
+
+      ### When the rule does NOT apply
+
+      Don't anticipate every possible axis of change. You can't make code
+      open to *every* future change without paying complexity now. The
+      rule kicks in when you've **seen the same edit twice**. The third
+      time, refactor toward extension.
+    activities:
+    - title: Recognize the smell
+      kind: choice
+      difficulty: 2
+      prompt: Which sign suggests a class is failing Open/Closed?
+      choices:
+        a: It has fewer than 5 methods.
+        b: Every new feature requires editing the same case statement.
+        c: It uses attr_reader.
+        d: It has more than one constructor argument.
+      correct_choice: b
+    - title: Refactor away the case
+      kind: code
+      difficulty: 3
+      prompt: Replace this case-based router with a table-driven design. Define small
+        handler classes `Hello` and `Bye` (each with `#call`) and a class `Router(handlers)`
+        whose `dispatch(name)` finds the handler in the table and calls it. Adding
+        a new route should mean adding a class plus one row — no Router edits.
+      starter_code: |
+        class Router
+          def dispatch(name)
+            case name
+            when :hello then "hi"
+            when :bye   then "bye"
+            end
+          end
+        end
+      solution: |
+        class Hello
+          def call; "hi"; end
+        end
+
+        class Bye
+          def call; "bye"; end
+        end
+
+        class Router
+          def initialize(handlers)
+            @handlers = handlers
+          end
+
+          def dispatch(name)
+            @handlers.fetch(name).call
+          end
+        end
+      spec_code: |
+        r = Router.new(hello: Hello.new, bye: Bye.new)
+        raise unless r.dispatch(:hello) == "hi"
+        raise unless r.dispatch(:bye)   == "bye"
+
+        # Extending: add a new handler with no Router edits
+        class Ping
+          def call; "pong"; end
+        end
+        r2 = Router.new(hello: Hello.new, bye: Bye.new, ping: Ping.new)
+        raise unless r2.dispatch(:ping) == "pong"
+    - title: When to apply
+      kind: choice
+      difficulty: 2
+      prompt: When does Open/Closed pay off?
+      choices:
+        a: On the very first version of any class.
+        b: After you've seen the same kind of edit happen two or three times — there's
+          a clear axis of change to design around.
+        c: Only in static languages.
+        d: Never — it's an old rule.
+      correct_choice: b
   position: 3
 - slug: duck-typing
   name: Duck Typing
