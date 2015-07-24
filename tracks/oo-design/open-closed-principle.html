@@ -1,0 +1,164 @@
+---
+layout: "lesson"
+title: "oo-design/open-closed-principle"
+permalink: "/tracks/oo-design/open-closed-principle/"
+track: "oo-design"
+lesson_slug: "open-closed-principle"
+---
+{% assign track = site.data.tracks | where: "slug", "oo-design" | first %}
+<article class="lesson">
+  <nav class="crumbs"><a href="{{ site.baseurl }}/">RubyBits</a> / <a href="{{ site.baseurl }}/tracks/{{ track.slug }}/">{{ track.name }}</a> / <span>Open / Closed</span></nav>
+  <h1>Open / Closed</h1>
+  <div class="body markdown">
+{% capture lesson_body %}
+## Open / Closed
+
+*"Open for extension, closed for modification."*
+
+A class should be designed so that **new** behavior can be added
+without **editing** the existing code. You add — you don't reach
+inside.
+
+### The smell
+
+When every new feature means cracking open the same class and adding
+another `case`/`if`, the class is failing the Open/Closed test:
+
+```ruby
+class TaxCalculator
+  def tax(item)
+    case item.country
+    when "BR" then item.price * 0.15
+    when "US" then item.price * 0.08
+    when "DE" then item.price * 0.19
+    # next month: add JP, FR, IT, ES, …
+    end
+  end
+end
+```
+
+Every new country forces a change to `TaxCalculator`. The class has
+one job (compute tax), but its definition keeps growing.
+
+### The cure: extend, don't modify
+
+Push the country-specific logic *out* of `TaxCalculator` and into
+small per-country objects. Then `TaxCalculator` only dispatches —
+it doesn't decide.
+
+```ruby
+class BrazilianTax
+  def for(item); item.price * 0.15; end
+end
+
+class UsTax
+  def for(item); item.price * 0.08; end
+end
+
+TAX_RULES = {
+  "BR" => BrazilianTax.new,
+  "US" => UsTax.new
+}
+
+class TaxCalculator
+  def initialize(rules: TAX_RULES); @rules = rules; end
+  def tax(item); @rules.fetch(item.country).for(item); end
+end
+```
+
+Adding Japan tomorrow is just a new class + one row in the table —
+no edits to `TaxCalculator`. The dispatcher is **closed** to
+modification but the system is **open** to extension.
+
+### Tools that help
+
+- **Polymorphism** — multiple classes responding to the same message.
+- **Composition + injection** — pass the strategy in.
+- **Tables / registries** — a hash from key to handler.
+- **Hook methods** — let parents register child behavior.
+
+### When the rule does NOT apply
+
+Don't anticipate every possible axis of change. You can't make code
+open to *every* future change without paying complexity now. The
+rule kicks in when you've **seen the same edit twice**. The third
+time, refactor toward extension.
+{% endcapture %}
+{{ lesson_body | markdownify }}
+  </div>
+  <hr>
+  <h2>activities</h2>
+  <section class="activity activity-choice" id="a-oo-design-open-closed-principle-1">
+    <header class="activity-head"><span class="badge">[ACTIVITY]</span> <h3>Recognize the smell</h3></header>
+    <div class="prompt-block">
+{% capture p_oo_design_open_closed_principle_1 %}
+Which sign suggests a class is failing Open/Closed?
+{% endcapture %}
+{{ p_oo_design_open_closed_principle_1 | markdownify }}
+    </div>
+    <form class="activity-form" data-kind="choice" data-correct="b">
+      <ul class="choices">
+        <li><label><input type="radio" name="choice-oo-design-open-closed-principle-1" value="a"> <span class="key">[a]</span> It has fewer than 5 methods.</label></li>
+        <li><label><input type="radio" name="choice-oo-design-open-closed-principle-1" value="b"> <span class="key">[b]</span> Every new feature requires editing the same case statement.</label></li>
+        <li><label><input type="radio" name="choice-oo-design-open-closed-principle-1" value="c"> <span class="key">[c]</span> It uses attr_reader.</label></li>
+        <li><label><input type="radio" name="choice-oo-design-open-closed-principle-1" value="d"> <span class="key">[d]</span> It has more than one constructor argument.</label></li>
+      </ul>
+      <button type="submit" class="btn">» submit</button>
+      <div class="result" data-role="result"></div>
+    </form>
+  </section>
+  <section class="activity activity-code" id="a-oo-design-open-closed-principle-2">
+    <header class="activity-head"><span class="badge">[ACTIVITY]</span> <h3>Refactor away the case</h3></header>
+    <div class="prompt-block">
+{% capture p_oo_design_open_closed_principle_2 %}
+Replace this case-based router with a table-driven design. Define small handler classes `Hello` and `Bye` (each with `#call`) and a class `Router(handlers)` whose `dispatch(name)` finds the handler in the table and calls it. Adding a new route should mean adding a class plus one row — no Router edits.
+{% endcapture %}
+{{ p_oo_design_open_closed_principle_2 | markdownify }}
+    </div>
+    <form class="activity-form" data-kind="code" data-spec="r = Router.new(hello: Hello.new, bye: Bye.new)
+raise unless r.dispatch(:hello) == &quot;hi&quot;
+raise unless r.dispatch(:bye)   == &quot;bye&quot;
+
+# Extending: add a new handler with no Router edits
+class Ping
+  def call; &quot;pong&quot;; end
+end
+r2 = Router.new(hello: Hello.new, bye: Bye.new, ping: Ping.new)
+raise unless r2.dispatch(:ping) == &quot;pong&quot;
+">
+      <textarea class="code-editor" rows="10">class Router
+  def dispatch(name)
+    case name
+    when :hello then "hi"
+    when :bye   then "bye"
+    end
+  end
+end
+</textarea>
+      <div class="actions">
+        <button type="submit" class="btn run">» run</button>
+        <button type="button" class="btn reset">reset</button>
+      </div>
+      <div class="result" data-role="result"></div>
+    </form>
+  </section>
+  <section class="activity activity-choice" id="a-oo-design-open-closed-principle-3">
+    <header class="activity-head"><span class="badge">[ACTIVITY]</span> <h3>When to apply</h3></header>
+    <div class="prompt-block">
+{% capture p_oo_design_open_closed_principle_3 %}
+When does Open/Closed pay off?
+{% endcapture %}
+{{ p_oo_design_open_closed_principle_3 | markdownify }}
+    </div>
+    <form class="activity-form" data-kind="choice" data-correct="b">
+      <ul class="choices">
+        <li><label><input type="radio" name="choice-oo-design-open-closed-principle-3" value="a"> <span class="key">[a]</span> On the very first version of any class.</label></li>
+        <li><label><input type="radio" name="choice-oo-design-open-closed-principle-3" value="b"> <span class="key">[b]</span> After you've seen the same kind of edit happen two or three times — there's a clear axis of change to design around.</label></li>
+        <li><label><input type="radio" name="choice-oo-design-open-closed-principle-3" value="c"> <span class="key">[c]</span> Only in static languages.</label></li>
+        <li><label><input type="radio" name="choice-oo-design-open-closed-principle-3" value="d"> <span class="key">[d]</span> Never — it's an old rule.</label></li>
+      </ul>
+      <button type="submit" class="btn">» submit</button>
+      <div class="result" data-role="result"></div>
+    </form>
+  </section>
+</article>

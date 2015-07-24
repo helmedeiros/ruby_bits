@@ -62,6 +62,8 @@
     title: Hash arguments remove order coupling
   - slug: tell-dont-ask
     title: Tell, don't ask
+  - slug: open-closed-principle
+    title: Open / Closed
   - slug: spot-the-duck
     title: Find the duck
   - slug: inheritance-basics
