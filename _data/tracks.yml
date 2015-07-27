@@ -64,6 +64,8 @@
     title: Tell, don't ask
   - slug: open-closed-principle
     title: Open / Closed
+  - slug: interface-segregation
+    title: Interface segregation
   - slug: spot-the-duck
     title: Find the duck
   - slug: inheritance-basics
