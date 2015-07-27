@@ -1674,6 +1674,147 @@ modules:
         c: Only in static languages.
         d: Never — it's an old rule.
       correct_choice: b
+  - slug: interface-segregation
+    title: Interface segregation
+    body: |
+      ## Interface segregation
+
+      *No client should be forced to depend on methods it does not use.*
+
+      When one class exposes a fat interface — say, twenty methods — and a
+      caller only needs three of them, the caller is still coupled to all
+      twenty. If any of the unused methods change names or signatures, the
+      caller's tests may break or its mock setup may rot.
+
+      ### The smell
+
+      ```ruby
+      class FileStore
+        def read(path); end
+        def write(path, data); end
+        def delete(path); end
+        def lock(path); end
+        def unlock(path); end
+        def metadata(path); end
+        def archive(path); end
+        def restore(path); end
+        def quota_used; end
+        def quota_total; end
+        def gc!; end
+        # ...
+      end
+      ```
+
+      Anyone who just needs to `read` and `write` has to know about lock,
+      archive, gc — at least in tests, where they may need to stub or mock.
+
+      ### The cure: split by role
+
+      Group methods by the **role** a caller plays. Different callers
+      see different roles:
+
+      ```ruby
+      module Readable
+        def read(path); end
+      end
+
+      module Writable
+        def write(path, data); end
+        def delete(path); end
+      end
+
+      module Lockable
+        def lock(path); end
+        def unlock(path); end
+      end
+
+      class FileStore
+        include Readable
+        include Writable
+        include Lockable
+      end
+      ```
+
+      Now a caller can declare it depends on just `Readable`. If a test
+      needs a fake store, it only has to implement `read`.
+
+      ### Why it matters
+
+      - **Smaller blast radius** when implementations change.
+      - **Better tests** — easier to fake just the part you need.
+      - **Clearer documentation** — the modules name *what* a caller
+        actually uses.
+
+      ### Pitfall: don't over-split
+
+      If a caller really does use ten methods, splitting them into ten
+      one-method modules is theatre, not design. Segregate when there are
+      **distinct callers** with **distinct usage shapes**. Otherwise,
+      leave the API together.
+    activities:
+    - title: Split a fat interface
+      kind: code
+      difficulty: 3
+      prompt: Refactor `Store` (which mixes read, write, and metric methods) so the
+        read/write API lives in modules `Readable` and `Writable`, and `Store` includes
+        both. The read-only and write-only roles must work in isolation.
+      starter_code: |
+        class Store
+          def initialize; @data = {}; end
+          def read(k);    @data[k]; end
+          def write(k,v); @data[k] = v; end
+          def stats;      { size: @data.size }; end
+        end
+      solution: |
+        module Readable
+          def read(k); @data[k]; end
+        end
+
+        module Writable
+          def write(k, v); @data[k] = v; end
+        end
+
+        class Store
+          include Readable
+          include Writable
+          def initialize; @data = {}; end
+          def stats; { size: @data.size }; end
+        end
+      spec_code: |
+        s = Store.new
+        s.write(:a, 1)
+        raise unless s.read(:a) == 1
+        raise unless s.stats == { size: 1 }
+
+        # Roles can be checked individually
+        raise unless Store.include?(Readable)
+        raise unless Store.include?(Writable)
+
+        # A test double only needs to implement the role it uses
+        fake_reader = Class.new { include Readable; def initialize; @data = { k: 42 }; end }.new
+        raise unless fake_reader.read(:k) == 42
+    - title: Why segregate?
+      kind: choice
+      difficulty: 2
+      prompt: What problem does interface segregation address?
+      choices:
+        a: Code runs slower with big interfaces.
+        b: Callers are coupled to methods they never use, so unrelated changes cascade
+          to their tests and mocks.
+        c: Ruby raises an error when an interface has too many methods.
+        d: Big interfaces are harder to compile.
+      correct_choice: b
+    - title: Watch out for over-splitting
+      kind: choice
+      difficulty: 3
+      prompt: When should you NOT bother splitting an interface into per-role modules?
+      choices:
+        a: When the class has more than 5 methods.
+        b: When all callers use most of the methods the same way — there are no distinct
+          usage shapes to split along.
+        c: When the class uses inheritance.
+        d: Never — always split.
+      correct_choice: b
   position: 3
 - slug: duck-typing
   name: Duck Typing
