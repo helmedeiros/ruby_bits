@@ -86,5 +86,7 @@
     title: The Comparable module
   - slug: enumerable-module
     title: The Enumerable module
+  - slug: role-objects-via-modules
+    title: Role objects via modules
   - slug: composition-over-inheritance
     title: Composition over inheritance

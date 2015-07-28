@@ -1,0 +1,161 @@
+---
+layout: "lesson"
+title: "oo-design/role-objects-via-modules"
+permalink: "/tracks/oo-design/role-objects-via-modules/"
+track: "oo-design"
+lesson_slug: "role-objects-via-modules"
+---
+{% assign track = site.data.tracks | where: "slug", "oo-design" | first %}
+<article class="lesson">
+  <nav class="crumbs"><a href="{{ site.baseurl }}/">RubyBits</a> / <a href="{{ site.baseurl }}/tracks/{{ track.slug }}/">{{ track.name }}</a> / <span>Role objects via modules</span></nav>
+  <h1>Role objects via modules</h1>
+  <div class="body markdown">
+{% capture lesson_body %}
+## Role objects via modules
+
+When two unrelated classes need the **same** behavior, you have
+three choices: copy the code, give them a common parent, or extract
+a module. The module option is almost always the right one.
+
+### What's a role?
+
+A **role** is a *capability* an object has — not what it *is*. A
+`User` is not a "Schedulable", but it can be *scheduled*. A `Robot`
+isn't a "Greetable", but it can *greet*. Roles describe what an
+object can *do*, not what it *is*.
+
+Inheritance answers "what is this?". Modules-as-roles answer "what
+can this do?".
+
+### A concrete refactor
+
+Suppose three classes — `User`, `Robot`, and `Bot` — all need to
+greet. They have no other common behavior. Inheritance would force
+a fake `Greeter` parent class and a brittle hierarchy. A module is
+cleaner:
+
+```ruby
+module Greetable
+  def greet
+    "hi, I'm #{name}"
+  end
+end
+
+class User
+  include Greetable
+  attr_reader :name
+  def initialize(name); @name = name; end
+end
+
+class Robot
+  include Greetable
+  attr_reader :name
+  def initialize(name); @name = name; end
+end
+```
+
+`Greetable` describes the role. `User` and `Robot` opt in. They keep
+their own (different) responsibilities; the shared role lives in one
+place.
+
+### Naming the role
+
+Good role names are usually adjectives or "-able" / "-ing" forms:
+`Comparable`, `Enumerable`, `Greetable`, `Trackable`, `Scheduling`.
+This signals "this is a capability, not a thing."
+
+### Why a role, not a parent?
+
+Inheritance fixes the relationship at definition time. A `Cat`
+cannot become a `Dog`. Roles are more flexible — an object can play
+many roles, and Ruby allows mixing several modules in. You can also
+add a role to a single instance with `obj.extend(Role)`.
+
+### Pitfall: roles that need state
+
+Modules can define methods but they share the host class's
+instance variables. Always document what state a role expects. If
+the role needs lots of its own state, it probably wants to be a
+separate object you compose with, not a module you mix in.
+
+### Rule of thumb
+
+- Same-shape capability across **unrelated** classes → module.
+- Specialization of a real **is-a** relationship → inheritance.
+- Heavy state of its own + reusable elsewhere → composition.
+{% endcapture %}
+{{ lesson_body | markdownify }}
+  </div>
+  <hr>
+  <h2>activities</h2>
+  <section class="activity activity-code" id="a-oo-design-role-objects-via-modules-1">
+    <header class="activity-head"><span class="badge">[ACTIVITY]</span> <h3>A shared role</h3></header>
+    <div class="prompt-block">
+{% capture p_oo_design_role_objects_via_modules_1 %}
+Define a module `Trackable` whose `tracked?` returns true and whose `tracking_id` returns the host's `name`. Then create two unrelated classes `Order` and `User`, each with `attr_reader :name`, both including `Trackable`. Verify both respond to `tracked?` and `tracking_id`.
+{% endcapture %}
+{{ p_oo_design_role_objects_via_modules_1 | markdownify }}
+    </div>
+    <form class="activity-form" data-kind="code" data-spec="raise unless Order.new(&quot;order-1&quot;).tracked?
+raise unless Order.new(&quot;order-1&quot;).tracking_id == &quot;order-1&quot;
+raise unless User.new(&quot;alice&quot;).tracked?
+raise unless User.new(&quot;alice&quot;).tracking_id == &quot;alice&quot;
+">
+      <textarea class="code-editor" rows="10">module Trackable
+  # TODO
+end
+
+class Order
+  # TODO
+end
+
+class User
+  # TODO
+end
+</textarea>
+      <div class="actions">
+        <button type="submit" class="btn run">» run</button>
+        <button type="button" class="btn reset">reset</button>
+      </div>
+      <div class="result" data-role="result"></div>
+    </form>
+  </section>
+  <section class="activity activity-choice" id="a-oo-design-role-objects-via-modules-2">
+    <header class="activity-head"><span class="badge">[ACTIVITY]</span> <h3>Role vs class</h3></header>
+    <div class="prompt-block">
+{% capture p_oo_design_role_objects_via_modules_2 %}
+Which question does a module-as-role answer?
+{% endcapture %}
+{{ p_oo_design_role_objects_via_modules_2 | markdownify }}
+    </div>
+    <form class="activity-form" data-kind="choice" data-correct="b">
+      <ul class="choices">
+        <li><label><input type="radio" name="choice-oo-design-role-objects-via-modules-2" value="a"> <span class="key">[a]</span> What is this object?</label></li>
+        <li><label><input type="radio" name="choice-oo-design-role-objects-via-modules-2" value="b"> <span class="key">[b]</span> What can this object do?</label></li>
+        <li><label><input type="radio" name="choice-oo-design-role-objects-via-modules-2" value="c"> <span class="key">[c]</span> Who created this object?</label></li>
+        <li><label><input type="radio" name="choice-oo-design-role-objects-via-modules-2" value="d"> <span class="key">[d]</span> Where does this object live?</label></li>
+      </ul>
+      <button type="submit" class="btn">» submit</button>
+      <div class="result" data-role="result"></div>
+    </form>
+  </section>
+  <section class="activity activity-choice" id="a-oo-design-role-objects-via-modules-3">
+    <header class="activity-head"><span class="badge">[ACTIVITY]</span> <h3>Pick the tool</h3></header>
+    <div class="prompt-block">
+{% capture p_oo_design_role_objects_via_modules_3 %}
+Three completely unrelated classes (Order, Newsletter, Job) all need to be schedulable to run at a future time. What's the right way to share that behavior?
+{% endcapture %}
+{{ p_oo_design_role_objects_via_modules_3 | markdownify }}
+    </div>
+    <form class="activity-form" data-kind="choice" data-correct="b">
+      <ul class="choices">
+        <li><label><input type="radio" name="choice-oo-design-role-objects-via-modules-3" value="a"> <span class="key">[a]</span> Create a common Schedulable parent class and inherit from it.</label></li>
+        <li><label><input type="radio" name="choice-oo-design-role-objects-via-modules-3" value="b"> <span class="key">[b]</span> Extract a Schedulable module and include it in each class.</label></li>
+        <li><label><input type="radio" name="choice-oo-design-role-objects-via-modules-3" value="c"> <span class="key">[c]</span> Duplicate the scheduling code in each class.</label></li>
+        <li><label><input type="radio" name="choice-oo-design-role-objects-via-modules-3" value="d"> <span class="key">[d]</span> Make all three subclasses of Object and add the methods at runtime.</label></li>
+      </ul>
+      <button type="submit" class="btn">» submit</button>
+      <div class="result" data-role="result"></div>
+    </form>
+  </section>
+</article>
