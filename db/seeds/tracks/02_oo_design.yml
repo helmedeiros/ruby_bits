@@ -3258,6 +3258,145 @@ modules:
         raise unless h.reduce(0, :+)      == 18
         raise unless h.first(2)           == [5, 3]
         raise unless h.to_a               == [5, 3, 9, 1]
+  - slug: role-objects-via-modules
+    title: Role objects via modules
+    body: |
+      ## Role objects via modules
+
+      When two unrelated classes need the **same** behavior, you have
+      three choices: copy the code, give them a common parent, or extract
+      a module. The module option is almost always the right one.
+
+      ### What's a role?
+
+      A **role** is a *capability* an object has — not what it *is*. A
+      `User` is not a "Schedulable", but it can be *scheduled*. A `Robot`
+      isn't a "Greetable", but it can *greet*. Roles describe what an
+      object can *do*, not what it *is*.
+
+      Inheritance answers "what is this?". Modules-as-roles answer "what
+      can this do?".
+
+      ### A concrete refactor
+
+      Suppose three classes — `User`, `Robot`, and `Bot` — all need to
+      greet. They have no other common behavior. Inheritance would force
+      a fake `Greeter` parent class and a brittle hierarchy. A module is
+      cleaner:
+
+      ```ruby
+      module Greetable
+        def greet
+          "hi, I'm #{name}"
+        end
+      end
+
+      class User
+        include Greetable
+        attr_reader :name
+        def initialize(name); @name = name; end
+      end
+
+      class Robot
+        include Greetable
+        attr_reader :name
+        def initialize(name); @name = name; end
+      end
+      ```
+
+      `Greetable` describes the role. `User` and `Robot` opt in. They keep
+      their own (different) responsibilities; the shared role lives in one
+      place.
+
+      ### Naming the role
+
+      Good role names are usually adjectives or "-able" / "-ing" forms:
+      `Comparable`, `Enumerable`, `Greetable`, `Trackable`, `Scheduling`.
+      This signals "this is a capability, not a thing."
+
+      ### Why a role, not a parent?
+
+      Inheritance fixes the relationship at definition time. A `Cat`
+      cannot become a `Dog`. Roles are more flexible — an object can play
+      many roles, and Ruby allows mixing several modules in. You can also
+      add a role to a single instance with `obj.extend(Role)`.
+
+      ### Pitfall: roles that need state
+
+      Modules can define methods but they share the host class's
+      instance variables. Always document what state a role expects. If
+      the role needs lots of its own state, it probably wants to be a
+      separate object you compose with, not a module you mix in.
+
+      ### Rule of thumb
+
+      - Same-shape capability across **unrelated** classes → module.
+      - Specialization of a real **is-a** relationship → inheritance.
+      - Heavy state of its own + reusable elsewhere → composition.
+    activities:
+    - title: A shared role
+      kind: code
+      difficulty: 2
+      prompt: Define a module `Trackable` whose `tracked?` returns true and whose
+        `tracking_id` returns the host's `name`. Then create two unrelated classes
+        `Order` and `User`, each with `attr_reader :name`, both including `Trackable`.
+        Verify both respond to `tracked?` and `tracking_id`.
+      starter_code: |
+        module Trackable
+          # TODO
+        end
+
+        class Order
+          # TODO
+        end
+
+        class User
+          # TODO
+        end
+      solution: |
+        module Trackable
+          def tracked?; true; end
+          def tracking_id; name; end
+        end
+
+        class Order
+          include Trackable
+          attr_reader :name
+          def initialize(name); @name = name; end
+        end
+
+        class User
+          include Trackable
+          attr_reader :name
+          def initialize(name); @name = name; end
+        end
+      spec_code: |
+        raise unless Order.new("order-1").tracked?
+        raise unless Order.new("order-1").tracking_id == "order-1"
+        raise unless User.new("alice").tracked?
+        raise unless User.new("alice").tracking_id == "alice"
+    - title: Role vs class
+      kind: choice
+      difficulty: 2
+      prompt: Which question does a module-as-role answer?
+      choices:
+        a: What is this object?
+        b: What can this object do?
+        c: Who created this object?
+        d: Where does this object live?
+      correct_choice: b
+    - title: Pick the tool
+      kind: choice
+      difficulty: 3
+      prompt: Three completely unrelated classes (Order, Newsletter, Job) all need
+        to be schedulable to run at a future time. What's the right way to share that
+        behavior?
+      choices:
+        a: Create a common Schedulable parent class and inherit from it.
+        b: Extract a Schedulable module and include it in each class.
+        c: Duplicate the scheduling code in each class.
+        d: Make all three subclasses of Object and add the methods at runtime.
+      correct_choice: b
   position: 6
 - slug: composition
   name: Composition
