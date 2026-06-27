@@ -2,10 +2,6 @@
 
 > a terminal where you learn ruby by typing it
 
-[![Build Status](https://travis-ci.org/helmedeiros/ruby_bits.svg?branch=master)](https://travis-ci.org/helmedeiros/ruby_bits)
-[![Code Climate](https://codeclimate.com/github/helmedeiros/ruby_bits/badges/gpa.svg)](https://codeclimate.com/github/helmedeiros/ruby_bits)
-[![Coverage Status](https://coveralls.io/repos/helmedeiros/ruby_bits/badge.svg?branch=master)](https://coveralls.io/r/helmedeiros/ruby_bits)
-[![Pages](https://img.shields.io/badge/github-pages-00ff41.svg)](https://helmedeiros.github.io/ruby_bits/)
 
 **RubyBits** is a small Rails 4.2 platform that teaches Ruby through
 short, runnable lessons. Each lesson explains one idea and ends with
